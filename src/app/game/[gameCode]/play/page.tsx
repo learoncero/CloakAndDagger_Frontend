@@ -9,7 +9,9 @@ import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import fetchGame from "./actions";
+import GameOver from "./GameOver";
+import { fetchGame } from "./actions";
+import GameService from "@/services/GameService";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -90,6 +92,14 @@ export default function PlayGame() {
     }
   }
 
+  async function killPlayer(gameCode: string, playerToKillId: number) {
+    const game = await GameService.handleKill(gameCode, playerToKillId);
+
+    if (JSON.stringify(game.data) !== JSON.stringify(game)) {
+      updateGame(game.data);
+    }
+  }
+
   /*
   const playerIdCookie = document.cookie
     .split(";")
@@ -106,24 +116,7 @@ export default function PlayGame() {
   const playerIndex = game?.players.findIndex(
     (player) => player.id.toString() === playerId
   );
-
-  console.log(
-    "Player role for player index " + playerIndex + ": ",
-    game?.players?.at(playerIndex ?? -1)?.role
-  );
-
-  console.log(
-    "Player Role type: ",
-    game?.players?.at(playerIndex ?? -1)?.role.valueOf
-  );
-
-  console.log("Impostor role value: " + Role.IMPOSTOR.valueOf);
-
-  console.log(
-    "Equal? " +
-      ((game?.players?.at(playerIndex ?? -1)?.role as Role) ===
-        (Role.IMPOSTOR as Role))
-  );
+  const playerRole = game?.players?.at(playerIndex ?? -1)?.role;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -137,8 +130,14 @@ export default function PlayGame() {
         ))}
       </ul>
       {/*TODO: implement ID search with Cookies*/}
-      {game?.players?.at(playerIndex ?? -1)?.role === Role.IMPOSTOR ? (
-        <ImpostorView sabotages={game.sabotages} />
+      {playerRole === Role.IMPOSTOR ? (
+        <ImpostorView
+          sabotages={game?.sabotages ?? []}
+          game={game}
+          killPlayer={killPlayer}
+        />
+      ) : playerRole === Role.CREWMATE_GHOST ? (
+        <GameOver />
       ) : (
         <CrewmateView />
       )}
