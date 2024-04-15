@@ -1,13 +1,10 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import JoinGameFormInputField from "./JoinGameFormInputField";
 import { useRouter } from "next/navigation";
 import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
+import GameService from "@/services/GameService";
 
-type Props = {
-  stompClient: any;
-};
-
-export default function JoinGameForm({ stompClient }: Props) {
+export default function JoinGameForm() {
   const router = useRouter();
   const [playerName, setPlayerName] = useState("");
   const [gameCode, setGameCode] = useState("");
@@ -24,21 +21,23 @@ export default function JoinGameForm({ stompClient }: Props) {
 
   const isJoinDisabled = !(playerName && gameCode);
 
-  const handleJoinGame = () => {
-    if (!isJoinDisabled && stompClient) {
-      const data = {
-        username: playerName,
-        position: {
-          x: 10,
-          y: 9,
-        },
-        gameCode: gameCode,
-      };
+  const handleJoinGame = async () => {
+    if (!isJoinDisabled) {
+      try {
+        const game = await GameService.joinGame(playerName, gameCode);
 
-      stompClient.send("/app/joinGame", {}, JSON.stringify(data));
+        const playerId = game.data?.players.find(
+            (player: { username: string }) => player.username === playerName
+        )?.id;
 
-      // Redirect to lobby
-      router.push("/game/setup/lobby/" + gameCode);
+        if (playerId) {
+          sessionStorage.setItem("playerId", String(playerId));
+        }
+
+        router.push("/game/setup/lobby/" + gameCode);
+      } catch (error) {
+        console.error("Error joining game:", error);
+      }
     }
   };
 

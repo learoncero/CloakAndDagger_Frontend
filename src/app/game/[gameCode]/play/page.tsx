@@ -13,7 +13,7 @@ import fetchGame from "./actions";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
-  console.log(gameCode);
+  console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
 
@@ -72,12 +72,13 @@ export default function PlayGame() {
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
-    const playerIdCookie = document.cookie
-      .split(";")
-      .find((cookie) => cookie.trim().startsWith("playerId="));
-    if (playerIdCookie) {
-      const playerId = playerIdCookie.split("=")[1];
-      // Send move message to server
+    //const playerIdCookie = document.cookie
+      //.split(";")
+      //.find((cookie) => cookie.trim().startsWith("playerId="));
+    const playerId = sessionStorage.getItem('playerId'); //TODO: Change to cookie
+    // if (playerIdCookie) {
+    if (playerId) {
+      // const playerId = playerIdCookie.split("=")[1];
       const moveMessage = {
         id: playerId,
         keyCode: keyCode,
@@ -89,6 +90,7 @@ export default function PlayGame() {
     }
   }
 
+  /*
   const playerIdCookie = document.cookie
     .split(";")
     .map((cookie) => cookie.trim())
@@ -99,6 +101,9 @@ export default function PlayGame() {
   const playerIndex = game?.players.findIndex(
     (player) => player.id === playerId
   );
+*/
+  const playerId = sessionStorage.getItem('playerId'); //TODO: Change to cookie
+  const playerIndex = game?.players.findIndex((player) => player.id.toString() === playerId);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -107,7 +112,7 @@ export default function PlayGame() {
         {game?.players.map((player) => (
           <li key={player.id}>
             Username: {player.username}
-            {player.id === playerId ? " (you)" : ""}
+            {player.id.toString() === playerId ? " (you)" : ""}
           </li>
         ))}
       </ul>
