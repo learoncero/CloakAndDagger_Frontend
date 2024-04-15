@@ -25,6 +25,20 @@ export default function Lobby() {
     }
   }
 
+  // Set up polling to refresh lobby data every 5 seconds
+  useEffect(() => {
+    loadGameData();
+
+
+    const intervalId = setInterval(() => {
+      loadGameData();
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   useEffect(() => {
     if (!stompClient) {
       const socket = new SockJS("http://localhost:5010/ws");
@@ -46,14 +60,6 @@ export default function Lobby() {
   useEffect(() => {
     if (!stompClient) return;
 
-    stompClient.subscribe(
-      "/topic/playerJoined",
-      (message: { body: string }) => {
-        const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage.body);
-      }
-    );
-
     stompClient.subscribe("/topic/" + gameCode + "/play", function () {
       router.push("/game/" + game?.gameCode + "/play");
     });
@@ -66,7 +72,7 @@ export default function Lobby() {
   }
 
   if (!game) {
-    return <div>Loading...</div>; // or any loading indicator
+    return <div>Loading...</div>;
   }
 
   const isGameReadyToStart = game?.numberOfPlayers === game?.players.length;
