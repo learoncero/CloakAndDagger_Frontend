@@ -3,7 +3,7 @@
 import Stomp from "stompjs";
 import { useEffect, useState } from "react";
 import SockJS from "sockjs-client";
-import { Player } from "@/app/types";
+import { Player, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
@@ -73,9 +73,9 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     //const playerIdCookie = document.cookie
-      //.split(";")
-      //.find((cookie) => cookie.trim().startsWith("playerId="));
-    const playerId = sessionStorage.getItem('playerId'); //TODO: Change to cookie
+    //.split(";")
+    //.find((cookie) => cookie.trim().startsWith("playerId="));
+    const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
     // if (playerIdCookie) {
     if (playerId) {
       // const playerId = playerIdCookie.split("=")[1];
@@ -102,8 +102,28 @@ export default function PlayGame() {
     (player) => player.id === playerId
   );
 */
-  const playerId = sessionStorage.getItem('playerId'); //TODO: Change to cookie
-  const playerIndex = game?.players.findIndex((player) => player.id.toString() === playerId);
+  const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
+  const playerIndex = game?.players.findIndex(
+    (player) => player.id.toString() === playerId
+  );
+
+  console.log(
+    "Player role for player index " + playerIndex + ": ",
+    game?.players?.at(playerIndex ?? -1)?.role
+  );
+
+  console.log(
+    "Player Role type: ",
+    game?.players?.at(playerIndex ?? -1)?.role.valueOf
+  );
+
+  console.log("Impostor role value: " + Role.IMPOSTOR.valueOf);
+
+  console.log(
+    "Equal? " +
+      ((game?.players?.at(playerIndex ?? -1)?.role as Role) ===
+        (Role.IMPOSTOR as Role))
+  );
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -117,7 +137,7 @@ export default function PlayGame() {
         ))}
       </ul>
       {/*TODO: implement ID search with Cookies*/}
-      {game?.players?.at(playerIndex ?? -1)?.role === "Impostor" ? (
+      {game?.players?.at(playerIndex ?? -1)?.role === Role.IMPOSTOR ? (
         <ImpostorView sabotages={game.sabotages} />
       ) : (
         <CrewmateView />

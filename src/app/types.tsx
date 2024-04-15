@@ -12,7 +12,7 @@ export type Player = {
   id: number;
   username: string;
   position: { x: number; y: number };
-  role: string;
+  role: Role;
 };
 
 export type Sabotage = {
@@ -26,3 +26,10 @@ export type ApiResponse<Data = unknown> = {
   status?: number;
   data?: Data;
 };
+
+export enum Role {
+  CREWMATE = "CREWMATE",
+  IMPOSTOR = "IMPOSTOR",
+  CREWMATE_GHOST = "CREWMATE_GHOST",
+  IMPOSTOR_GHOST = "IMPOSTOR_GHOST",
+}
