@@ -18,6 +18,11 @@ export default function PlayGame() {
   console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
+  const playerId = sessionStorage.getItem("playerId");
+  const playerIndex = game?.players.findIndex(
+    (player) => player.id.toString() === playerId
+  );
+  const playerRole = game?.players?.at(playerIndex ?? -1)?.role;
 
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
@@ -74,20 +79,43 @@ export default function PlayGame() {
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
-    //const playerIdCookie = document.cookie
-    //.split(";")
-    //.find((cookie) => cookie.trim().startsWith("playerId="));
+    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
-    // if (playerIdCookie) {
-    if (playerId) {
-      // const playerId = playerIdCookie.split("=")[1];
-      const moveMessage = {
-        id: playerId,
-        keyCode: keyCode,
-        gameCode: game?.gameCode,
-      };
-      if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
-        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
+    if (playerId && validKeyCodes.includes(keyCode)) {
+      const currentPlayer = game?.players[playerIndex as number];
+      if (currentPlayer) {
+        const newPosition = {
+          x: currentPlayer.position.x,
+          y: currentPlayer.position.y,
+        };
+
+        switch (keyCode) {
+          case "KeyA":
+            newPosition.x -= 1;
+            break;
+          case "KeyW":
+            newPosition.y -= 1;
+            break;
+          case "KeyD":
+            newPosition.x += 1;
+            break;
+          case "KeyS":
+            newPosition.y += 1;
+            break;
+          default:
+            break;
+        }
+
+        const moveMessage = {
+          id: playerId,
+          keyCode: keyCode,
+          gameCode: game?.gameCode,
+          position: newPosition,
+        };
+
+        if (stompClient && game?.players.length && playerId) {
+          stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
+        }
       }
     }
   }
@@ -100,24 +128,6 @@ export default function PlayGame() {
     }
   }
 
-  /*
-  const playerIdCookie = document.cookie
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith("playerId="));
-  const playerId = playerIdCookie
-    ? parseInt(playerIdCookie.split("=")[1])
-    : null;
-  const playerIndex = game?.players.findIndex(
-    (player) => player.id === playerId
-  );
-*/
-  const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
-  const playerIndex = game?.players.findIndex(
-    (player) => player.id.toString() === playerId
-  );
-  const playerRole = game?.players?.at(playerIndex ?? -1)?.role;
-
   return (
     <div className="min-h-screen bg-black text-white">
       <h4>List of players:</h4>
@@ -129,7 +139,6 @@ export default function PlayGame() {
           </li>
         ))}
       </ul>
-      {/*TODO: implement ID search with Cookies*/}
       {playerRole === Role.IMPOSTOR ? (
         <ImpostorView
           sabotages={game?.sabotages ?? []}
