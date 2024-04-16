@@ -119,7 +119,6 @@ export default function PlayGame() {
       }
     }
   }
-
   async function killPlayer(gameCode: string, playerToKillId: number) {
     const game = await GameService.handleKill(gameCode, playerToKillId);
 
