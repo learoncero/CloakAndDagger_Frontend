@@ -3,21 +3,26 @@
 import Stomp from "stompjs";
 import { useEffect, useState } from "react";
 import SockJS from "sockjs-client";
-import { Player } from "@/app/types";
+import { Player, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import fetchGame from "./actions";
+import GameOver from "./GameOver";
+import { fetchGame } from "./actions";
+import GameService from "@/services/GameService";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
   console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
-  const playerId = sessionStorage.getItem('playerId');
-  const playerIndex = game?.players.findIndex((player) => player.id.toString() === playerId);
+  const playerId = sessionStorage.getItem("playerId");
+  const playerIndex = game?.players.findIndex(
+    (player) => player.id.toString() === playerId
+  );
+  const playerRole = game?.players?.at(playerIndex ?? -1)?.role;
 
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
@@ -75,7 +80,7 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-
+    const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
     if (playerId && validKeyCodes.includes(keyCode)) {
       const currentPlayer = game?.players[playerIndex as number];
       if (currentPlayer) {
@@ -114,8 +119,13 @@ export default function PlayGame() {
       }
     }
   }
+  async function killPlayer(gameCode: string, playerToKillId: number) {
+    const game = await GameService.handleKill(gameCode, playerToKillId);
 
-
+    if (JSON.stringify(game.data) !== JSON.stringify(game)) {
+      updateGame(game.data);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -128,8 +138,14 @@ export default function PlayGame() {
           </li>
         ))}
       </ul>
-      {game?.players?.at(playerIndex ?? -1)?.role === "Impostor" ? (
-        <ImpostorView sabotages={game.sabotages} />
+      {playerRole === Role.IMPOSTOR ? (
+        <ImpostorView
+          sabotages={game?.sabotages ?? []}
+          game={game}
+          killPlayer={killPlayer}
+        />
+      ) : playerRole === Role.CREWMATE_GHOST ? (
+        <GameOver />
       ) : (
         <CrewmateView />
       )}
