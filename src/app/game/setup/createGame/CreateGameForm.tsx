@@ -48,7 +48,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         onChange={(e) => setNumPlayers(parseInt(e.target.value))}
         type="number"
         min={1}
-        max={4}
+        max={8}
         required={true}
       />
       <CreateGameFormInputField

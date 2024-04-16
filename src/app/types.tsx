@@ -6,6 +6,7 @@ export type Game = {
   players: Player[];
   gameID: number;
   sabotages: Sabotage[];
+  gameStatus: GameStatus;
 };
 
 export type Player = {
@@ -32,4 +33,10 @@ export enum Role {
   IMPOSTOR = "IMPOSTOR",
   CREWMATE_GHOST = "CREWMATE_GHOST",
   IMPOSTOR_GHOST = "IMPOSTOR_GHOST",
+}
+
+export enum GameStatus {
+  CREWMATES_WIN = "CREWMATES_WIN",
+  IMPOSTORS_WIN = "IMPOSTORS_WIN",
+  NOT_FINISHED = "NOT_FINISHED",
 }

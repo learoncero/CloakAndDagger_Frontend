@@ -3,15 +3,16 @@
 import Stomp from "stompjs";
 import { useEffect, useState } from "react";
 import SockJS from "sockjs-client";
-import { Player, Role } from "@/app/types";
+import { GameStatus, Player, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import GameOver from "./GameOver";
 import { fetchGame } from "./actions";
 import GameService from "@/services/GameService";
+import Modal from "@/components/Modal";
+import BackLink from "@/components/BackLink";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -85,7 +86,8 @@ export default function PlayGame() {
       playerId &&
       validMoveKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST
+      playerRole !== Role.IMPOSTOR_GHOST &&
+      game?.gameStatus === GameStatus.NOT_FINISHED
     ) {
       const currentPlayer = game?.players[playerIndex as number];
       if (currentPlayer) {
@@ -143,7 +145,13 @@ export default function PlayGame() {
           </li>
         ))}
       </ul>
-      {playerRole === Role.IMPOSTOR ? (
+      {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+        <Modal modalText={"IMPOSTORS WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+      ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+        <h1>Crewmates win!</h1>
+      ) : playerRole === Role.IMPOSTOR ? (
         <ImpostorView
           sabotages={game?.sabotages ?? []}
           game={game}
@@ -151,7 +159,9 @@ export default function PlayGame() {
         />
       ) : playerRole === Role.CREWMATE_GHOST ||
         playerRole === Role.IMPOSTOR_GHOST ? (
-        <GameOver />
+        <Modal modalText={"GAME OVER"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
       ) : (
         <CrewmateView />
       )}

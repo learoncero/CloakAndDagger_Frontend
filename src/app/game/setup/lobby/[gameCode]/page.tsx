@@ -29,7 +29,6 @@ export default function Lobby() {
   useEffect(() => {
     loadGameData();
 
-
     const intervalId = setInterval(() => {
       loadGameData();
     }, 5000);
@@ -67,6 +66,7 @@ export default function Lobby() {
 
   function handleStartGame() {
     if (stompClient && gameCode && game) {
+      console.log("Starting game: ", game);
       stompClient.send(`/app/${gameCode}/play`, {}, JSON.stringify(game));
     }
   }
