@@ -14,7 +14,6 @@ type Props = {
 export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
-  let timer = null;
 
   const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
   const currentPlayer = game?.players.find(
@@ -50,7 +49,7 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
         });
 
         setIsTimer(true);
-        timer = setTimeout(() => {
+        setTimeout(() => {
           setIsTimer(false);
         }, 20000);
       }
@@ -69,7 +68,7 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === "KeyE") {
-        console;
+        console.log("Key E pressed");
         handleKill();
       }
     };
