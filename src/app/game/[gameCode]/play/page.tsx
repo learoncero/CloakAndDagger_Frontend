@@ -81,7 +81,12 @@ export default function PlayGame() {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
-    if (playerId && validKeyCodes.includes(keyCode)) {
+    if (
+      playerId &&
+      validKeyCodes.includes(keyCode) &&
+      playerRole !== Role.CREWMATE_GHOST &&
+      playerRole !== Role.IMPOSTOR_GHOST
+    ) {
       const currentPlayer = game?.players[playerIndex as number];
       if (currentPlayer) {
         const newPosition = {
@@ -144,7 +149,8 @@ export default function PlayGame() {
           game={game}
           killPlayer={killPlayer}
         />
-      ) : playerRole === Role.CREWMATE_GHOST ? (
+      ) : playerRole === Role.CREWMATE_GHOST ||
+        playerRole === Role.IMPOSTOR_GHOST ? (
         <GameOver />
       ) : (
         <CrewmateView />
