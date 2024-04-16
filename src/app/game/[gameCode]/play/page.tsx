@@ -79,11 +79,11 @@ export default function PlayGame() {
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
-    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+    const validMoveKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
     if (
       playerId &&
-      validKeyCodes.includes(keyCode) &&
+      validMoveKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
       playerRole !== Role.IMPOSTOR_GHOST
     ) {

@@ -12,9 +12,9 @@ type Props = {
 };
 
 export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
-  const [isPlayerNearby, setIsPlayerNearby] = useState(true);
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
+  let timer = null;
 
   const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
   const currentPlayer = game?.players.find(
@@ -33,27 +33,24 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
 
   function handleKill() {
     if (nearbyPlayers.length > 0) {
-      // Enable kill button
-      //console.log("Timer is running: ", isTimer);
       if (!isTimer) {
         // Retrieve the ID of the player to be killed (for simplicity, just choose the first nearby player)
         const playerToKillId = nearbyPlayers[0].id;
         killPlayer(game?.gameCode as string, playerToKillId);
 
-        // Show toast notification for the kill
         toast("You killed a crewmate!", {
           position: "bottom-right",
           style: {
-            border: "2px solid black", // Red border
+            border: "2px solid black",
             padding: "16px",
-            color: "black", // Text color
-            backgroundColor: "#eF4444", // Red background
+            color: "black",
+            backgroundColor: "#eF4444",
           },
           icon: "🔪",
         });
 
         setIsTimer(true);
-        setTimeout(() => {
+        timer = setTimeout(() => {
           setIsTimer(false);
         }, 20000);
       }
@@ -68,12 +65,22 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
         game?.players as Player[]
       );
       setNearbyPlayers(updatedNearbyPlayers);
-
-      // Update disabled state based on the presence of nearby players
-      setIsPlayerNearby(updatedNearbyPlayers.length != 0); // Disable the kill button if no nearby players
     }, 200);
 
-    return () => clearInterval(filterInterval);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "KeyE") {
+        console;
+        handleKill();
+      }
+    };
+
+    window.focus();
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearInterval(filterInterval);
+    };
   }, [game?.players]);
 
   return (
@@ -92,7 +99,13 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
         <p>Map Button Component Goes Here</p>
       </div>
       <div className="absolute bottom-4 right-4">
-        <KillButton handleKill={handleKill} isPlayerNearby={isPlayerNearby} isTimer={isTimer}/>
+        <KillButton
+          handleKill={handleKill}
+          isPlayerNearby={nearbyPlayers.length > 0}
+          isTimer={isTimer}
+        >
+          {isTimer ? "Kill on cooldown" : "Kill"}
+        </KillButton>
       </div>
       <Toaster />
     </div>
