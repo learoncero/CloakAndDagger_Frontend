@@ -17,6 +17,7 @@ export default function PlayGame() {
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
 
+
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
     if (JSON.stringify(result.data) !== JSON.stringify(game)) {
@@ -97,30 +98,45 @@ export default function PlayGame() {
     ? parseInt(playerIdCookie.split("=")[1])
     : null;
   const playerIndex = game?.players.findIndex(
-    (player) => player.id === playerId
+    (player) => player.id === playerId)
+  const currentPlayer = game?.players.find(player => player.id === playerId
   );
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <h4>List of players:</h4>
-      <ul>
-        {game?.players.map((player) => (
-          <li key={player.id}>
-            Username: {player.username}
-            {player.id === playerId ? " (you)" : ""}
-          </li>
-        ))}
-      </ul>
-      {/*TODO: implement ID search with Cookies*/}
-      {game?.players?.at(playerIndex ?? -1)?.role === "Impostor" ? (
-        <ImpostorView sabotages={game.sabotages} />
-      ) : (
-        <CrewmateView />
-      )}
-      <MapDisplay
-        map={game?.map as boolean[][]}
-        playerList={game?.players as Player[]}
-      />
-    </div>
+      <div className="min-h-screen bg-black text-white">
+        <h4>List of players:</h4>
+        <ul>
+          {game?.players.map((player) => (
+              <li key={player.id}>
+                Username: {player.username}
+                {player.id === playerId ? " (you)" : ""}
+              </li>
+          ))}
+        </ul>
+        {/* Check if currentPlayer is not undefined */}
+        {currentPlayer ? (
+            <>
+              {game?.players?.at(playerIndex ?? -1)?.role === "Impostor" ? (
+                  <ImpostorView sabotages={game.sabotages}
+                                map={game?.map as boolean[][]}
+                                playerList={game?.players as Player[]}
+                                currentPlayer={currentPlayer}
+                  />
+              ) : (
+                  <CrewmateView map={game?.map as boolean[][]}
+                                playerList={game?.players as Player[]}
+                                currentPlayer={currentPlayer}
+                  />
+              )}
+              <MapDisplay
+                  map={game?.map as boolean[][]}
+                  playerList={game?.players as Player[]}
+                  currentPlayer={currentPlayer}
+              />
+            </>
+        ) : (
+            <div>No Player Data Found</div>
+        )}
+      </div>
   );
 }

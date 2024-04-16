@@ -5,8 +5,6 @@ const TaskList = () => {
     const tasks = [
         "Repair PC",
         "Download Data",
-        "Calibrate Motors",
-        "Scann Cards"
     ];
 
     return (
