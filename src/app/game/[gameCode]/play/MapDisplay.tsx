@@ -17,6 +17,7 @@ type Props = {
 
 export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [isMirrored, setIsMirrored] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,13 +26,28 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'a') {
+        setIsMirrored(true);
+      } else if (event.key === 'd') {
+        setIsMirrored(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   if (!map) {
     return <div>Loading Map...</div>;
   }
 
-  const viewportSize = 11;  // Size of View
+  const viewportSize = 11;
   const halfViewport = Math.floor(viewportSize / 2);
-
   const { x, y } = currentPlayer.position;
   const startX = Math.max(0, x - halfViewport);
   const endX = Math.min(map[0].length, x + halfViewport + 1);
@@ -53,7 +69,8 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
                         className={`MapDisplay-cell ${cell ? 'walkable' : 'obstacle'}`}
                         style={isPlayerHere ? {
                           backgroundImage: `url(${spriteImages[currentFrame]})`,
-                          backgroundSize: 'cover'
+                          backgroundSize: 'cover',
+                          transform: isMirrored ? 'scaleX(-1)' : 'none'
                         } : {}}
                     />
                 );
