@@ -9,7 +9,7 @@ import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import { fetchGame } from "./actions";
+import { fetchGame, fetchMap } from "./actions";
 import GameService from "@/services/GameService";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
@@ -19,6 +19,8 @@ export default function PlayGame() {
   console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
+  const [map, setMap] = useState<boolean[][] | undefined>([[]]);
+
   const playerId = sessionStorage.getItem("playerId");
   const playerIndex = game?.players.findIndex(
     (player) => player.id.toString() === playerId
@@ -29,9 +31,13 @@ export default function PlayGame() {
   const playerRole = game?.players[playerIndex as number]?.role;
 
   async function loadGameData() {
-    const result = await fetchGame(gameCode as string);
-    if (JSON.stringify(result.data) !== JSON.stringify(game)) {
-      updateGame(result.data);
+    const gameResult = await fetchGame(gameCode as string);
+    if (JSON.stringify(gameResult.data) !== JSON.stringify(game)) {
+      updateGame(gameResult.data);
+    }
+    const mapResult = await fetchMap(gameResult.data?.map as string);
+    if (mapResult.status === 200) {
+      setMap(mapResult.data);
     }
   }
 
@@ -159,7 +165,7 @@ export default function PlayGame() {
           {playerRole === Role.IMPOSTOR ? (
             <ImpostorView
               sabotages={game?.sabotages}
-              map={game?.map as boolean[][]}
+              map={map as boolean[][]}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
               game={game}
@@ -171,13 +177,13 @@ export default function PlayGame() {
             </Modal>
           ) : (
             <CrewmateView
-              map={game?.map as boolean[][]}
+              map={map as boolean[][]}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
             />
           )}
           <MapDisplay
-            map={game?.map as boolean[][]}
+            map={map as boolean[][]}
             playerList={game?.players as Player[]}
             currentPlayer={currentPlayer}
           />

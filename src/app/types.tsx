@@ -2,7 +2,7 @@ export type Game = {
   gameCode: string;
   numberOfPlayers: number;
   numberOfImpostors: number;
-  map: boolean[][];
+  map: string;
   players: Player[];
   gameID: number;
   sabotages: Sabotage[];

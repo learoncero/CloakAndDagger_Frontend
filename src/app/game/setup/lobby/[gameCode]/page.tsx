@@ -10,7 +10,7 @@ import LobbyGameCode from "./LobbyGameCode";
 import LobbyPlayerList from "./LobbyPlayerList";
 import LobbyReadyToStartText from "./LobbyReadyToStartText";
 import LobbyHeader from "./LobbyHeader";
-import fetchGame from "./actions";
+import { fetchGame } from "./actions";
 
 export default function Lobby() {
   const [stompClient, setStompClient] = useState<any>(null);
@@ -19,9 +19,9 @@ export default function Lobby() {
   const { game, updateGame } = useGame();
 
   async function loadGameData() {
-    const result = await fetchGame(gameCode as string);
-    if (result.status === 200) {
-      updateGame(result.data);
+    const gameResult = await fetchGame(gameCode as string);
+    if (gameResult.status === 200) {
+      updateGame(gameResult.data);
     }
   }
 
@@ -66,7 +66,6 @@ export default function Lobby() {
 
   function handleStartGame() {
     if (stompClient && gameCode && game) {
-      console.log("Starting game: ", game);
       stompClient.send(`/app/${gameCode}/play`, {}, JSON.stringify(game));
     }
   }
