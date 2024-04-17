@@ -6,7 +6,7 @@ import RoleInformation from "./RoleInformation";
 import KillButton from "./KillButton";
 
 type Props = {
-  sabotages: Sabotage[];
+  sabotages: Sabotage[] | undefined;
 };
 
 export default function ImpostorView({ sabotages }: Props) {

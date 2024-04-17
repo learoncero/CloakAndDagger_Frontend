@@ -3,7 +3,7 @@
 import Stomp from "stompjs";
 import { useEffect, useState } from "react";
 import SockJS from "sockjs-client";
-import { Player } from "@/app/types";
+import { Player, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
@@ -16,8 +16,11 @@ export default function PlayGame() {
   console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
-  const playerId = sessionStorage.getItem('playerId');
-  const playerIndex = game?.players.findIndex((player) => player.id.toString() === playerId);
+  const playerId = sessionStorage.getItem("playerId");
+  const playerIndex = game?.players.findIndex(
+    (player) => player.id.toString() === playerId
+  );
+  const playerRole = game?.players[playerIndex as number]?.role;
 
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
@@ -115,8 +118,6 @@ export default function PlayGame() {
     }
   }
 
-
-
   return (
     <div className="min-h-screen bg-black text-white">
       <h4>List of players:</h4>
@@ -128,8 +129,8 @@ export default function PlayGame() {
           </li>
         ))}
       </ul>
-      {game?.players?.at(playerIndex ?? -1)?.role === "Impostor" ? (
-        <ImpostorView sabotages={game.sabotages} />
+      {playerRole === Role.IMPOSTOR ? (
+        <ImpostorView sabotages={game?.sabotages} />
       ) : (
         <CrewmateView />
       )}
