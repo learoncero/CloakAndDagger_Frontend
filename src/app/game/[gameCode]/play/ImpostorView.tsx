@@ -31,85 +31,67 @@ export default function ImpostorView({
 
   const [showMiniMap, setShowMiniMap] = useState(false);
 
-  const handleToggleMiniMap = () => {
-    setShowMiniMap(!showMiniMap);
-  };
   useEffect(() => {
-    const toggleMiniMap = (event: KeyboardEvent) => {
-      if (event.key === "m" || event.key === "M") {
-        setShowMiniMap(!showMiniMap);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "KeyE") {
+        console.log("Key E pressed");
+        handleKill();
+      } else if (event.key === "m" || event.key === "M") {
+        setShowMiniMap((prev) => !prev);
       }
     };
 
-    window.addEventListener("keydown", toggleMiniMap);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener("keydown", toggleMiniMap);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [showMiniMap]);
+  }, [handleKill]);
 
-  // Function to filter nearby players
+  useEffect(() => {
+    const filterInterval = setInterval(() => {
+      if (game?.players) {
+        const updatedNearbyPlayers = filterNearbyPlayers(game.players);
+        setNearbyPlayers(updatedNearbyPlayers);
+      }
+    }, 200);
+
+    return () => clearInterval(filterInterval);
+  }, [game?.players]);
+
   function filterNearbyPlayers(players: Player[]): Player[] {
     return players.filter(
       (player) =>
         Math.abs(player.position.x - currentPlayer.position.x) <= 1 &&
         Math.abs(player.position.y - currentPlayer.position.y) <= 1 &&
-        player.id !== currentPlayerId // Exclude the current player
+        player.id !== currentPlayerId
     );
   }
 
   function handleKill() {
-    console.log("handleKill method called");
-    if (nearbyPlayers.length > 0) {
-      if (!isTimer) {
-        // Retrieve the ID of the player to be killed (for simplicity, just choose the first nearby player)
-        const playerToKillId = nearbyPlayers[0].id;
-        killPlayer(game?.gameCode as string, playerToKillId);
+    if (!isTimer && nearbyPlayers.length > 0) {
+      const playerToKillId = nearbyPlayers[0].id;
+      killPlayer(game?.gameCode as string, playerToKillId);
 
-        toast("You killed a crewmate!", {
-          position: "bottom-right",
-          style: {
-            border: "2px solid black",
-            padding: "16px",
-            color: "black",
-            backgroundColor: "#eF4444",
-          },
-          icon: "🔪",
-        });
+      toast("You killed a crewmate!", {
+        position: "bottom-right",
+        style: {
+          border: "2px solid black",
+          padding: "16px",
+          color: "black",
+          backgroundColor: "#eF4444",
+        },
+        icon: "🔪",
+      });
 
-        setIsTimer(true);
-        setTimeout(() => {
-          setIsTimer(false);
-        }, 20000);
-      }
+      setIsTimer(true);
+      setTimeout(() => {
+        setIsTimer(false);
+      }, 20000);
     }
   }
 
-  // Use useEffect to run the filtering logic periodically
-  useEffect(() => {
-    const filterInterval = setInterval(() => {
-      // Call filterNearbyPlayers function to update nearby players list
-      const updatedNearbyPlayers = filterNearbyPlayers(
-        game?.players as Player[]
-      );
-      setNearbyPlayers(updatedNearbyPlayers);
-    }, 200);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "KeyE") {
-        console.log("Key E pressed");
-        handleKill();
-      }
-    };
-
-    window.focus();
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      clearInterval(filterInterval);
-    };
-  }, [filterNearbyPlayers, game?.players, handleKill]);
+  const toggleMiniMap = () => setShowMiniMap((prev) => !prev);
 
   return (
     <div className="flex justify-between items-start p-4">
@@ -124,7 +106,7 @@ export default function ImpostorView({
 
       {/* Map Button on top right */}
       <div className="flex-none">
-        <MapButton onClick={handleToggleMiniMap} label="Show MiniMap" />
+        <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
         {showMiniMap && (
           <div
             className="MiniMap-overlay"
