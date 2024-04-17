@@ -6,7 +6,7 @@ import RoleInformation from "./RoleInformation";
 import KillButton from "./KillButton";
 
 type Props = {
-  sabotages: Sabotage[];
+  sabotages: Sabotage[] | undefined;
   game: Game | null | undefined;
   killPlayer: (gameCode: string, playerId: number) => void;
 };
