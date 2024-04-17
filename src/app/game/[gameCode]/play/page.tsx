@@ -78,7 +78,7 @@ export default function PlayGame() {
           }
       );
     }
-  }, [stompClient, game?.gameCode, playerId, updateGame]);
+  }, [stompClient, game?.gameCode, playerId]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
