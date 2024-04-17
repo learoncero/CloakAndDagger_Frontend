@@ -22,9 +22,10 @@ export default function PlayGame() {
   const playerIndex = game?.players.findIndex(
     (player) => player.id.toString() === playerId
   );
-  const playerRole = game?.players?.at(playerIndex ?? -1)?.role;
   const currentPlayer = game?.players.find(player => player.id.toString() === playerId
   );
+  const playerRole = game?.players[playerIndex as number]?.role;
+
 
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
@@ -143,7 +144,7 @@ export default function PlayGame() {
           <>
             {playerRole === Role.IMPOSTOR ? (
               <ImpostorView
-                sabotages={game?.sabotages ?? []}
+                sabotages={game?.sabotages}
                 map={game?.map as boolean[][]}
                 playerList={game?.players as Player[]}
                 currentPlayer={currentPlayer}

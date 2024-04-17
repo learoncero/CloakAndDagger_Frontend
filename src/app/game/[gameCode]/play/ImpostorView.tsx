@@ -8,7 +8,7 @@ import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 
 type Props = {
-  sabotages: Sabotage[],
+  sabotages: Sabotage[] | undefined;
   game: Game | null | undefined,
   killPlayer: (gameCode: string, playerId: number) => void,
   map: boolean[][],
