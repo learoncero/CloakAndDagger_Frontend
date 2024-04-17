@@ -34,7 +34,6 @@ export default class GameService {
     });
 
     if (joinedGame.status !== 200) {
-      console.error("joinGame data " + joinedGame.data);
       throw new Error(joinedGame.data.message);
     }
 

@@ -1,5 +1,3 @@
-import {string} from "prop-types";
-
 const API_URL = "http://localhost:5010";
 
 export default class ApiService {

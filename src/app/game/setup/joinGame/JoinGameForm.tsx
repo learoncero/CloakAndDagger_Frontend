@@ -37,10 +37,8 @@ export default function JoinGameForm() {
           sessionStorage.setItem("playerId", String(playerId));
         }
 
-        console.log("Joined game:", game.data);
         router.push("/game/setup/lobby/" + gameCode);
       } catch (error: any) {
-        console.log("Error joining game:", error.message);
         toast("Error joining game: " + error.message, {
           position: "bottom-right",
           style: {
