@@ -4,22 +4,43 @@ import { useEffect, useState } from "react";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 import KillButton from "./KillButton";
+import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
+import MapButton from "@/app/game/[gameCode]/play/MapButton";
 
 type Props = {
   sabotages: Sabotage[] | undefined;
-  game: Game | null | undefined;
-  killPlayer: (gameCode: string, playerId: number) => void;
+  game: Game | null | undefined,
+  killPlayer: (gameCode: string, playerId: number) => void,
+  map: boolean[][],
+  currentPlayer: Player,
+  playerList: Player[]
 };
 
-export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
+export default function ImpostorView({ sabotages, map, playerList, currentPlayer, game, killPlayer }: Props) {
   const [isPlayerNearby, setIsPlayerNearby] = useState(true);
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
 
   const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
-  const currentPlayer = game?.players.find(
-    (player) => player.id === currentPlayerId
-  ) as Player;
+
+  const [showMiniMap, setShowMiniMap] = useState(false);
+
+  const handleToggleMiniMap = () => {
+    setShowMiniMap(!showMiniMap);
+  };
+  useEffect(() => {
+    const toggleMiniMap = (event: KeyboardEvent) => {
+      if (event.key === 'm' || event.key === 'M') {
+        setShowMiniMap(!showMiniMap);
+      }
+    };
+
+    window.addEventListener('keydown', toggleMiniMap);
+
+    return () => {
+      window.removeEventListener('keydown', toggleMiniMap);
+    };
+  }, [showMiniMap]);
 
   // Function to filter nearby players
   function filterNearbyPlayers(players: Player[]): Player[] {
@@ -89,7 +110,16 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
 
       {/* Map Button on top right */}
       <div className="flex-none">
-        <p>Map Button Component Goes Here</p>
+        <MapButton onClick={handleToggleMiniMap} label="Show MiniMap" />
+        {showMiniMap && (
+            <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
+              <SabotageList  sabotages={sabotages}/>
+              <div className="MiniMap-content" onClick={e => e.stopPropagation()}>
+                <MiniMap map={map} playerList={playerList} currentPlayer={currentPlayer} closeMiniMap={() => setShowMiniMap(false)}  />
+
+              </div>
+            </div>
+        )}
       </div>
       <div className="absolute bottom-4 right-4">
         <KillButton handleKill={handleKill} isPlayerNearby={isPlayerNearby} isTimer={isTimer}/>
