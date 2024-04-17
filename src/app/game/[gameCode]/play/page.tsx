@@ -82,9 +82,17 @@ export default function PlayGame() {
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
-    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+    const validMoveKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
-    if (playerId && validKeyCodes.includes(keyCode)) {
+
+    if (
+      playerId &&
+      validMoveKeyCodes.includes(keyCode) &&
+      playerRole !== Role.CREWMATE_GHOST &&
+      playerRole !== Role.IMPOSTOR_GHOST
+    ) {
+      const currentPlayer = game?.players[playerIndex as number];
+
       if (currentPlayer) {
         const newPosition = {
           x: currentPlayer.position.x,
@@ -140,8 +148,9 @@ export default function PlayGame() {
           </li>
         ))}
       </ul>
+
       {currentPlayer ? (
-          <>
+          <div>
             {playerRole === Role.IMPOSTOR ? (
               <ImpostorView
                 sabotages={game?.sabotages}
@@ -164,7 +173,8 @@ export default function PlayGame() {
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
             />
-          </>
+          </div>
+
       ) : (
           <div>No Player Data Found</div>
       )}
