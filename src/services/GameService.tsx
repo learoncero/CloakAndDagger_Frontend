@@ -40,14 +40,4 @@ export default class GameService {
     return joinedGame as ApiResponse<Game>;
   }
 
-  static async handleKill(gameCode: string, playerId: number) {
-    const game = await ApiService.post(
-      `/api/game/${gameCode}/kill/${playerId}`,
-      {
-        gameCode,
-        playerId,
-      }
-    );
-    return game as ApiResponse<Game>;
-  }
 }

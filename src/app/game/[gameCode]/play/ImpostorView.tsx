@@ -4,22 +4,49 @@ import { useEffect, useState } from "react";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 import KillButton from "./KillButton";
+import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
+import MapButton from "@/app/game/[gameCode]/play/MapButton";
 
 type Props = {
-  sabotages: Sabotage[];
+  sabotages: Sabotage[] | undefined;
   game: Game | null | undefined;
   killPlayer: (gameCode: string, playerId: number) => void;
+  map: boolean[][];
+  currentPlayer: Player;
+  playerList: Player[];
 };
 
-export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
-  const [isPlayerNearby, setIsPlayerNearby] = useState(true);
+export default function ImpostorView({
+  sabotages,
+  map,
+  playerList,
+  currentPlayer,
+  game,
+  killPlayer,
+}: Props) {
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
 
   const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
-  const currentPlayer = game?.players.find(
-    (player) => player.id === currentPlayerId
-  ) as Player;
+
+  const [showMiniMap, setShowMiniMap] = useState(false);
+
+  const handleToggleMiniMap = () => {
+    setShowMiniMap(!showMiniMap);
+  };
+  useEffect(() => {
+    const toggleMiniMap = (event: KeyboardEvent) => {
+      if (event.key === "m" || event.key === "M") {
+        setShowMiniMap(!showMiniMap);
+      }
+    };
+
+    window.addEventListener("keydown", toggleMiniMap);
+
+    return () => {
+      window.removeEventListener("keydown", toggleMiniMap);
+    };
+  }, [showMiniMap]);
 
   // Function to filter nearby players
   function filterNearbyPlayers(players: Player[]): Player[] {
@@ -33,21 +60,18 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
 
   function handleKill() {
     if (nearbyPlayers.length > 0) {
-      // Enable kill button
-      //console.log("Timer is running: ", isTimer);
       if (!isTimer) {
         // Retrieve the ID of the player to be killed (for simplicity, just choose the first nearby player)
         const playerToKillId = nearbyPlayers[0].id;
         killPlayer(game?.gameCode as string, playerToKillId);
 
-        // Show toast notification for the kill
         toast("You killed a crewmate!", {
           position: "bottom-right",
           style: {
-            border: "2px solid black", // Red border
+            border: "2px solid black",
             padding: "16px",
-            color: "black", // Text color
-            backgroundColor: "#eF4444", // Red background
+            color: "black",
+            backgroundColor: "#eF4444",
           },
           icon: "🔪",
         });
@@ -68,18 +92,28 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
         game?.players as Player[]
       );
       setNearbyPlayers(updatedNearbyPlayers);
-
-      // Update disabled state based on the presence of nearby players
-      setIsPlayerNearby(updatedNearbyPlayers.length != 0); // Disable the kill button if no nearby players
     }, 200);
 
-    return () => clearInterval(filterInterval);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "KeyE") {
+        console.log("Key E pressed");
+        handleKill();
+      }
+    };
+
+    window.focus();
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearInterval(filterInterval);
+    };
   }, [game?.players]);
 
   return (
     <div className="flex justify-between items-start p-4">
       <div className="flex-none">
-        <SabotageList sabotages={sabotages} />
+        <SabotageList sabotages={sabotages ?? []} />
       </div>
 
       {/* Role Information in top center */}
@@ -89,10 +123,35 @@ export default function ImpostorView({ sabotages, game, killPlayer }: Props) {
 
       {/* Map Button on top right */}
       <div className="flex-none">
-        <p>Map Button Component Goes Here</p>
+        <MapButton onClick={handleToggleMiniMap} label="Show MiniMap" />
+        {showMiniMap && (
+          <div
+            className="MiniMap-overlay"
+            onClick={() => setShowMiniMap(false)}
+          >
+            <SabotageList sabotages={sabotages ?? []} />
+            <div
+              className="MiniMap-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MiniMap
+                map={map}
+                playerList={playerList}
+                currentPlayer={currentPlayer}
+                closeMiniMap={() => setShowMiniMap(false)}
+              />
+            </div>
+          </div>
+        )}
       </div>
       <div className="absolute bottom-4 right-4">
-        <KillButton handleKill={handleKill} isPlayerNearby={isPlayerNearby} isTimer={isTimer}/>
+        <KillButton
+          handleKill={handleKill}
+          isPlayerNearby={nearbyPlayers.length > 0}
+          isTimer={isTimer}
+        >
+          {isTimer ? "Kill on cooldown" : "Kill"}
+        </KillButton>
       </div>
       <Toaster />
     </div>
