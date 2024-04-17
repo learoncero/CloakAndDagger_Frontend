@@ -59,6 +59,7 @@ export default function ImpostorView({
   }
 
   function handleKill() {
+    console.log("handleKill method called");
     if (nearbyPlayers.length > 0) {
       if (!isTimer) {
         // Retrieve the ID of the player to be killed (for simplicity, just choose the first nearby player)
@@ -108,7 +109,7 @@ export default function ImpostorView({
       window.removeEventListener("keydown", handleKeyDown);
       clearInterval(filterInterval);
     };
-  }, [game?.players]);
+  }, [filterNearbyPlayers, game?.players, handleKill]);
 
   return (
     <div className="flex justify-between items-start p-4">
