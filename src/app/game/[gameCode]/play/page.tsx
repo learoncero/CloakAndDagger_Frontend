@@ -9,7 +9,9 @@ import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import fetchGame from "./actions";
+import GameOver from "./GameOver";
+import { fetchGame } from "./actions";
+import GameService from "@/services/GameService";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -78,7 +80,7 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-
+    const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
     if (playerId && validKeyCodes.includes(keyCode)) {
       const currentPlayer = game?.players[playerIndex as number];
       if (currentPlayer) {
@@ -117,6 +119,13 @@ export default function PlayGame() {
       }
     }
   }
+  async function killPlayer(gameCode: string, playerToKillId: number) {
+    const game = await GameService.handleKill(gameCode, playerToKillId);
+
+    if (JSON.stringify(game.data) !== JSON.stringify(game)) {
+      updateGame(game.data);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -130,7 +139,13 @@ export default function PlayGame() {
         ))}
       </ul>
       {playerRole === Role.IMPOSTOR ? (
-        <ImpostorView sabotages={game?.sabotages} />
+        <ImpostorView 
+          sabotages={game?.sabotages}
+          game={game}
+          killPlayer={killPlayer}
+        />
+      ) : playerRole === Role.CREWMATE_GHOST ? (
+        <GameOver />
       ) : (
         <CrewmateView />
       )}

@@ -1,14 +1,16 @@
 type Props = {
   handleKill(): void;
-  disabled: boolean;
+  isPlayerNearby: boolean;
+  isTimer: boolean;
 };
 
-export default function KillButton({ handleKill, disabled }: Props) {
+export default function KillButton({ handleKill, isPlayerNearby , isTimer}: Props) {
+  const buttonclickable = isPlayerNearby && !isTimer;
   return (
     <button
-      className="bg-red-500 text-black px-4 py-2 rounded-md"
+      className={`text-black px-4 py-2 rounded-md ${!buttonclickable ? 'cursor-default bg-gray-500' : 'cursor-pointer bg-red-500'}`}
       onClick={handleKill}
-      disabled={disabled}
+      disabled={!buttonclickable}
     >
       Simulate Kill
     </button>

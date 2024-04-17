@@ -23,10 +23,7 @@ export default class GameService {
     return createdGame as ApiResponse<Game>;
   }
 
-  static async joinGame(
-      username: string,
-      gameCode: string) {
-
+  static async joinGame(username: string, gameCode: string) {
     const joinedGame = await ApiService.post(`/api/game/join/${username}`, {
       username,
       position: {
@@ -36,5 +33,16 @@ export default class GameService {
       gameCode,
     });
     return joinedGame as ApiResponse<Game>;
+  }
+
+  static async handleKill(gameCode: string, playerId: number) {
+    const game = await ApiService.post(
+      `/api/game/${gameCode}/kill/${playerId}`,
+      {
+        gameCode,
+        playerId,
+      }
+    );
+    return game as ApiResponse<Game>;
   }
 }
