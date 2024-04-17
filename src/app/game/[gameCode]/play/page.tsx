@@ -49,7 +49,7 @@ export default function PlayGame() {
       };
     }
 
-    loadGameData();
+    loadGameData().then(r => console.log("Game loaded"));
   }, [stompClient]);
 
   useEffect(() => {
@@ -68,17 +68,17 @@ export default function PlayGame() {
           updateGame(receivedMessage);
         }
       );
-      // Subscribe to receive updated game state
+
       stompClient.subscribe(
-        `/topic/${game?.gameCode}/play`,
-        (message: { body: string }) => {
-          const updatedGame = JSON.parse(message.body);
-          updateGame(updatedGame);
-        }
+          `/topic/${game?.gameCode}/kill/${playerId}`,
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            console.log("Subscribed Kill, Received: ", receivedMessage);
+            updateGame(receivedMessage);
+          }
       );
-      stompClient.send(`/app/${game?.gameCode}/play`, {}, JSON.stringify(game));
     }
-  }, [stompClient]);
+  }, [stompClient, game?.gameCode, playerId, updateGame]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
@@ -130,10 +130,12 @@ export default function PlayGame() {
     }
   }
   async function killPlayer(gameCode: string, playerToKillId: number) {
-    const game = await GameService.handleKill(gameCode, playerToKillId);
-
-    if (JSON.stringify(game.data) !== JSON.stringify(game)) {
-      updateGame(game.data);
+    const killMessage = {
+      gameCode: gameCode,
+      playerToKillId: playerToKillId,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
     }
   }
 
