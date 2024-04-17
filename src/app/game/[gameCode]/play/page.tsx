@@ -22,7 +22,10 @@ export default function PlayGame() {
   const playerIndex = game?.players.findIndex(
     (player) => player.id.toString() === playerId
   );
-  const playerRole = game?.players?.at(playerIndex ?? -1)?.role;
+  const currentPlayer = game?.players.find(player => player.id.toString() === playerId
+  );
+  const playerRole = game?.players[playerIndex as number]?.role;
+
 
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
@@ -81,6 +84,7 @@ export default function PlayGame() {
     const keyCode = event.code;
     const validMoveKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
+
     if (
       playerId &&
       validMoveKeyCodes.includes(keyCode) &&
@@ -88,6 +92,7 @@ export default function PlayGame() {
       playerRole !== Role.IMPOSTOR_GHOST
     ) {
       const currentPlayer = game?.players[playerIndex as number];
+
       if (currentPlayer) {
         const newPosition = {
           x: currentPlayer.position.x,
@@ -143,22 +148,36 @@ export default function PlayGame() {
           </li>
         ))}
       </ul>
-      {playerRole === Role.IMPOSTOR ? (
-        <ImpostorView
-          sabotages={game?.sabotages ?? []}
-          game={game}
-          killPlayer={killPlayer}
-        />
-      ) : playerRole === Role.CREWMATE_GHOST ||
-        playerRole === Role.IMPOSTOR_GHOST ? (
-        <GameOver />
+
+      {currentPlayer ? (
+          <div>
+            {playerRole === Role.IMPOSTOR ? (
+              <ImpostorView
+                sabotages={game?.sabotages}
+                map={game?.map as boolean[][]}
+                playerList={game?.players as Player[]}
+                currentPlayer={currentPlayer}
+                game={game}
+                killPlayer={killPlayer}
+              />
+            ) : playerRole === Role.CREWMATE_GHOST ? (
+              <GameOver />
+            ) : (
+              <CrewmateView
+                  map={game?.map as boolean[][]}
+                  playerList={game?.players as Player[]}
+                  currentPlayer={currentPlayer}  />
+            )}
+            <MapDisplay
+              map={game?.map as boolean[][]}
+              playerList={game?.players as Player[]}
+              currentPlayer={currentPlayer}
+            />
+          </div>
+
       ) : (
-        <CrewmateView />
+          <div>No Player Data Found</div>
       )}
-      <MapDisplay
-        map={game?.map as boolean[][]}
-        playerList={game?.players as Player[]}
-      />
     </div>
   );
 }
