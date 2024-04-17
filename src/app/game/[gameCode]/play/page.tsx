@@ -22,10 +22,10 @@ export default function PlayGame() {
   const playerIndex = game?.players.findIndex(
     (player) => player.id.toString() === playerId
   );
-  const currentPlayer = game?.players.find(player => player.id.toString() === playerId
+  const currentPlayer = game?.players.find(
+    (player) => player.id.toString() === playerId
   );
   const playerRole = game?.players[playerIndex as number]?.role;
-
 
   async function loadGameData() {
     const result = await fetchGame(gameCode as string);
@@ -49,7 +49,7 @@ export default function PlayGame() {
       };
     }
 
-    loadGameData().then(r => console.log("Game loaded"));
+    loadGameData().then((r) => console.log("Game loaded"));
   }, [stompClient]);
 
   useEffect(() => {
@@ -70,15 +70,15 @@ export default function PlayGame() {
       );
 
       stompClient.subscribe(
-          `/topic/${game?.gameCode}/kill/${playerId}`,
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            console.log("Subscribed Kill, Received: ", receivedMessage);
-            updateGame(receivedMessage);
-          }
+        `/topic/${game?.gameCode}/kill/${playerId}`,
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          console.log("Subscribed Kill, Received: ", receivedMessage);
+          updateGame(receivedMessage);
+        }
       );
     }
-  }, [stompClient, game?.gameCode, playerId]);
+  }, [stompClient]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
@@ -152,33 +152,33 @@ export default function PlayGame() {
       </ul>
 
       {currentPlayer ? (
-          <div>
-            {playerRole === Role.IMPOSTOR ? (
-              <ImpostorView
-                sabotages={game?.sabotages}
-                map={game?.map as boolean[][]}
-                playerList={game?.players as Player[]}
-                currentPlayer={currentPlayer}
-                game={game}
-                killPlayer={killPlayer}
-              />
-            ) : playerRole === Role.CREWMATE_GHOST ? (
-              <GameOver />
-            ) : (
-              <CrewmateView
-                  map={game?.map as boolean[][]}
-                  playerList={game?.players as Player[]}
-                  currentPlayer={currentPlayer}  />
-            )}
-            <MapDisplay
+        <div>
+          {playerRole === Role.IMPOSTOR ? (
+            <ImpostorView
+              sabotages={game?.sabotages}
+              map={game?.map as boolean[][]}
+              playerList={game?.players as Player[]}
+              currentPlayer={currentPlayer}
+              game={game}
+              killPlayer={killPlayer}
+            />
+          ) : playerRole === Role.CREWMATE_GHOST ? (
+            <GameOver />
+          ) : (
+            <CrewmateView
               map={game?.map as boolean[][]}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
             />
-          </div>
-
+          )}
+          <MapDisplay
+            map={game?.map as boolean[][]}
+            playerList={game?.players as Player[]}
+            currentPlayer={currentPlayer}
+          />
+        </div>
       ) : (
-          <div>No Player Data Found</div>
+        <div>No Player Data Found</div>
       )}
     </div>
   );
