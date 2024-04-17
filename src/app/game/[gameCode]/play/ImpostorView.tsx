@@ -9,14 +9,21 @@ import MapButton from "@/app/game/[gameCode]/play/MapButton";
 
 type Props = {
   sabotages: Sabotage[] | undefined;
-  game: Game | null | undefined,
-  killPlayer: (gameCode: string, playerId: number) => void,
-  map: boolean[][],
-  currentPlayer: Player,
-  playerList: Player[]
+  game: Game | null | undefined;
+  killPlayer: (gameCode: string, playerId: number) => void;
+  map: boolean[][];
+  currentPlayer: Player;
+  playerList: Player[];
 };
 
-export default function ImpostorView({ sabotages, map, playerList, currentPlayer, game, killPlayer }: Props) {
+export default function ImpostorView({
+  sabotages,
+  map,
+  playerList,
+  currentPlayer,
+  game,
+  killPlayer,
+}: Props) {
   const [isPlayerNearby, setIsPlayerNearby] = useState(true);
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
@@ -30,15 +37,15 @@ export default function ImpostorView({ sabotages, map, playerList, currentPlayer
   };
   useEffect(() => {
     const toggleMiniMap = (event: KeyboardEvent) => {
-      if (event.key === 'm' || event.key === 'M') {
+      if (event.key === "m" || event.key === "M") {
         setShowMiniMap(!showMiniMap);
       }
     };
 
-    window.addEventListener('keydown', toggleMiniMap);
+    window.addEventListener("keydown", toggleMiniMap);
 
     return () => {
-      window.removeEventListener('keydown', toggleMiniMap);
+      window.removeEventListener("keydown", toggleMiniMap);
     };
   }, [showMiniMap]);
 
@@ -100,7 +107,7 @@ export default function ImpostorView({ sabotages, map, playerList, currentPlayer
   return (
     <div className="flex justify-between items-start p-4">
       <div className="flex-none">
-        <SabotageList sabotages={sabotages} />
+        <SabotageList sabotages={sabotages ?? []} />
       </div>
 
       {/* Role Information in top center */}
@@ -112,17 +119,31 @@ export default function ImpostorView({ sabotages, map, playerList, currentPlayer
       <div className="flex-none">
         <MapButton onClick={handleToggleMiniMap} label="Show MiniMap" />
         {showMiniMap && (
-            <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-              <SabotageList  sabotages={sabotages}/>
-              <div className="MiniMap-content" onClick={e => e.stopPropagation()}>
-                <MiniMap map={map} playerList={playerList} currentPlayer={currentPlayer} closeMiniMap={() => setShowMiniMap(false)}  />
-
-              </div>
+          <div
+            className="MiniMap-overlay"
+            onClick={() => setShowMiniMap(false)}
+          >
+            <SabotageList sabotages={sabotages ?? []} />
+            <div
+              className="MiniMap-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MiniMap
+                map={map}
+                playerList={playerList}
+                currentPlayer={currentPlayer}
+                closeMiniMap={() => setShowMiniMap(false)}
+              />
             </div>
+          </div>
         )}
       </div>
       <div className="absolute bottom-4 right-4">
-        <KillButton handleKill={handleKill} isPlayerNearby={isPlayerNearby} isTimer={isTimer}/>
+        <KillButton
+          handleKill={handleKill}
+          isPlayerNearby={isPlayerNearby}
+          isTimer={isTimer}
+        />
       </div>
       <Toaster />
     </div>
