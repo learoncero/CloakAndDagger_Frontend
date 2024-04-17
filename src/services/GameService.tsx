@@ -32,6 +32,12 @@ export default class GameService {
       },
       gameCode,
     });
+
+    if (joinedGame.status !== 200) {
+      console.error("joinGame data " + joinedGame.data);
+      throw new Error(joinedGame.data.message);
+    }
+
     return joinedGame as ApiResponse<Game>;
   }
 

@@ -80,45 +80,18 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
     if (playerId && validKeyCodes.includes(keyCode)) {
-      const currentPlayer = game?.players[playerIndex as number];
-      if (currentPlayer) {
-        const newPosition = {
-          x: currentPlayer.position.x,
-          y: currentPlayer.position.y,
-        };
-
-        switch (keyCode) {
-          case "KeyA":
-            newPosition.x -= 1;
-            break;
-          case "KeyW":
-            newPosition.y -= 1;
-            break;
-          case "KeyD":
-            newPosition.x += 1;
-            break;
-          case "KeyS":
-            newPosition.y += 1;
-            break;
-          default:
-            break;
-        }
-
-        const moveMessage = {
-          id: playerId,
-          keyCode: keyCode,
-          gameCode: game?.gameCode,
-          position: newPosition,
-        };
-
-        if (stompClient && game?.players.length && playerId) {
-          stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
-        }
+      const moveMessage = {
+        id: playerId,
+        keyCode: keyCode,
+        gameCode: game?.gameCode,
+      };
+      if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
+        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
       }
     }
   }
+
   async function killPlayer(gameCode: string, playerToKillId: number) {
     const game = await GameService.handleKill(gameCode, playerToKillId);
 

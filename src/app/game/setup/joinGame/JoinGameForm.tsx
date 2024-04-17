@@ -3,6 +3,7 @@ import JoinGameFormInputField from "./JoinGameFormInputField";
 import { useRouter } from "next/navigation";
 import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
 import GameService from "@/services/GameService";
+import toast, {Toaster} from "react-hot-toast";
 
 export default function JoinGameForm() {
   const router = useRouter();
@@ -26,6 +27,8 @@ export default function JoinGameForm() {
       try {
         const game = await GameService.joinGame(playerName, gameCode);
 
+        console.log("Joined game:", game.data);
+
         const playerId = game.data?.players.find(
             (player: { username: string }) => player.username === playerName
         )?.id;
@@ -34,9 +37,20 @@ export default function JoinGameForm() {
           sessionStorage.setItem("playerId", String(playerId));
         }
 
+        console.log("Joined game:", game.data);
         router.push("/game/setup/lobby/" + gameCode);
-      } catch (error) {
-        console.error("Error joining game:", error);
+      } catch (error: any) {
+        console.log("Error joining game:", error.message);
+        toast("Error joining game: " + error.message, {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#eF4444",
+          },
+          icon: "✖️",
+        });
       }
     }
   };
@@ -63,6 +77,7 @@ export default function JoinGameForm() {
         />
         <JoinGameFormSubmitButton isJoinDisabled={isJoinDisabled} />
       </form>
+      <Toaster />
     </div>
   );
 }
