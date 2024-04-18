@@ -68,6 +68,7 @@ export default function ImpostorView({
     );
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   function handleKill() {
     if (!isTimer && nearbyPlayers.length > 0) {
       const playerToKillId = nearbyPlayers[0].id;
