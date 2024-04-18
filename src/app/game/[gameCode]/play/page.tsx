@@ -65,16 +65,15 @@ export default function PlayGame() {
         "/topic/positionChange",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage);
+          updateGame(receivedMessage.body);
         }
       );
 
       stompClient.subscribe(
-        `/topic/${game?.gameCode}/kill/${playerId}`,
+        "/topic/playerKill",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
-          console.log("Subscribed Kill, Received: ", receivedMessage);
-          updateGame(receivedMessage);
+          updateGame(receivedMessage.body);
         }
       );
     }
