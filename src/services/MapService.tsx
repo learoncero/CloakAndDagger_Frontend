@@ -1,4 +1,4 @@
-import { ApiResponse, Game, Player } from "@/app/types";
+import { ApiResponse } from "@/app/types";
 import ApiService from "./ApiService";
 
 export default class MapService {

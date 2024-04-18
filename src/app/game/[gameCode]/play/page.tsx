@@ -16,7 +16,6 @@ import BackLink from "@/components/BackLink";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
-  console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<boolean[][] | undefined>([[]]);
@@ -36,6 +35,7 @@ export default function PlayGame() {
       updateGame(gameResult.data);
     }
     const mapResult = await fetchMap(gameResult.data?.map as string);
+    console.log("mapResult: ", mapResult);
     if (mapResult.status === 200) {
       setMap(mapResult.data);
     }

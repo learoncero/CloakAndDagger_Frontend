@@ -62,7 +62,7 @@ export default function Lobby() {
     stompClient.subscribe("/topic/" + gameCode + "/play", function () {
       router.push("/game/" + game?.gameCode + "/play");
     });
-  }, [stompClient, updateGame]);
+  }, [stompClient]);
 
   function handleStartGame() {
     if (stompClient && gameCode && game) {

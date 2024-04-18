@@ -27,7 +27,7 @@ export default function JoinGameForm() {
         const game = await GameService.joinGame(playerName, gameCode);
 
         const playerId = game.data?.players.find(
-            (player: { username: string }) => player.username === playerName
+          (player: { username: string }) => player.username === playerName
         )?.id;
 
         if (playerId) {
