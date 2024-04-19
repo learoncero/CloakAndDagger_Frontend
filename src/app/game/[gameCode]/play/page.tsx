@@ -65,16 +65,15 @@ export default function PlayGame() {
         "/topic/positionChange",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage);
+          updateGame(receivedMessage.body);
         }
       );
 
       stompClient.subscribe(
-        `/topic/${game?.gameCode}/kill/${playerId}`,
+        "/topic/playerKill",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
-          console.log("Subscribed Kill, Received: ", receivedMessage);
-          updateGame(receivedMessage);
+          updateGame(receivedMessage.body);
         }
       );
     }
@@ -82,53 +81,24 @@ export default function PlayGame() {
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
-    const validMoveKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
-
-    if (
-      playerId &&
-      validMoveKeyCodes.includes(keyCode) &&
+    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+    if (playerId && validKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST
-    ) {
+      playerRole !== Role.IMPOSTOR_GHOST) {
+      const moveMessage = {
+        id: playerId,
+        keyCode: keyCode,
+        gameCode: game?.gameCode,
+      };
+        
       const currentPlayer = game?.players[playerIndex as number];
+      if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
+        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
 
-      if (currentPlayer) {
-        const newPosition = {
-          x: currentPlayer.position.x,
-          y: currentPlayer.position.y,
-        };
-
-        switch (keyCode) {
-          case "KeyA":
-            newPosition.x -= 1;
-            break;
-          case "KeyW":
-            newPosition.y -= 1;
-            break;
-          case "KeyD":
-            newPosition.x += 1;
-            break;
-          case "KeyS":
-            newPosition.y += 1;
-            break;
-          default:
-            break;
-        }
-
-        const moveMessage = {
-          id: playerId,
-          keyCode: keyCode,
-          gameCode: game?.gameCode,
-          position: newPosition,
-        };
-
-        if (stompClient && game?.players.length && playerId) {
-          stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
-        }
       }
     }
   }
+
   async function killPlayer(gameCode: string, playerToKillId: number) {
     const killMessage = {
       gameCode: gameCode,

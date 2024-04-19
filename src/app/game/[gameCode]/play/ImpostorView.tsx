@@ -59,12 +59,15 @@ export default function ImpostorView({
     return () => clearInterval(filterInterval);
   }, [game?.players]);
 
+  //todo filter for ghosts
   function filterNearbyPlayers(players: Player[]): Player[] {
     return players.filter(
       (player) =>
         Math.abs(player.position.x - currentPlayer.position.x) <= 1 &&
         Math.abs(player.position.y - currentPlayer.position.y) <= 1 &&
-        player.id !== currentPlayerId
+        player.id !== currentPlayerId &&
+        player.role !== "CREWMATE_GHOST" &&
+        player.role !== "IMPOSTOR_GHOST"
     );
   }
 
