@@ -21,7 +21,11 @@ export default function PlayGame() {
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
 
-  const playerId = sessionStorage.getItem("playerId");
+  let playerId: string | null;
+  if (typeof window !== 'undefined') {
+    playerId = sessionStorage.getItem("playerId");
+  }
+
   const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
   );
@@ -130,7 +134,7 @@ export default function PlayGame() {
         <h1>Crewmates win!</h1>
       ) : currentPlayer ? (
         <div>
-          {playerRole === Role.IMPOSTOR ? (
+          {(playerRole === Role.IMPOSTOR) ? (
             <ImpostorView
               sabotages={game?.sabotages}
               map={map.map}
@@ -138,8 +142,8 @@ export default function PlayGame() {
               currentPlayer={currentPlayer}
               game={game}
               killPlayer={killPlayer}
-            />
-          ) : playerRole === Role.CREWMATE_GHOST ? (
+            />// @ts-ignore
+          ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
             <Modal modalText={"GAME OVER!"}>
               <BackLink href={"/"}>Return to Landing Page</BackLink>
             </Modal>
