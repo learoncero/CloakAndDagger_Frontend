@@ -10,7 +10,8 @@ import LobbyGameCode from "./LobbyGameCode";
 import LobbyPlayerList from "./LobbyPlayerList";
 import LobbyReadyToStartText from "./LobbyReadyToStartText";
 import LobbyHeader from "./LobbyHeader";
-import fetchGame from "./actions";
+import { fetchGame } from "./actions";
+import { Game } from "@/app/types";
 
 export default function Lobby() {
   const [stompClient, setStompClient] = useState<any>(null);
@@ -19,16 +20,15 @@ export default function Lobby() {
   const { game, updateGame } = useGame();
 
   async function loadGameData() {
-    const result = await fetchGame(gameCode as string);
-    if (result.status === 200) {
-      updateGame(result.data);
+    const gameResult = await fetchGame(gameCode as string);
+    if (gameResult.status === 200) {
+      updateGame(gameResult.data as Game);
     }
   }
 
   // Set up polling to refresh lobby data every 5 seconds
   useEffect(() => {
     loadGameData();
-
 
     const intervalId = setInterval(() => {
       loadGameData();
@@ -58,12 +58,12 @@ export default function Lobby() {
   }, [stompClient]);
 
   useEffect(() => {
-    if (!stompClient) return;
+    if (!stompClient || !gameCode) return;
 
     stompClient.subscribe("/topic/" + gameCode + "/play", function () {
-      router.push("/game/" + game?.gameCode + "/play");
+      router.push("/game/" + gameCode + "/play");
     });
-  }, [stompClient, updateGame]);
+  }, [stompClient]);
 
   function handleStartGame() {
     if (stompClient && gameCode && game) {
@@ -75,7 +75,7 @@ export default function Lobby() {
     return <div>Loading...</div>;
   }
 
-  const isGameReadyToStart = game?.numberOfPlayers === game?.players.length;
+  const isGameReadyToStart = game?.numberOfPlayers === game?.players?.length;
 
   return (
     <div className="min-h-screen bg-black flex justify-center pl-5 items-center gap-10">

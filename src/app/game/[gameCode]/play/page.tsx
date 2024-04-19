@@ -3,34 +3,42 @@
 import Stomp from "stompjs";
 import { useEffect, useState } from "react";
 import SockJS from "sockjs-client";
-import { Player, Role } from "@/app/types";
+import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import GameOver from "./GameOver";
-import { fetchGame } from "./actions";
+import { fetchGame, fetchMap } from "./actions";
 import GameService from "@/services/GameService";
+import Modal from "@/components/Modal";
+import BackLink from "@/components/BackLink";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
-  console.log("gameCode: ", gameCode);
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
+  const [map, setMap] = useState<Map>({} as Map);
+
   const playerId = sessionStorage.getItem("playerId");
-  const playerIndex = game?.players.findIndex(
+  const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
   );
-  const currentPlayer = game?.players.find(
+  const currentPlayer = game?.players?.find(
     (player) => player.id.toString() === playerId
   );
-  const playerRole = game?.players[playerIndex as number]?.role;
+  const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
 
   async function loadGameData() {
-    const result = await fetchGame(gameCode as string);
-    if (JSON.stringify(result.data) !== JSON.stringify(game)) {
-      updateGame(result.data);
+    const gameResult = await fetchGame(gameCode as string);
+    console.log(gameResult);
+    updateGame(gameResult.data as Game);
+
+    const mapResult = await fetchMap(gameResult.data?.map as string);
+    if (mapResult.status === 200) {
+      setMap(mapResult.data as Map);
+    } else if (mapResult.status === 404) {
+      console.error("Map not found");
     }
   }
 
@@ -82,19 +90,21 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    if (playerId && validKeyCodes.includes(keyCode) &&
+    if (
+      playerId &&
+      validKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST) {
+      playerRole !== Role.IMPOSTOR_GHOST &&
+      game?.gameStatus === GameStatus.IN_GAME
+    ) {
       const moveMessage = {
         id: playerId,
         keyCode: keyCode,
         gameCode: game?.gameCode,
       };
-        
-      const currentPlayer = game?.players[playerIndex as number];
+
       if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
         stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
-
       }
     }
   }
@@ -113,39 +123,50 @@ export default function PlayGame() {
     <div className="min-h-screen bg-black text-white">
       <h4>List of players:</h4>
       <ul>
-        {game?.players.map((player) => (
+        {game?.players?.map((player) => (
           <li key={player.id}>
             Username: {player.username}
             {player.id.toString() === playerId ? " (you)" : ""}
           </li>
         ))}
       </ul>
-
-      {currentPlayer ? (
+      {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+        <Modal modalText={"IMPOSTORS WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+      ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+        <h1>Crewmates win!</h1>
+      ) : currentPlayer ? (
         <div>
           {playerRole === Role.IMPOSTOR ? (
             <ImpostorView
               sabotages={game?.sabotages}
-              map={game?.map as boolean[][]}
+              map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
               game={game}
               killPlayer={killPlayer}
             />
           ) : playerRole === Role.CREWMATE_GHOST ? (
-            <GameOver />
+            <Modal modalText={"GAME OVER!"}>
+              <BackLink href={"/"}>Return to Landing Page</BackLink>
+            </Modal>
           ) : (
             <CrewmateView
-              map={game?.map as boolean[][]}
+              map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
             />
           )}
-          <MapDisplay
-            map={game?.map as boolean[][]}
-            playerList={game?.players as Player[]}
-            currentPlayer={currentPlayer}
-          />
+          {map && map.map ? (
+            <MapDisplay
+              map={map.map}
+              playerList={game?.players as Player[]}
+              currentPlayer={currentPlayer}
+            />
+          ) : (
+            <div>Loading map...</div>
+          )}
         </div>
       ) : (
         <div>No Player Data Found</div>

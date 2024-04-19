@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Game } from "@/app/types";
 
 export default function useGame() {
-  const [game, setGame] = useState<Game | null | undefined>(null);
+  const [game, setGame] = useState<Game>({} as Game);
 
-  const updateGame = (newGame: Game | null | undefined) => {
+  const updateGame = (newGame: Game) => {
     setGame(newGame);
   };
 

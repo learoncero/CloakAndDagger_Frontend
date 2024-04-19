@@ -2,10 +2,11 @@ export type Game = {
   gameCode: string;
   numberOfPlayers: number;
   numberOfImpostors: number;
-  map: boolean[][];
+  map: string;
   players: Player[];
   gameID: number;
   sabotages: Sabotage[];
+  gameStatus: GameStatus;
 };
 
 export type Player = {
@@ -33,3 +34,16 @@ export enum Role {
   CREWMATE_GHOST = "CREWMATE_GHOST",
   IMPOSTOR_GHOST = "IMPOSTOR_GHOST",
 }
+
+export enum GameStatus {
+  CREWMATES_WIN = "CREWMATES_WIN",
+  IMPOSTORS_WIN = "IMPOSTORS_WIN",
+  LOBBY = "LOBBY",
+  IN_GAME = "IN_GAME",
+}
+
+export type Map = {
+  id: number;
+  name: string;
+  map: boolean[][];
+};

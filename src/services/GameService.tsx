@@ -24,7 +24,7 @@ export default class GameService {
   }
 
   static async joinGame(username: string, gameCode: string) {
-    const joinedGame = await ApiService.post(`/api/game/join/${username}`, {
+    const joinedGame = await ApiService.post("/api/game/join", {
       username,
       position: {
         x: 10,
