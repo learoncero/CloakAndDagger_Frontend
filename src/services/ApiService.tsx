@@ -7,7 +7,6 @@ export default class ApiService {
     try {
       const url = new URL(pathname, API_URL);
       const response = await fetch(url, init);
-
       // Any response from API (e.g. 200, 404, …)
       status = response.status;
       statusText = response.statusText;
