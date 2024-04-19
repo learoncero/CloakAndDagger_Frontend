@@ -3,7 +3,7 @@
 import Stomp from "stompjs";
 import { useEffect, useState } from "react";
 import SockJS from "sockjs-client";
-import { GameStatus, Player, Role } from "@/app/types";
+import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import MapDisplay from "./MapDisplay";
@@ -18,26 +18,27 @@ export default function PlayGame() {
   const { gameCode } = useParams();
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
-  const [map, setMap] = useState<boolean[][] | undefined>([[]]);
+  const [map, setMap] = useState<Map>({} as Map);
 
   const playerId = sessionStorage.getItem("playerId");
-  const playerIndex = game?.players.findIndex(
+  const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
   );
-  const currentPlayer = game?.players.find(
+  const currentPlayer = game?.players?.find(
     (player) => player.id.toString() === playerId
   );
-  const playerRole = game?.players[playerIndex as number]?.role;
+  const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
 
   async function loadGameData() {
     const gameResult = await fetchGame(gameCode as string);
-    if (JSON.stringify(gameResult.data) !== JSON.stringify(game)) {
-      updateGame(gameResult.data);
-    }
+    console.log(gameResult);
+    updateGame(gameResult.data as Game);
+
     const mapResult = await fetchMap(gameResult.data?.map as string);
-    console.log("mapResult: ", mapResult);
     if (mapResult.status === 200) {
-      setMap(mapResult.data);
+      setMap(mapResult.data as Map);
+    } else if (mapResult.status === 404) {
+      console.error("Map not found");
     }
   }
 
@@ -75,15 +76,6 @@ export default function PlayGame() {
           updateGame(receivedMessage);
         }
       );
-      // Subscribe to receive updated game state
-      stompClient.subscribe(
-        `/topic/${game?.gameCode}/play`,
-        (message: { body: string }) => {
-          const updatedGame = JSON.parse(message.body);
-          updateGame(updatedGame);
-        }
-      );
-      stompClient.send(`/app/${game?.gameCode}/play`, {}, JSON.stringify(game));
     }
   }, [stompClient]);
 
@@ -96,7 +88,7 @@ export default function PlayGame() {
       validMoveKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
       playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.NOT_FINISHED
+      game?.gameStatus === GameStatus.IN_GAME
     ) {
       const currentPlayer = game?.players[playerIndex as number];
       if (currentPlayer) {
@@ -129,7 +121,7 @@ export default function PlayGame() {
           position: newPosition,
         };
 
-        if (stompClient && game?.players.length && playerId) {
+        if (stompClient && game?.players?.length && playerId) {
           stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
         }
       }
@@ -139,7 +131,7 @@ export default function PlayGame() {
     const game = await GameService.handleKill(gameCode, playerToKillId);
 
     if (JSON.stringify(game.data) !== JSON.stringify(game)) {
-      updateGame(game.data);
+      updateGame(game.data as Game);
     }
   }
 
@@ -147,7 +139,7 @@ export default function PlayGame() {
     <div className="min-h-screen bg-black text-white">
       <h4>List of players:</h4>
       <ul>
-        {game?.players.map((player) => (
+        {game?.players?.map((player) => (
           <li key={player.id}>
             Username: {player.username}
             {player.id.toString() === playerId ? " (you)" : ""}
@@ -165,7 +157,7 @@ export default function PlayGame() {
           {playerRole === Role.IMPOSTOR ? (
             <ImpostorView
               sabotages={game?.sabotages}
-              map={map as boolean[][]}
+              map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
               game={game}
@@ -177,16 +169,20 @@ export default function PlayGame() {
             </Modal>
           ) : (
             <CrewmateView
-              map={map as boolean[][]}
+              map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
             />
           )}
-          <MapDisplay
-            map={map as boolean[][]}
-            playerList={game?.players as Player[]}
-            currentPlayer={currentPlayer}
-          />
+          {map && map.map ? (
+            <MapDisplay
+              map={map.map}
+              playerList={game?.players as Player[]}
+              currentPlayer={currentPlayer}
+            />
+          ) : (
+            <div>Loading map...</div>
+          )}
         </div>
       ) : (
         <div>No Player Data Found</div>

@@ -38,5 +38,12 @@ export enum Role {
 export enum GameStatus {
   CREWMATES_WIN = "CREWMATES_WIN",
   IMPOSTORS_WIN = "IMPOSTORS_WIN",
-  NOT_FINISHED = "NOT_FINISHED",
+  LOBBY = "LOBBY",
+  IN_GAME = "IN_GAME",
 }
+
+export type Map = {
+  id: number;
+  name: string;
+  map: boolean[][];
+};

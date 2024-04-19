@@ -31,7 +31,7 @@ export default function JoinGameForm() {
         )?.id;
 
         if (playerId) {
-          sessionStorage.setItem("playerId", String(playerId));
+          window.sessionStorage.setItem("playerId", String(playerId));
         }
 
         router.push("/game/setup/lobby/" + gameCode);

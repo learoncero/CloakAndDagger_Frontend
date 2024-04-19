@@ -11,7 +11,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
   const [username, setUsername] = useState("");
   const [numPlayers, setNumPlayers] = useState(1);
   const [numImpostors, setNumImpostors] = useState(0);
-  const [map, setMap] = useState("Spaceship");
+  const [map, setMap] = useState("DevMap1");
   const [state, formAction] = useFormState(onSubmit, undefined);
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
@@ -68,6 +68,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         onChange={(e) => setMap(e.target.value)}
         type="select"
         required={true}
+        options={["DevMap1", "DevMap2", "Spaceship"]}
       />
       <CreateGameFormSubmitButton buttonDisabled={buttonDisabled} />
     </form>
