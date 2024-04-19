@@ -57,7 +57,7 @@ export default function PlayGame() {
       };
     }
 
-    loadGameData();
+    loadGameData().then((r) => console.log("Game loaded"));
   }, [stompClient]);
 
   useEffect(() => {
@@ -73,7 +73,15 @@ export default function PlayGame() {
         "/topic/positionChange",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage);
+          updateGame(receivedMessage.body);
+        }
+      );
+
+      stompClient.subscribe(
+        "/topic/playerKill",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
         }
       );
     }
@@ -81,57 +89,33 @@ export default function PlayGame() {
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
-    const validMoveKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    const playerId = sessionStorage.getItem("playerId"); //TODO: Change to cookie
+    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     if (
       playerId &&
-      validMoveKeyCodes.includes(keyCode) &&
+      validKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
       playerRole !== Role.IMPOSTOR_GHOST &&
       game?.gameStatus === GameStatus.IN_GAME
     ) {
-      const currentPlayer = game?.players[playerIndex as number];
-      if (currentPlayer) {
-        const newPosition = {
-          x: currentPlayer.position.x,
-          y: currentPlayer.position.y,
-        };
+      const moveMessage = {
+        id: playerId,
+        keyCode: keyCode,
+        gameCode: game?.gameCode,
+      };
 
-        switch (keyCode) {
-          case "KeyA":
-            newPosition.x -= 1;
-            break;
-          case "KeyW":
-            newPosition.y -= 1;
-            break;
-          case "KeyD":
-            newPosition.x += 1;
-            break;
-          case "KeyS":
-            newPosition.y += 1;
-            break;
-          default:
-            break;
-        }
-
-        const moveMessage = {
-          id: playerId,
-          keyCode: keyCode,
-          gameCode: game?.gameCode,
-          position: newPosition,
-        };
-
-        if (stompClient && game?.players?.length && playerId) {
-          stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
-        }
+      if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
+        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
       }
     }
   }
-  async function killPlayer(gameCode: string, playerToKillId: number) {
-    const game = await GameService.handleKill(gameCode, playerToKillId);
 
-    if (JSON.stringify(game.data) !== JSON.stringify(game)) {
-      updateGame(game.data as Game);
+  async function killPlayer(gameCode: string, playerToKillId: number) {
+    const killMessage = {
+      gameCode: gameCode,
+      playerToKillId: playerToKillId,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
     }
   }
 

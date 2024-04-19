@@ -32,17 +32,12 @@ export default class GameService {
       },
       gameCode,
     });
+
+    if (joinedGame.status !== 200) {
+      throw new Error(joinedGame.data.message);
+    }
+
     return joinedGame as ApiResponse<Game>;
   }
 
-  static async handleKill(gameCode: string, playerId: number) {
-    const game = await ApiService.post(
-      `/api/game/${gameCode}/kill/${playerId}`,
-      {
-        gameCode,
-        playerId,
-      }
-    );
-    return game as ApiResponse<Game>;
-  }
 }

@@ -14,16 +14,6 @@ export async function fetchGame(gameCode: string) {
   return result;
 }
 
-export async function handleKill(gameCode: string, playerToKillId: number) {
-  const result = await GameService.handleKill(gameCode, playerToKillId);
-
-  if (result.status === 200) {
-    revalidatePath(`/game/${gameCode}/play`);
-  }
-
-  return result;
-}
-
 export async function fetchMap(mapName: string) {
   const result = await MapService.getMap(mapName);
 
