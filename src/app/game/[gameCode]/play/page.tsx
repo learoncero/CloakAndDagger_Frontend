@@ -1,25 +1,25 @@
 "use client";
 
 import Stomp from "stompjs";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
-import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
 import { fetchGame, fetchMap } from "./actions";
-import GameService from "@/services/GameService";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
-import PlayerList from "./PlayerList";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
+  const pressedKeys = useRef<Set<string>>(new Set());
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== 'undefined') {
@@ -67,8 +67,10 @@ export default function PlayGame() {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [stompClient, game?.players]);
 
@@ -96,23 +98,55 @@ export default function PlayGame() {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
     if (
-      playerId &&
-      validKeyCodes.includes(keyCode) &&
-      playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.IN_GAME
+        playerId &&
+        validKeyCodes.includes(keyCode) &&
+        playerRole !== Role.CREWMATE_GHOST &&
+        playerRole !== Role.IMPOSTOR_GHOST &&
+        game?.gameStatus === GameStatus.IN_GAME
     ) {
-      const moveMessage = {
-        id: playerId,
-        keyCode: keyCode,
-        gameCode: game?.gameCode,
-      };
-
-      if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
-        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
+      if (!pressedKeys.current.has(keyCode)) {
+        pressedKeys.current.add(keyCode);
+        if (!isMoving) {
+          sendMoveMessage();
+          setIsMoving(true);
+        }
+        if (!intervalId.current) {
+          intervalId.current = setInterval(sendMoveMessage, 175);
+        }
       }
     }
   }
+
+  function handleKeyUp(event: KeyboardEvent) {
+    const keyCode = event.code;
+    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+    if (validKeyCodes.includes(keyCode)) {
+      pressedKeys.current.delete(keyCode);
+      if (pressedKeys.current.size === 0 && intervalId.current) {
+        clearInterval(intervalId.current);
+        intervalId.current = null;
+        setTimeout(() => setIsMoving(false), 200);
+      }
+    }
+  }
+
+  function sendMoveMessage() {
+    const keysArray = Array.from(pressedKeys.current.values());
+    const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
+
+    if (!keyCodeToSend) return;
+
+    const moveMessage = {
+      id: playerId,
+      keyCode: keyCodeToSend,
+      gameCode: game?.gameCode,
+    };
+
+    if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
+      stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
+    }
+  }
+
 
   async function killPlayer(gameCode: string, playerToKillId: number) {
     const killMessage = {
