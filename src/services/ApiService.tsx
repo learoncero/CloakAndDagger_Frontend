@@ -28,4 +28,13 @@ export default class ApiService {
       body: body ? JSON.stringify(body) : undefined,
     });
   }
+
+  static get(pathname: string) {
+    return ApiService.fetch(pathname, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 }
