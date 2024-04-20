@@ -6,6 +6,9 @@ import RoleInformation from "./RoleInformation";
 import KillButton from "./KillButton";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
+import MapDisplay from "./MapDisplay";
+import PlayerList from "./PlayerList";
+import CrewmateCounter from "./CrewmateCounter";
 
 type Props = {
   sabotages: Sabotage[] | undefined;
@@ -98,48 +101,53 @@ export default function ImpostorView({
   const toggleMiniMap = () => setShowMiniMap((prev) => !prev);
 
   return (
-    <div className="flex justify-between items-start p-4">
-      <div className="flex-none">
+    <div className="flex justify-between items-start p-10">
+      <div className="flex-none w-1/4">
+        <RoleInformation role={"IMPOSTOR"} />
         <SabotageList sabotages={sabotages ?? []} />
       </div>
 
-      {/* Role Information in top center */}
       <div className="flex-grow flex justify-center">
-        <RoleInformation role={"IMPOSTOR"} />
-      </div>
-
-      {/* Map Button on top right */}
-      <div className="flex-none">
-        <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
-        {showMiniMap && (
-          <div
-            className="MiniMap-overlay"
-            onClick={() => setShowMiniMap(false)}
-          >
-            <SabotageList sabotages={sabotages ?? []} />
-            <div
-              className="MiniMap-content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MiniMap
-                map={map}
-                playerList={playerList}
-                currentPlayer={currentPlayer}
-                closeMiniMap={() => setShowMiniMap(false)}
-              />
-            </div>
-          </div>
+        {map ? (
+          <MapDisplay
+            map={map}
+            playerList={playerList}
+            currentPlayer={currentPlayer}
+          />
+        ) : (
+          <div>Loading map...</div>
         )}
       </div>
-      <div className="absolute bottom-4 right-4">
-        <KillButton
-          handleKill={handleKill}
-          isPlayerNearby={nearbyPlayers.length > 0}
-          isTimer={isTimer}
-        >
-          {isTimer ? "Kill on cooldown" : "Kill"}
-        </KillButton>
+
+      <div className="flex-none w-1/4">
+        <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
+        <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+        <CrewmateCounter playerList={playerList} />
+
+        <div className="mt-48 flex justify-center">
+          <KillButton
+            handleKill={handleKill}
+            isPlayerNearby={nearbyPlayers.length > 0}
+            isTimer={isTimer}
+          >
+            {isTimer ? "Kill on cooldown" : "Kill"}
+          </KillButton>
+        </div>
       </div>
+
+      {showMiniMap && (
+        <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
+          <SabotageList sabotages={sabotages ?? []} />
+          <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
+            <MiniMap
+              map={map}
+              playerList={playerList}
+              currentPlayer={currentPlayer}
+              closeMiniMap={() => setShowMiniMap(false)}
+            />
+          </div>
+        </div>
+      )}
       <Toaster />
     </div>
   );

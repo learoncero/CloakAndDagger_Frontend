@@ -14,8 +14,8 @@ export default function KillButton({
   const buttonclickable = isPlayerNearby && !isTimer;
   return (
     <button
-      className={`px-4 py-2 rounded-md text-black font-semibold ${
-        buttonclickable ? "bg-red-600" : "bg-gray-500 cursor-default"
+      className={`py-5 px-8 text-xl font-semibold rounded-lg shadow-lg ${
+        buttonclickable ? "bg-red-700" : "bg-gray-500"
       }`}
       onClick={handleKill}
       disabled={!buttonclickable}
