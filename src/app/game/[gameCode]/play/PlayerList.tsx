@@ -1,4 +1,4 @@
-import { Game, Player } from "@/app/types";
+import { Game, Player, Role } from "@/app/types";
 import PlayerListItem from "./PlayerListItem";
 
 type Props = {
@@ -16,6 +16,9 @@ export default function PlayerList({ playerId, playerList }: Props) {
             username: player.username,
             currPlayer: player.id === playerId,
             key: player.id,
+            isGhost:
+              player.role === Role.CREWMATE_GHOST ||
+              player.role === Role.IMPOSTOR_GHOST,
           })
         )}
       </ul>

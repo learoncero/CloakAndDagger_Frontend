@@ -8,6 +8,7 @@ import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
+import CrewmateCounter from "./CrewmateCounter";
 
 type Props = {
   sabotages: Sabotage[] | undefined;
@@ -121,6 +122,7 @@ export default function ImpostorView({
       <div className="flex-none w-1/4">
         <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
         <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+        <CrewmateCounter playerList={playerList} />
 
         <div className="mt-48 flex justify-center">
           <KillButton
