@@ -100,7 +100,7 @@ export default function ImpostorView({
   const toggleMiniMap = () => setShowMiniMap((prev) => !prev);
 
   return (
-    <div className="flex justify-between items-start p-10">
+    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList sabotages={sabotages ?? []} />
@@ -119,10 +119,12 @@ export default function ImpostorView({
       </div>
 
       <div className="flex-none w-1/4">
-        <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
-        <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+        <div className="mb-32">
+          <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
+          <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+        </div>
 
-        <div className="mt-48 flex justify-center">
+        <div className="flex justify-center">
           <KillButton
             handleKill={handleKill}
             isPlayerNearby={nearbyPlayers.length > 0}
