@@ -31,6 +31,15 @@ const TaskPopup: React.FC<TaskPopupProps> = ({ onClose }) => {
         }
     };
 
+    const handleReset = async () => {
+        try {
+            await TaskService.resetSum();
+            setCurrentSum(0);
+        } catch (error) {
+            console.error("Error resetting sum:", error);
+        }
+    };
+
     return (
         <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
             <div className="bg-black rounded-lg p-8 max-w-md">
@@ -52,7 +61,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({ onClose }) => {
                 <div className="mb-4">
                     <p className="text-lg">Current sum: {currentSum}</p>
                 </div>
-                <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded" onClick={onClose}>Reset</button>
+                <button className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded" onClick={handleReset}>Reset</button>
             </div>
         </div>
     );

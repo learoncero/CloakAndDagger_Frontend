@@ -13,4 +13,10 @@ export default class TaskService {
         console.log("Random sum:", randomSum);
         return randomSum as ApiResponse<number>;
     }
+
+    static async resetSum() {
+        const currentSum = await ApiService.post(`/api/task/passcode/reset`);
+        console.log("Reset sum:", currentSum);
+        return currentSum as ApiResponse<number>;
+    }
 }
