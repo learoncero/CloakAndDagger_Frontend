@@ -7,7 +7,7 @@ interface TaskPopupProps {
     onClose: () => void;
 }
 
-const TaskPopup: React.FC<TaskPopupProps> = ({ onClose }) => {
+export default function TaskPopup({ onClose }: TaskPopupProps) {
     const [currentSum, setCurrentSum] = useState<number>(0);
     const [randomSum, setRandomSum] = useState<number>(0);
     const [taskDone, setTaskDone] = useState<boolean>(false);
@@ -108,5 +108,3 @@ const TaskPopup: React.FC<TaskPopupProps> = ({ onClose }) => {
         </>
     );
 };
-
-export default TaskPopup;

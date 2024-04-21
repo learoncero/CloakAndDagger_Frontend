@@ -5,20 +5,22 @@ import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import { Player } from "@/app/types";
 import { useEffect, useState } from "react";
 import "./MiniMap.css";
-import TaskPopup from "@/app/game/[gameCode]/play/TaskPopup";
+import Task from "@/app/game/[gameCode]/play/Task";
 
 interface CrewmateViewProps {
   map: boolean[][];
   playerList: Player[];
   currentPlayer: Player;
 }
-export default function CrewmateView({
-                                       map,
+
+export default function CrewmateView({ map,
                                        playerList,
                                        currentPlayer,
                                      }: CrewmateViewProps) {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const [taskType, setTaskType] = useState<string>("passcode"); // TODO: Hardcoded value for now
+
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
   };
@@ -84,8 +86,9 @@ export default function CrewmateView({
               </div>
           )}
         </div>
-        {showTaskPopup &&
-        <TaskPopup onClose={() => setShowTaskPopup(false)}/>}
+        {showTaskPopup && (
+            <Task taskType={taskType} onClose={() => setShowTaskPopup(false)} />
+        )}
       </div>
   );
 }

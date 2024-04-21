@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
-import { Toaster } from "react-hot-toast";
 
 interface TaskCompletedPopupProps {
     onClose: () => void;
 }
 
-const TaskCompletedPopup: React.FC<TaskCompletedPopupProps> = ({ onClose }) => {
+export default function TaskCompletedPopup({ onClose }: TaskCompletedPopupProps){
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose();
@@ -18,10 +17,7 @@ const TaskCompletedPopup: React.FC<TaskCompletedPopupProps> = ({ onClose }) => {
             <div className="bg-black rounded-lg p-8 max-w-md">
                 <h2 className="text-2xl font-bold mb-4">Task Done</h2>
                 <p>Task completed successfully!</p>
-                <Toaster />
             </div>
         </div>
     );
 };
-
-export default TaskCompletedPopup;
