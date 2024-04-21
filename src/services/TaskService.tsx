@@ -19,4 +19,10 @@ export default class TaskService {
         console.log("Reset sum:", currentSum);
         return currentSum as ApiResponse<number>;
     }
+
+    static async getCurrentSum() {
+        const currentSum = await ApiService.get(`/api/task/passcode/current`);
+        console.log("Current sum:", currentSum);
+        return currentSum as ApiResponse<number>;
+    }
 }
