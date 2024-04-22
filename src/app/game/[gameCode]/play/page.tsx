@@ -19,7 +19,7 @@ export default function PlayGame() {
   const [map, setMap] = useState<Map>({} as Map);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [isMoving, setIsMoving] = useState(false);
+  //const [isMoving, setIsMoving] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== 'undefined') {
@@ -106,11 +106,11 @@ export default function PlayGame() {
     ) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
-        if (!isMoving) {
+        //if (!isMoving) {
           sendMoveMessage();
-          setIsMoving(true);
-            console.log("Started moving: " + isMoving);
-        }
+          //setIsMoving(true);
+          //console.log("Started moving: " + isMoving);
+        //}
         if (!intervalId.current) {
           intervalId.current = setInterval(sendMoveMessage, 175);
         }
@@ -126,8 +126,8 @@ export default function PlayGame() {
       if (pressedKeys.current.size === 0 && intervalId.current) {
         clearInterval(intervalId.current);
         intervalId.current = null;
-        setTimeout(() => setIsMoving(false), 200);
-        console.log("Stopped moving: " + isMoving);
+        //setTimeout(() => setIsMoving(false), 200);
+        //console.log("Stopped moving: " + isMoving);
       }
     }
   }
