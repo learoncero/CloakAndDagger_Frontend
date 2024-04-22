@@ -156,6 +156,7 @@ export default function PlayGame() {
               map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
+              game={game}
             />
           )}
           {map && map.map ? (
