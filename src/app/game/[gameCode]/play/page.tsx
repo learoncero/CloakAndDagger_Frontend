@@ -109,6 +109,7 @@ export default function PlayGame() {
         if (!isMoving) {
           sendMoveMessage();
           setIsMoving(true);
+            console.log("Started moving: " + isMoving);
         }
         if (!intervalId.current) {
           intervalId.current = setInterval(sendMoveMessage, 175);
@@ -126,6 +127,7 @@ export default function PlayGame() {
         clearInterval(intervalId.current);
         intervalId.current = null;
         setTimeout(() => setIsMoving(false), 200);
+        console.log("Stopped moving: " + isMoving);
       }
     }
   }
