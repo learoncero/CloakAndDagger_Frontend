@@ -135,7 +135,7 @@ export default function ImpostorView({
           buttonclickable={nearbyPlayers.length > 0 && !isTimer}
           colorActive="bg-red-600"
         >
-          {isTimer ? "Kill on cooldown" : "Kill"}
+          {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
         </ActionButton>
       </div>
       <Toaster />
