@@ -28,9 +28,7 @@ export default function ImpostorView({
 }: Props) {
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
-
   const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
-
   const [showMiniMap, setShowMiniMap] = useState(false);
 
   useEffect(() => {
@@ -58,7 +56,7 @@ export default function ImpostorView({
     }, 200);
 
     return () => clearInterval(filterInterval);
-  }, [game?.players]);
+  }, [game.players]);
 
   function filterNearbyPlayers(players: Player[]): Player[] {
     return players.filter(

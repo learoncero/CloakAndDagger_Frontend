@@ -6,14 +6,11 @@ import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
-import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
 import { fetchGame, fetchMap } from "./actions";
-import GameService from "@/services/GameService";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
-import PlayerList from "./PlayerList";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -22,7 +19,7 @@ export default function PlayGame() {
   const [map, setMap] = useState<Map>({} as Map);
 
   let playerId: string | null;
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
   }
 
@@ -89,6 +86,14 @@ export default function PlayGame() {
           updateGame(receivedMessage.body);
         }
       );
+
+      stompClient.subscribe(
+        "/topic/bodyReport",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+        }
+      );
     }
   }, [stompClient]);
 
@@ -124,6 +129,16 @@ export default function PlayGame() {
     }
   }
 
+  async function reportBody(gameCode: string, bodyToReportId: number) {
+    const reportMessage = {
+      gameCode: gameCode,
+      bodyToReportId: bodyToReportId,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/report`, {}, JSON.stringify(reportMessage));
+    }
+  }
+
   return (
     <div className="min-h-screen min-w-screen bg-black text-white">
       {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
@@ -134,7 +149,7 @@ export default function PlayGame() {
         <h1>Crewmates win!</h1>
       ) : currentPlayer ? (
         <div>
-          {(playerRole === Role.IMPOSTOR) ? (
+          {playerRole === Role.IMPOSTOR ? (
             <ImpostorView
               sabotages={game?.sabotages}
               map={map.map}
@@ -142,8 +157,9 @@ export default function PlayGame() {
               currentPlayer={currentPlayer}
               game={game}
               killPlayer={killPlayer}
-            />// @ts-ignore
-          ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
+            /> // @ts-ignore
+          ) : playerRole === Role.CREWMATE_GHOST ||
+            playerRole === Role.IMPOSTOR_GHOST ? (
             <Modal modalText={"GAME OVER!"}>
               <BackLink href={"/"}>Return to Landing Page</BackLink>
             </Modal>
@@ -153,6 +169,7 @@ export default function PlayGame() {
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
               game={game}
+              reportBody={reportBody}
             />
           )}
         </div>
