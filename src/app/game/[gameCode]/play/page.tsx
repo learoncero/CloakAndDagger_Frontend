@@ -20,11 +20,15 @@ export default function PlayGame() {
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
+  const [isTaskSabotaged, setIsTaskSabotaged] = useState<boolean>(false);
 
   let playerId: string | null;
   if (typeof window !== 'undefined') {
     playerId = sessionStorage.getItem("playerId");
   }
+
+  //todo if sabotage done, a task needs to be marked as sabotaged
+  //task needs an id, sabotage needs to have taskid and forward this
 
   const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
@@ -142,6 +146,7 @@ export default function PlayGame() {
               currentPlayer={currentPlayer}
               game={game}
               killPlayer={killPlayer}
+              isTaskSabotaged={isTaskSabotaged}
             />// @ts-ignore
           ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
             <Modal modalText={"GAME OVER!"}>
@@ -152,6 +157,7 @@ export default function PlayGame() {
               map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
+              isTaskSabotaged={isTaskSabotaged}
             />
           )}
         </div>

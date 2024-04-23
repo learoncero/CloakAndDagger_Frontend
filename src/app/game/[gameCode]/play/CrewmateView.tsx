@@ -12,12 +12,14 @@ type Props = {
   map: boolean[][];
   playerList: Player[];
   currentPlayer: Player;
+  isTaskSabotaged: boolean;
 };
 
 export default function CrewmateView({
   map,
   playerList,
   currentPlayer,
+  isTaskSabotaged,
 }: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const handleToggleMiniMap = () => {
@@ -51,6 +53,7 @@ export default function CrewmateView({
             map={map}
             playerList={playerList}
             currentPlayer={currentPlayer}
+            isTaskSabotaged={isTaskSabotaged}
           />
         ) : (
           <div>Loading map...</div>
