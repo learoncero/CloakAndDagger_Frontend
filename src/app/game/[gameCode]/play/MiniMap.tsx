@@ -2,7 +2,7 @@ import React from 'react';
 import { Player } from "@/app/types";
 
 type Props = {
-    map: boolean[][];
+    map: string[][];
     playerList: Player[];
     closeMiniMap: () => any;
     currentPlayer: Player;
@@ -10,7 +10,7 @@ type Props = {
 
 const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer }: Props) => {
     if (!map) {
-        return <div>Can't show Minimap right now</div>;
+        return <div>Can not show Minimap right now</div>;
     }
 
 
@@ -30,7 +30,7 @@ const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer }: Props) => 
                             player.position.x === cellIndex && player.position.y === rowIndex);
 
                         return (
-                            <div key={cellIndex} className={`minimap-cell ${cell ? 'walkable' : 'obstacle'} 
+                            <div key={cellIndex} className={`minimap-cell ${cell != '#' ? 'walkable' : 'obstacle'} 
                                 ${isPlayerHere ? 'player' : ''} 
                                 ${!isVisible ? 'dimmed' : ''}`}/>
                         );

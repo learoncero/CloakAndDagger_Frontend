@@ -13,7 +13,7 @@ type Props = {
   sabotages: Sabotage[] | undefined;
   game: Game | null | undefined;
   killPlayer: (gameCode: string, playerId: number) => void;
-  map: boolean[][];
+  map: string[][];
   currentPlayer: Player;
   playerList: Player[];
 };
@@ -61,7 +61,6 @@ export default function ImpostorView({
     return () => clearInterval(filterInterval);
   }, [game?.players]);
 
-  //todo filter for ghosts
   function filterNearbyPlayers(players: Player[]): Player[] {
     return players.filter(
       (player) =>

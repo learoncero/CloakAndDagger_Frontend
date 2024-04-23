@@ -9,7 +9,7 @@ import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
 
 type Props = {
-  map: boolean[][];
+  map: string[][];
   playerList: Player[];
   currentPlayer: Player;
 };
