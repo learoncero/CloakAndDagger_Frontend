@@ -25,6 +25,9 @@ export default function CreateGameForm({ onSubmit }: Props) {
       if (numImpostors > numPlayers / 2) {
         setNumImpostors(Math.floor(numPlayers / 2));
       }
+      if (numImpostors === numPlayers / 2) {
+          setNumImpostors(Math.floor(numPlayers / 2) - 1);
+      }
       setButtonDisabled(false);
     } else {
       setButtonDisabled(true);

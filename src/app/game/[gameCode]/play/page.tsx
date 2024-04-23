@@ -6,11 +6,9 @@ import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
-import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
 import { fetchGame, fetchMap } from "./actions";
-import GameService from "@/services/GameService";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 
@@ -20,7 +18,11 @@ export default function PlayGame() {
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
 
-  const playerId = sessionStorage.getItem("playerId");
+  let playerId: string | null;
+  if (typeof window !== "undefined") {
+    playerId = sessionStorage.getItem("playerId");
+  }
+
   const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
   );
@@ -84,6 +86,14 @@ export default function PlayGame() {
           updateGame(receivedMessage.body);
         }
       );
+
+      stompClient.subscribe(
+        "/topic/bodyReport",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+        }
+      );
     }
   }, [stompClient]);
 
@@ -119,17 +129,18 @@ export default function PlayGame() {
     }
   }
 
+  async function reportBody(gameCode: string, bodyToReportId: number) {
+    const reportMessage = {
+      gameCode: gameCode,
+      bodyToReportId: bodyToReportId,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/report`, {}, JSON.stringify(reportMessage));
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-black text-white">
-      <h4>List of players:</h4>
-      <ul>
-        {game?.players?.map((player) => (
-          <li key={player.id}>
-            Username: {player.username}
-            {player.id.toString() === playerId ? " (you)" : ""}
-          </li>
-        ))}
-      </ul>
+    <div className="min-h-screen min-w-screen bg-black text-white">
       {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
         <Modal modalText={"IMPOSTORS WIN!"}>
           <BackLink href={"/"}>Return to Landing Page</BackLink>
@@ -146,8 +157,9 @@ export default function PlayGame() {
               currentPlayer={currentPlayer}
               game={game}
               killPlayer={killPlayer}
-            />
-          ) : playerRole === Role.CREWMATE_GHOST ? (
+            /> // @ts-ignore
+          ) : playerRole === Role.CREWMATE_GHOST ||
+            playerRole === Role.IMPOSTOR_GHOST ? (
             <Modal modalText={"GAME OVER!"}>
               <BackLink href={"/"}>Return to Landing Page</BackLink>
             </Modal>
@@ -156,16 +168,9 @@ export default function PlayGame() {
               map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
+              game={game}
+              reportBody={reportBody}
             />
-          )}
-          {map && map.map ? (
-            <MapDisplay
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-            />
-          ) : (
-            <div>Loading map...</div>
           )}
         </div>
       ) : (
