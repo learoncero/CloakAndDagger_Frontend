@@ -47,5 +47,5 @@ export enum GameStatus {
 export type Map = {
   id: number;
   name: string;
-  map: boolean[][];
+  map: string[][];
 };

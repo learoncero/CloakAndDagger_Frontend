@@ -41,9 +41,9 @@ export default function PlayGame() {
     updateGame(gameResult.data as Game);
 
     const mapResult = await fetchMap(gameResult.data?.map as string);
-    if (mapResult.status === 200) {
+        if (mapResult && mapResult.status === 200) {
       setMap(mapResult.data as Map);
-    } else if (mapResult.status === 404) {
+    } else if (mapResult && mapResult.status === 404) {
       console.error("Map not found");
     }
   }
