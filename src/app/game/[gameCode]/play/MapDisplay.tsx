@@ -47,11 +47,12 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
                     <div
                         key={cellIndex}
                         className={`MapDisplay-cell ${cell!= '#' ? 'walkable' : 'obstacle'}`}
-                        {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
+                    >
+                    {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
                           .map(player => (
                               <PlayerSprites key={player.id} player={player} />
-                          )}
-                    />
+                          ))}
+                    </div>
                 );
               })}
             </div>
