@@ -13,9 +13,10 @@ type Props = {
   map: boolean[][];
   playerList: Player[];
   currentPlayer: Player;
+  isTaskSabotaged: boolean;
 };
 
-export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
+export default function MapDisplay({ map, playerList, currentPlayer, isTaskSabotaged}: Props) {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isMirrored, setIsMirrored] = useState(false);
 
@@ -67,11 +68,18 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
                     <div
                         key={cellIndex}
                         className={`MapDisplay-cell ${cell ? 'walkable' : 'obstacle'}`}
-                        style={isPlayerHere ? {
+                        style={{
+                        ... (isPlayerHere ? {
                           backgroundImage: `url(${spriteImages[currentFrame]})`,
                           backgroundSize: 'cover',
-                          transform: isMirrored ? 'scaleX(-1)' : 'none'
-                        } : {}}
+                          transform: isMirrored ? 'scaleX(-1)' : 'none',
+                          } :
+                            isTaskSabotaged ? {
+                            backgroundImage: `url(Sabotage_Icon.png)`,
+                            backgroundSize: 'cover',
+                            } : {}
+                        )
+                        }}
                     />
                 );
               })}
