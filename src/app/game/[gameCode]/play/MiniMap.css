@@ -31,11 +31,11 @@
 }
 .minimap-container {
     width: 1150px;
-    height: 665px;
+    height: 565px;
 }
 .minimap-cell {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 17px;
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
