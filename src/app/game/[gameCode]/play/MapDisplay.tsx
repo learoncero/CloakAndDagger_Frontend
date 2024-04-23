@@ -10,7 +10,7 @@ const spriteImages = [
 ];
 
 type Props = {
-  map: boolean[][];
+  map: string[][];
   playerList: Player[];
   currentPlayer: Player;
 };
@@ -66,7 +66,7 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
                 return (
                     <div
                         key={cellIndex}
-                        className={`MapDisplay-cell ${cell ? 'walkable' : 'obstacle'}`}
+                        className={`MapDisplay-cell ${cell!= '#' ? 'walkable' : 'obstacle'}`}
                         style={isPlayerHere ? {
                           backgroundImage: `url(${spriteImages[currentFrame]})`,
                           backgroundSize: 'cover',
