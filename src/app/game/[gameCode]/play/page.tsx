@@ -13,14 +13,20 @@ import { fetchGame, fetchMap } from "./actions";
 import GameService from "@/services/GameService";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
+import PlayerList from "./PlayerList";
+import {AnimationProvider} from "@/app/AnimationContext";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
+  const [mirroring, setMirroring] = useState(false);
+  let playerId: string | null;
+  if (typeof window !== 'undefined') {
+    playerId = sessionStorage.getItem("playerId");
+  }
 
-  const playerId = sessionStorage.getItem("playerId");
   const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
   );
@@ -78,6 +84,14 @@ export default function PlayGame() {
       );
 
       stompClient.subscribe(
+          "/topic/IdleChange",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
+      );
+
+      stompClient.subscribe(
         "/topic/playerKill",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
@@ -90,17 +104,23 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+
     if (
-      playerId &&
-      validKeyCodes.includes(keyCode) &&
-      playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.IN_GAME
+        playerId &&
+        validKeyCodes.includes(keyCode) &&
+        playerRole !== Role.CREWMATE_GHOST &&
+        playerRole !== Role.IMPOSTOR_GHOST &&
+        game?.gameStatus === GameStatus.IN_GAME
     ) {
+      let newMirroring = (keyCode === "KeyA") ? true :
+          (keyCode === "KeyD") ? false : mirroring;
+
       const moveMessage = {
         id: playerId,
         keyCode: keyCode,
         gameCode: game?.gameCode,
+        Mirrored: newMirroring,
+        isMoving: true,
       };
 
       if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
@@ -108,6 +128,7 @@ export default function PlayGame() {
       }
     }
   }
+
 
   async function killPlayer(gameCode: string, playerToKillId: number) {
     const killMessage = {
@@ -120,57 +141,41 @@ export default function PlayGame() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <h4>List of players:</h4>
-      <ul>
-        {game?.players?.map((player) => (
-          <li key={player.id}>
-            Username: {player.username}
-            {player.id.toString() === playerId ? " (you)" : ""}
-          </li>
-        ))}
-      </ul>
-      {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
-        <Modal modalText={"IMPOSTORS WIN!"}>
-          <BackLink href={"/"}>Return to Landing Page</BackLink>
-        </Modal>
-      ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-        <h1>Crewmates win!</h1>
-      ) : currentPlayer ? (
-        <div>
-          {playerRole === Role.IMPOSTOR ? (
-            <ImpostorView
-              sabotages={game?.sabotages}
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-              game={game}
-              killPlayer={killPlayer}
-            />
-          ) : playerRole === Role.CREWMATE_GHOST ? (
-            <Modal modalText={"GAME OVER!"}>
+      <AnimationProvider>
+        <div className="min-h-screen min-w-screen bg-black text-white">
+          {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+            <Modal modalText={"IMPOSTORS WIN!"}>
               <BackLink href={"/"}>Return to Landing Page</BackLink>
             </Modal>
+          ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+            <h1>Crewmates win!</h1>
+          ) : currentPlayer ? (
+            <div>
+              {(playerRole === Role.IMPOSTOR) ? (
+                <ImpostorView
+                  sabotages={game?.sabotages}
+                  map={map.map}
+                  playerList={game?.players as Player[]}
+                  currentPlayer={currentPlayer}
+                  game={game}
+                  killPlayer={killPlayer}
+                />// @ts-ignore
+              ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
+                <Modal modalText={"GAME OVER!"}>
+                  <BackLink href={"/"}>Return to Landing Page</BackLink>
+                </Modal>
+              ) : (
+                <CrewmateView
+                  map={map.map}
+                  playerList={game?.players as Player[]}
+                  currentPlayer={currentPlayer}
+                />
+              )}
+            </div>
           ) : (
-            <CrewmateView
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-            />
-          )}
-          {map && map.map ? (
-            <MapDisplay
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-            />
-          ) : (
-            <div>Loading map...</div>
+            <div>No Player Data Found</div>
           )}
         </div>
-      ) : (
-        <div>No Player Data Found</div>
-      )}
-    </div>
+      </AnimationProvider>
   );
 }
