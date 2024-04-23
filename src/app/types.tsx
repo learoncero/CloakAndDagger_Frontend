@@ -20,6 +20,7 @@ export type Sabotage = {
   id: number;
   title: string;
   description: string;
+  miniGameId: number;
 };
 
 export type ApiResponse<Data = unknown> = {
