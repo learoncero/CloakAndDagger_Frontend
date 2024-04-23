@@ -1,11 +1,9 @@
-const API_URL = "http://localhost:5010";
-
 export default class ApiService {
-  static async fetch(pathname: string, init?: RequestInit) {
+  static async fetch(baseUrl: string, pathname: string, init?: RequestInit) {
     let status, statusText, data;
 
     try {
-      const url = new URL(pathname, API_URL);
+      const url = new URL(pathname, baseUrl);
       const response = await fetch(url, init);
       // Any response from API (e.g. 200, 404, …)
       status = response.status;
@@ -19,8 +17,8 @@ export default class ApiService {
     return { status, statusText, data };
   }
 
-  static post(pathname: string, body?: any) {
-    return ApiService.fetch(pathname, {
+  static post(baseUrl: string, pathname: string, body?: any) {
+    return ApiService.fetch(baseUrl, pathname, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,8 +27,8 @@ export default class ApiService {
     });
   }
 
-  static get(pathname: string) {
-    return ApiService.fetch(pathname, {
+  static get(baseUrl: string, pathname: string) {
+    return ApiService.fetch(baseUrl, pathname, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
