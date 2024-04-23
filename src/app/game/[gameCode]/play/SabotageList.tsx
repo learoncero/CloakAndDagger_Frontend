@@ -4,9 +4,10 @@ import { Sabotage } from "@/app/types";
 
 type Props = {
   sabotages: Sabotage[];
+  isTaskSabotaged: boolean;
 };
 
-export default function SabotageList({ sabotages }: Props) {
+export default function SabotageList({ sabotages, isTaskSabotaged }: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
