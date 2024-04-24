@@ -22,10 +22,15 @@ export default function PlayGame() {
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
   const [mirroring, setMirroring] = useState(false);
+  const [isTaskSabotaged, setIsTaskSabotaged] = useState<boolean>(false);
+
   let playerId: string | null;
   if (typeof window !== 'undefined') {
     playerId = sessionStorage.getItem("playerId");
   }
+
+  //todo if sabotage done, a task needs to be marked as sabotaged
+  //task needs an id, sabotage needs to have taskid and forward this
 
   const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
@@ -145,23 +150,25 @@ export default function PlayGame() {
         <div className="min-h-screen min-w-screen bg-black text-white">
           {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
             <Modal modalText={"IMPOSTORS WIN!"}>
-              <BackLink href={"/"}>Return to Landing Page</BackLink>
-            </Modal>
-          ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-            <h1>Crewmates win!</h1>
-          ) : currentPlayer ? (
-            <div>
-              {(playerRole === Role.IMPOSTOR) ? (
-                <ImpostorView
-                  sabotages={game?.sabotages}
-                  map={map.map}
-                  playerList={game?.players as Player[]}
-                  currentPlayer={currentPlayer}
-                  game={game}
-                  killPlayer={killPlayer}
-                />// @ts-ignore
-              ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
-                <Modal modalText={"GAME OVER!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+      ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+        <h1>Crewmates win!</h1>
+      ) : currentPlayer ? (
+        <div>
+          {(playerRole === Role.IMPOSTOR) ? (
+            <ImpostorView
+              sabotages={game?.sabotages}
+              map={map.map}
+              playerList={game?.players as Player[]}
+              currentPlayer={currentPlayer}
+              game={game}
+              killPlayer={killPlayer}
+              isTaskSabotaged={isTaskSabotaged}
+            />// @ts-ignore
+          ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
+            <Modal modalText={"GAME OVER!"}>
+             
                   <BackLink href={"/"}>Return to Landing Page</BackLink>
                 </Modal>
               ) : (
@@ -169,10 +176,11 @@ export default function PlayGame() {
                   map={map.map}
                   playerList={game?.players as Player[]}
                   currentPlayer={currentPlayer}
+                  isTaskSabotaged={isTaskSabotaged}
                 />
               )}
             </div>
-          ) : (
+             ) : (
             <div>No Player Data Found</div>
           )}
         </div>

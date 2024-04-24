@@ -9,9 +9,28 @@ type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
+  isTaskSabotaged: boolean;
 };
 
-export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
+export default function MapDisplay({ map, playerList, currentPlayer, isTaskSabotaged}: Props) {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  const [isMirrored, setIsMirrored] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFrame((prevFrame) => (prevFrame + 1) % spriteImages.length);
+    }, 250); // Refresh every 250ms
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'a') {
+        setIsMirrored(true);
+      } else if (event.key === 'd') {
+        setIsMirrored(false);
+      }
+    };
 
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -47,6 +66,10 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
                     <div
                         key={cellIndex}
                         className={`MapDisplay-cell ${cell!= '#' ? 'walkable' : 'obstacle'}`}
+                        style={isTaskSabotaged ? {
+                            backgroundImage: `url(Sabotage_Icon.png)`,
+                            backgroundSize: 'cover',
+                            } : {}}
                     >
                     {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
                           .map(player => (
