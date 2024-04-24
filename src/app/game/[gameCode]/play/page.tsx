@@ -164,47 +164,51 @@ export default function PlayGame() {
   }
 
   return (
-    <div className="min-h-screen min-w-screen bg-black text-white">
-      {showChat && (
-        <Chat
-          onClose={handleChatClose}
-          gameCode={gameCode as string}
-          players={game.players}
-        />
-      )}
-      {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
-        <Modal modalText={"IMPOSTORS WIN!"}>
-          <BackLink href={"/"}>Return to Landing Page</BackLink>
-        </Modal>
-      ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-        <h1>Crewmates win!</h1>
-      ) : currentPlayer ? (
-        <div>
-          {playerRole === Role.IMPOSTOR ? (
-            <ImpostorView
-              sabotages={game?.sabotages}
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-              game={game}
-              killPlayer={killPlayer}
-            />
-          ) : playerRole === Role.CREWMATE_GHOST ||
-            playerRole === Role.IMPOSTOR_GHOST ? (
-            <Modal modalText={"GAME OVER!"}>
-              <BackLink href={"/"}>Return to Landing Page</BackLink>
-            </Modal>
-          ) : (
-            <CrewmateView
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-            />
-          )}
-        </div>
-      ) : (
-        <div>No Player Data Found</div>
-      )}
-    </div>
+    <AnimationProvider>
+      <div className="min-h-screen min-w-screen bg-black text-white">
+        {showChat && (
+          <Chat
+            onClose={handleChatClose}
+            gameCode={gameCode as string}
+            players={game.players}
+          />
+        )}
+        {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+          <Modal modalText={"IMPOSTORS WIN!"}>
+            <BackLink href={"/"}>Return to Landing Page</BackLink>
+          </Modal>
+        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+          <h1>Crewmates win!</h1>
+        ) : currentPlayer ? (
+          <div>
+            {playerRole === Role.IMPOSTOR ? (
+              <ImpostorView
+                sabotages={game?.sabotages}
+                map={map.map}
+                playerList={game?.players as Player[]}
+                currentPlayer={currentPlayer}
+                game={game}
+                killPlayer={killPlayer}
+              />
+            ) : playerRole === Role.CREWMATE_GHOST ||
+              playerRole === Role.IMPOSTOR_GHOST ? (
+              <Modal modalText={"GAME OVER!"}>
+                <BackLink href={"/"}>Return to Landing Page</BackLink>
+              </Modal>
+            ) : (
+              <CrewmateView
+                map={map.map}
+                playerList={game?.players as Player[]}
+                currentPlayer={currentPlayer}
+                game={game}
+                reportBody={reportBody}
+              />
+            )}
+          </div>
+        ) : (
+          <div>No Player Data Found</div>
+        )}
+      </div>
+    </AnimationProvider>
   );
 }
