@@ -1,4 +1,4 @@
-import { Game, Player, Sabotage } from "@/app/types";
+import { Game, Player } from "@/app/types";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import SabotageList from "./SabotageList";

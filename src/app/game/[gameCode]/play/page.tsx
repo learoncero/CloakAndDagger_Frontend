@@ -3,7 +3,7 @@
 import Stomp from "stompjs";
 import {useEffect, useRef, useState} from "react";
 import SockJS from "sockjs-client";
-import { Game, GameStatus, Player, Role, Map } from "@/app/types";
+import { Game, GameStatus, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/state/useGame";
