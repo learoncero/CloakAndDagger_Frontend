@@ -6,7 +6,7 @@ import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
-import useGame from "@/state/useGame";
+import useGame from "@/hooks/useGame";
 import { useParams } from "next/navigation";
 import { fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
@@ -189,6 +189,7 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
+                reportBody={reportBody}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (

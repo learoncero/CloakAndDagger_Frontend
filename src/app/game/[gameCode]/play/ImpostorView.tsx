@@ -1,4 +1,4 @@
-import { Game, Player, Sabotage } from "@/app/types";
+import { Game, Player, Role, Sabotage } from "@/app/types";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import SabotageList from "./SabotageList";
@@ -8,6 +8,7 @@ import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import ActionButton from "@/components/ActionButton";
 import PlayerList from "./PlayerList";
 import MapDisplay from "./MapDisplay";
+import useNearbyEntities from "@/hooks/useNearbyEntities";
 
 type Props = {
   sabotages: Sabotage[] | undefined;
@@ -16,6 +17,7 @@ type Props = {
   map: string[][];
   currentPlayer: Player;
   playerList: Player[];
+  reportBody: (gameCode: string, playerId: number) => void;
 };
 
 export default function ImpostorView({
@@ -25,11 +27,18 @@ export default function ImpostorView({
   currentPlayer,
   game,
   killPlayer,
+  reportBody,
 }: Props) {
-  const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
-  const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
   const [showMiniMap, setShowMiniMap] = useState(false);
+  const nearbyPlayers = useNearbyEntities(game?.players || [], currentPlayer, [
+    Role.CREWMATE,
+    Role.IMPOSTOR,
+  ]);
+  const nearbyGhosts = useNearbyEntities(game?.players || [], currentPlayer, [
+    Role.CREWMATE_GHOST,
+    Role.IMPOSTOR_GHOST,
+  ]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -37,6 +46,8 @@ export default function ImpostorView({
         handleKill();
       } else if (event.key === "m" || event.key === "M") {
         setShowMiniMap((prev) => !prev);
+      } else if (event.code === "KeyR") {
+        handleReportBody();
       }
     };
 
@@ -45,29 +56,7 @@ export default function ImpostorView({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleKill]);
-
-  useEffect(() => {
-    const filterInterval = setInterval(() => {
-      if (game?.players) {
-        const updatedNearbyPlayers = filterNearbyPlayers(game.players);
-        setNearbyPlayers(updatedNearbyPlayers);
-      }
-    }, 200);
-
-    return () => clearInterval(filterInterval);
-  }, [game.players]);
-
-  function filterNearbyPlayers(players: Player[]): Player[] {
-    return players.filter(
-      (player) =>
-        Math.abs(player.position.x - currentPlayer.position.x) <= 1 &&
-        Math.abs(player.position.y - currentPlayer.position.y) <= 1 &&
-        player.id !== currentPlayerId &&
-        player.role !== "CREWMATE_GHOST" &&
-        player.role !== "IMPOSTOR_GHOST"
-    );
-  }
+  }, [handleKill, setShowMiniMap]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   function handleKill() {
@@ -90,6 +79,16 @@ export default function ImpostorView({
       setTimeout(() => {
         setIsTimer(false);
       }, 20000);
+    }
+  }
+
+  function handleReportBody() {
+    const currentNearbyGhosts = nearbyGhosts;
+    if (currentNearbyGhosts.length > 0) {
+      const bodyToReportId = currentNearbyGhosts[0].id;
+      if (!game.reportedBodies.includes(bodyToReportId)) {
+        reportBody(game.gameCode, bodyToReportId);
+      }
     }
   }
 
@@ -120,13 +119,23 @@ export default function ImpostorView({
           <PlayerList playerId={currentPlayer.id} playerList={playerList} />
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-5">
           <ActionButton
             onClick={handleKill}
             buttonclickable={nearbyPlayers.length > 0 && !isTimer}
             colorActive="bg-red-600"
           >
             {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
+          </ActionButton>
+          <ActionButton
+            onClick={() => handleReportBody()}
+            buttonclickable={
+              nearbyGhosts.length > 0 &&
+              !game.reportedBodies.includes(nearbyGhosts[0].id)
+            }
+            colorActive="bg-cyan-600"
+          >
+            📢 Report Body
           </ActionButton>
         </div>
       </div>
