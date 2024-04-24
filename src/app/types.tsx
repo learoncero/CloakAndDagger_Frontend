@@ -7,6 +7,7 @@ export type Game = {
   gameID: number;
   sabotages: Sabotage[];
   gameStatus: GameStatus;
+  reportedBodies: number[];
 };
 
 export type Player = {
@@ -48,4 +49,8 @@ export type Map = {
   id: number;
   name: string;
   map: string[][];
+};
+
+export type Chat = {
+  id: string;
 };

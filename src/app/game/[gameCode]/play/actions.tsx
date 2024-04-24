@@ -1,5 +1,6 @@
 "use server";
 
+import ChatService from "@/services/ChatService";
 import GameService from "@/services/GameService";
 import MapService from "@/services/MapService";
 import { revalidatePath } from "next/cache";
@@ -22,4 +23,8 @@ export async function fetchMap(mapName: string) {
     console.error("Error in fetchMap: ", error);
   }
 
+}
+
+export async function startChat(gameCode: string) {
+  return await ChatService.startChat(gameCode);
 }
