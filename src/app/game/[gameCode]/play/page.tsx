@@ -65,7 +65,7 @@ export default function PlayGame() {
       };
     }
 
-    loadGameData().then((r) => console.log("Game loaded"));
+    loadGameData().then(() => console.log("Game loaded"));
   }, [stompClient]);
 
   useEffect(() => {
@@ -212,9 +212,7 @@ export default function PlayGame() {
           <div>
             {playerRole === Role.IMPOSTOR ? (
               <ImpostorView
-                sabotages={game?.sabotages}
                 map={map.map}
-                playerList={game?.players as Player[]}
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
