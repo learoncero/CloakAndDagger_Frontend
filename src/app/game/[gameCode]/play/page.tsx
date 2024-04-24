@@ -8,15 +8,17 @@ import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import { fetchGame, fetchMap } from "./actions";
+import { fetchChat, fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
+import Chat from "./Chat";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
+  const [showChat, setShowChat] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -44,6 +46,11 @@ export default function PlayGame() {
     }
   }
 
+  async function startChat() {
+    const chatResult = await fetchChat();
+    alert(chatResult.data as string);
+  }
+
   useEffect(() => {
     if (!stompClient) {
       const socket = new SockJS("http://localhost:5010/ws");
@@ -67,7 +74,7 @@ export default function PlayGame() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [stompClient, game?.players]);
+  }, [stompClient, game?.players, handleChatClose]);
 
   useEffect(() => {
     if (stompClient) {
@@ -92,6 +99,8 @@ export default function PlayGame() {
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
           updateGame(receivedMessage.body);
+          setShowChat(true);
+          startChat();
         }
       );
     }
@@ -105,7 +114,8 @@ export default function PlayGame() {
       validKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
       playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.IN_GAME
+      game?.gameStatus === GameStatus.IN_GAME &&
+      !showChat
     ) {
       const moveMessage = {
         id: playerId,
@@ -139,8 +149,13 @@ export default function PlayGame() {
     }
   }
 
+  function handleChatClose() {
+    setShowChat(false);
+  }
+
   return (
     <div className="min-h-screen min-w-screen bg-black text-white">
+      {showChat && <Chat onClose={handleChatClose} />}
       {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
         <Modal modalText={"IMPOSTORS WIN!"}>
           <BackLink href={"/"}>Return to Landing Page</BackLink>

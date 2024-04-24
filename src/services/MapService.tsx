@@ -3,7 +3,7 @@ import ApiService from "./ApiService";
 
 export default class MapService {
   static async getMap(mapName: string) {
-    const map = await ApiService.fetch(`/api/map/${mapName}`);
+    const map = await ApiService.fetch("game", `/api/map/${mapName}`);
     return map as ApiResponse<Map>;
   }
 }
