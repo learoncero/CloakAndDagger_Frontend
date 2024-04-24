@@ -227,7 +227,6 @@ export default function PlayGame() {
             ) : (
               <CrewmateView
                 map={map.map}
-                playerList={game?.players as Player[]}
                 currentPlayer={currentPlayer}
                 game={game}
                 reportBody={reportBody}
