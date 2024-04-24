@@ -101,7 +101,7 @@ export default function CrewmateView({
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"CREWMATE"} />
-        <TaskList />
+        <TaskList tasks={game.tasks}/>
       </div>
 
       <div className="flex-grow flex justify-center">
@@ -138,7 +138,7 @@ export default function CrewmateView({
 
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <TaskList />
+          <TaskList tasks={game.tasks}/>
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
