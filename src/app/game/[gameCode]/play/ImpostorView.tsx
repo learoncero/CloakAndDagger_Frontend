@@ -1,4 +1,4 @@
-import { Game, Player, Sabotage } from "@/app/types";
+import { Game, Player } from "@/app/types";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import SabotageList from "./SabotageList";
@@ -10,18 +10,14 @@ import PlayerList from "./PlayerList";
 import MapDisplay from "./MapDisplay";
 
 type Props = {
-  sabotages: Sabotage[] | undefined;
-  game: Game;
-  killPlayer: (gameCode: string, playerId: number) => void;
   map: string[][];
   currentPlayer: Player;
-  playerList: Player[];
+  game: Game;
+  killPlayer: (gameCode: string, playerId: number) => void;
 };
 
 export default function ImpostorView({
-  sabotages,
   map,
-  playerList,
   currentPlayer,
   game,
   killPlayer,
@@ -99,14 +95,14 @@ export default function ImpostorView({
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"IMPOSTOR"} />
-        <SabotageList sabotages={sabotages ?? []} />
+        <SabotageList sabotages={game.sabotages ?? []} />
       </div>
 
       <div className="flex-grow flex justify-center">
         {map ? (
           <MapDisplay
             map={map}
-            playerList={playerList}
+            playerList={game.players}
             currentPlayer={currentPlayer}
           />
         ) : (
@@ -117,7 +113,7 @@ export default function ImpostorView({
       <div className="flex-none w-1/4">
         <div className="mb-32">
           <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
-          <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+          <PlayerList playerId={currentPlayer.id} playerList={game.players} />
         </div>
 
         <div className="flex justify-center">
@@ -133,11 +129,11 @@ export default function ImpostorView({
 
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <SabotageList sabotages={sabotages ?? []} />
+          <SabotageList sabotages={game.sabotages ?? []} />
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
-              playerList={playerList}
+              playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
             />
