@@ -5,6 +5,7 @@ export type Game = {
   map: string;
   players: Player[];
   gameID: number;
+  tasks: Task[];
   sabotages: Sabotage[];
   gameStatus: GameStatus;
   reportedBodies: number[];
@@ -17,6 +18,15 @@ export type Player = {
   role: Role;
   mirrored: boolean;
   moving: boolean;
+};
+
+export type Task = {
+  id: number;
+  miniGameId: number;
+  title: string;
+  description: string;
+  Position: { x: number; y: number };
+  completed: boolean;
 };
 
 export type Sabotage = {
