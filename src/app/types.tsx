@@ -48,3 +48,7 @@ export type Map = {
   name: string;
   map: boolean[][];
 };
+
+export type Chat = {
+  id: string;
+};

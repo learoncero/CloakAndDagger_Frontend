@@ -8,7 +8,7 @@ import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import { fetchChat, fetchGame, fetchMap } from "./actions";
+import { fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
@@ -44,11 +44,6 @@ export default function PlayGame() {
     } else if (mapResult.status === 404) {
       console.error("Map not found");
     }
-  }
-
-  async function startChat() {
-    const chatResult = await fetchChat();
-    alert(chatResult.data as string);
   }
 
   useEffect(() => {
@@ -100,7 +95,6 @@ export default function PlayGame() {
           const receivedMessage = JSON.parse(message.body);
           updateGame(receivedMessage.body);
           setShowChat(true);
-          startChat();
         }
       );
     }
@@ -155,7 +149,13 @@ export default function PlayGame() {
 
   return (
     <div className="min-h-screen min-w-screen bg-black text-white">
-      {showChat && <Chat onClose={handleChatClose} />}
+      {showChat && (
+        <Chat
+          onClose={handleChatClose}
+          gameCode={gameCode as string}
+          players={game.players}
+        />
+      )}
       {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
         <Modal modalText={"IMPOSTORS WIN!"}>
           <BackLink href={"/"}>Return to Landing Page</BackLink>
