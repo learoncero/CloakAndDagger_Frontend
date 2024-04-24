@@ -7,6 +7,7 @@ export type Game = {
   gameID: number;
   sabotages: Sabotage[];
   gameStatus: GameStatus;
+  reportedBodies: number[];
 };
 
 export type Player = {
@@ -47,5 +48,9 @@ export enum GameStatus {
 export type Map = {
   id: number;
   name: string;
-  map: boolean[][];
+  map: string[][];
+};
+
+export type Chat = {
+  id: string;
 };

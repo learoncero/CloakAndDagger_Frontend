@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 
 
 type Props = {
-  map: boolean[][];
+  map: string[][];
   playerList: Player[];
   currentPlayer: Player;
 };
@@ -44,12 +44,14 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
 
                 return (
-                    <div key={cellIndex} className={`MapDisplay-cell ${cell ? 'walkable' : 'obstacle'}`}>
-                      {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
+                    <div
+                        key={cellIndex}
+                        className={`MapDisplay-cell ${cell!= '#' ? 'walkable' : 'obstacle'}`}
+                    >
+                    {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
                           .map(player => (
                               <PlayerSprites key={player.id} player={player} />
                           ))}
-
                     </div>
                 );
               })}

@@ -1,9 +1,14 @@
 export default class ApiService {
-  static async fetch(baseUrl: string, pathname: string, init?: RequestInit) {
+  static async fetch(
+    microservice: string,
+    pathname: string,
+    init?: RequestInit
+  ) {
     let status, statusText, data;
 
     try {
-      const url = new URL(pathname, baseUrl);
+      const API_URL = this.getBackendUrl(microservice);
+      const url = new URL(pathname, API_URL);
       const response = await fetch(url, init);
       // Any response from API (e.g. 200, 404, …)
       status = response.status;
@@ -17,8 +22,8 @@ export default class ApiService {
     return { status, statusText, data };
   }
 
-  static post(baseUrl: string, pathname: string, body?: any) {
-    return ApiService.fetch(baseUrl, pathname, {
+  static post(microservice: string, pathname: string, body?: any) {
+    return ApiService.fetch(microservice, pathname, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,5 +39,16 @@ export default class ApiService {
         "Content-Type": "application/json",
       },
     });
+  }
+
+  static getBackendUrl(microservice: string) {
+    // Define backend URLs based on microservice
+    const backendUrls: { [key: string]: string } = {
+      game: "http://localhost:5010",
+      chat: "http://localhost:5011",
+      task: "http://localhost:5022",
+    };
+
+    return backendUrls[microservice];
   }
 }
