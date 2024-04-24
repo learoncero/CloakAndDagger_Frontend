@@ -11,7 +11,6 @@ import PlayerList from "./PlayerList";
 
 type Props = {
   map: string[][];
-  playerList: Player[];
   currentPlayer: Player;
   game: Game;
   reportBody: (gameCode: string, playerId: number) => void;
@@ -19,11 +18,11 @@ type Props = {
 
 export default function CrewmateView({
   map,
-  playerList,
   currentPlayer,
   game,
   reportBody,
-}: Props) {
+  }: Props) {
+
   const [showMiniMap, setShowMiniMap] = useState(false);
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
@@ -108,7 +107,7 @@ export default function CrewmateView({
         {map ? (
           <MapDisplay
             map={map}
-            playerList={playerList}
+            playerList={game.players}
             currentPlayer={currentPlayer}
           />
         ) : (
@@ -119,7 +118,7 @@ export default function CrewmateView({
       <div className="flex-none w-1/4">
         <div className="mb-32">
           <MapButton onClick={handleToggleMiniMap} label="Show MiniMap" />
-          <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+          <PlayerList playerId={currentPlayer.id} playerList={game.players} />
         </div>
 
         <div className="flex justify-center">
@@ -142,7 +141,7 @@ export default function CrewmateView({
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
-              playerList={playerList}
+              playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
             />
