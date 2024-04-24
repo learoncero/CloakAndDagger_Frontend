@@ -3,18 +3,18 @@ import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
-import KillButton from "./KillButton";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
-import MapDisplay from "./MapDisplay";
+import ActionButton from "@/components/ActionButton";
 import PlayerList from "./PlayerList";
 import CrewmateCounter from "./CrewmateCounter";
+import MapDisplay from "./MapDisplay";
 
 type Props = {
   sabotages: Sabotage[] | undefined;
-  game: Game | null | undefined;
+  game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
-  map: boolean[][];
+  map: string[][];
   currentPlayer: Player;
   playerList: Player[];
 };
@@ -29,15 +29,12 @@ export default function ImpostorView({
 }: Props) {
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
-
   const currentPlayerId = Number(sessionStorage.getItem("playerId")) as number;
-
   const [showMiniMap, setShowMiniMap] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === "KeyE") {
-        console.log("Key E pressed");
         handleKill();
       } else if (event.key === "m" || event.key === "M") {
         setShowMiniMap((prev) => !prev);
@@ -60,9 +57,8 @@ export default function ImpostorView({
     }, 200);
 
     return () => clearInterval(filterInterval);
-  }, [game?.players]);
+  }, [game.players]);
 
-  //todo filter for ghosts
   function filterNearbyPlayers(players: Player[]): Player[] {
     return players.filter(
       (player) =>
@@ -101,7 +97,7 @@ export default function ImpostorView({
   const toggleMiniMap = () => setShowMiniMap((prev) => !prev);
 
   return (
-    <div className="flex justify-between items-start p-10">
+    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList sabotages={sabotages ?? []} />
@@ -120,18 +116,20 @@ export default function ImpostorView({
       </div>
 
       <div className="flex-none w-1/4">
-        <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
-        <PlayerList playerId={currentPlayer.id} playerList={playerList} />
-        <CrewmateCounter playerList={playerList} />
+        <div className="mb-20">
+          <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
+          <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+          <CrewmateCounter playerList={playerList} />
+        </div>
 
-        <div className="mt-48 flex justify-center">
-          <KillButton
-            handleKill={handleKill}
-            isPlayerNearby={nearbyPlayers.length > 0}
-            isTimer={isTimer}
+        <div className="flex justify-center">
+          <ActionButton
+            onClick={handleKill}
+            buttonclickable={nearbyPlayers.length > 0 && !isTimer}
+            colorActive="bg-red-600"
           >
-            {isTimer ? "Kill on cooldown" : "Kill"}
-          </KillButton>
+            {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
+          </ActionButton>
         </div>
       </div>
 

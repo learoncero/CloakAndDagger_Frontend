@@ -6,23 +6,24 @@ import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
-import MapDisplay from "./MapDisplay";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
 import { fetchGame, fetchMap } from "./actions";
-import GameService from "@/services/GameService";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
-import PlayerList from "./PlayerList";
+import Chat from "./Chat";
+import { AnimationProvider } from "@/app/AnimationContext";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
   const [stompClient, setStompClient] = useState<any>(null);
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
+  const [showChat, setShowChat] = useState(false);
+  const [mirroring, setMirroring] = useState(false);
 
   let playerId: string | null;
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
   }
 
@@ -40,9 +41,9 @@ export default function PlayGame() {
     updateGame(gameResult.data as Game);
 
     const mapResult = await fetchMap(gameResult.data?.map as string);
-    if (mapResult.status === 200) {
+    if (mapResult && mapResult.status === 200) {
       setMap(mapResult.data as Map);
-    } else if (mapResult.status === 404) {
+    } else if (mapResult && mapResult.status === 404) {
       console.error("Map not found");
     }
   }
@@ -70,12 +71,20 @@ export default function PlayGame() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [stompClient, game?.players]);
+  }, [stompClient, game?.players, handleChatClose]);
 
   useEffect(() => {
     if (stompClient) {
       stompClient.subscribe(
         "/topic/positionChange",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+        }
+      );
+
+      stompClient.subscribe(
+        "/topic/IdleChange",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
           updateGame(receivedMessage.body);
@@ -89,23 +98,39 @@ export default function PlayGame() {
           updateGame(receivedMessage.body);
         }
       );
+
+      stompClient.subscribe(
+        "/topic/bodyReport",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+          setShowChat(true);
+        }
+      );
     }
   }, [stompClient]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+
     if (
       playerId &&
       validKeyCodes.includes(keyCode) &&
       playerRole !== Role.CREWMATE_GHOST &&
       playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.IN_GAME
+      game?.gameStatus === GameStatus.IN_GAME &&
+      !showChat
     ) {
+      let newMirroring =
+        keyCode === "KeyA" ? true : keyCode === "KeyD" ? false : mirroring;
+
       const moveMessage = {
         id: playerId,
         keyCode: keyCode,
         gameCode: game?.gameCode,
+        Mirrored: newMirroring,
+        isMoving: true,
       };
 
       if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
@@ -124,40 +149,66 @@ export default function PlayGame() {
     }
   }
 
+  async function reportBody(gameCode: string, bodyToReportId: number) {
+    const reportMessage = {
+      gameCode: gameCode,
+      bodyToReportId: bodyToReportId,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/report`, {}, JSON.stringify(reportMessage));
+    }
+  }
+
+  function handleChatClose() {
+    setShowChat(false);
+  }
+
   return (
-    <div className="min-h-screen min-w-screen bg-black text-white">
-      {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
-        <Modal modalText={"IMPOSTORS WIN!"}>
-          <BackLink href={"/"}>Return to Landing Page</BackLink>
-        </Modal>
-      ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-        <h1>Crewmates win!</h1>
-      ) : currentPlayer ? (
-        <div>
-          {(playerRole === Role.IMPOSTOR) ? (
-            <ImpostorView
-              sabotages={game?.sabotages}
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-              game={game}
-              killPlayer={killPlayer}
-            />// @ts-ignore
-          ) : (playerRole === Role.CREWMATE_GHOST || playerRole === Role.IMPOSTOR_GHOST) ? (
-            <Modal modalText={"GAME OVER!"}>
-              <BackLink href={"/"}>Return to Landing Page</BackLink>
-            </Modal>
-          ) : (
-            <CrewmateView
-              map={map.map}
-              playerList={game?.players as Player[]}
-              currentPlayer={currentPlayer}
-            />
-          )}
-        </div>
-      ) : (
-        <div>No Player Data Found</div>
-      )}
-    </div>
+    <AnimationProvider>
+      <div className="min-h-screen min-w-screen bg-black text-white">
+        {showChat && (
+          <Chat
+            onClose={handleChatClose}
+            gameCode={gameCode as string}
+            players={game.players}
+          />
+        )}
+        {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+          <Modal modalText={"IMPOSTORS WIN!"}>
+            <BackLink href={"/"}>Return to Landing Page</BackLink>
+          </Modal>
+        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+          <h1>Crewmates win!</h1>
+        ) : currentPlayer ? (
+          <div>
+            {playerRole === Role.IMPOSTOR ? (
+              <ImpostorView
+                sabotages={game?.sabotages}
+                map={map.map}
+                playerList={game?.players as Player[]}
+                currentPlayer={currentPlayer}
+                game={game}
+                killPlayer={killPlayer}
+              />
+            ) : playerRole === Role.CREWMATE_GHOST ||
+              playerRole === Role.IMPOSTOR_GHOST ? (
+              <Modal modalText={"GAME OVER!"}>
+                <BackLink href={"/"}>Return to Landing Page</BackLink>
+              </Modal>
+            ) : (
+              <CrewmateView
+                map={map.map}
+                playerList={game?.players as Player[]}
+                currentPlayer={currentPlayer}
+                game={game}
+                reportBody={reportBody}
+              />
+            )}
+          </div>
+        ) : (
+          <div>No Player Data Found</div>
+        )}
+      </div>
+    </AnimationProvider>
   );
 }
