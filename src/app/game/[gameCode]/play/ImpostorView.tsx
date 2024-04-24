@@ -13,7 +13,7 @@ type Props = {
   sabotages: Sabotage[] | undefined;
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
-  map: boolean[][];
+  map: string[][];
   currentPlayer: Player;
   playerList: Player[];
 };

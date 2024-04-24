@@ -16,9 +16,13 @@ export async function fetchGame(gameCode: string) {
 }
 
 export async function fetchMap(mapName: string) {
-  const result = await MapService.getMap(mapName);
+  try  {
+    const result = await MapService.getMap(mapName);
+    return result;
+  } catch (error) {
+    console.error("Error in fetchMap: ", error);
+  }
 
-  return result;
 }
 
 export async function startChat(gameCode: string) {

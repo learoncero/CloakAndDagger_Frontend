@@ -2,35 +2,56 @@ import React from 'react';
 import { Player } from "@/app/types";
 
 type Props = {
-    map: boolean[][];
+    map: string[][];
     playerList: Player[];
     closeMiniMap: () => any;
     currentPlayer: Player;
 };
 
-const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer }: Props) => {
+const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer }) => {
     if (!map) {
-        return <div>Can't show Minimap right now</div>;
+        return <div>Can not show Minimap right now</div>;
     }
 
+    const viewRadius =   4;
+    const totalViewSize = 2 * viewRadius + 1;
 
-    const viewRadius = 5;
     const { x, y } = currentPlayer.position;
+
+    // Start & End Coordinate calculation
+    let startX = Math.max(0, x - viewRadius);
+    let startY = Math.max(0, y - viewRadius);
+    let endX = Math.min(map[0].length, x + viewRadius + 1);
+    let endY = Math.min(map.length, y + viewRadius + 1);
+
+    // Set ViewRadious to a minimum Size if close to border
+    if (x < viewRadius) {
+        startX = 0;
+        endX = totalViewSize;
+    }
+    if (y < viewRadius) {
+        startY = 0;
+        endY = totalViewSize;
+    }
+    if (x > map[0].length - viewRadius - 1) {
+        startX = map[0].length - totalViewSize;
+        endX = map[0].length;
+    }
+    if (y > map.length - viewRadius - 1) {
+        startY = map.length - totalViewSize;
+        endY = map.length;
+    }
 
     return (
         <div className="MapDisplay-map-container minimap-container">
             {map.map((row, rowIndex) => (
                 <div key={rowIndex} className="MapDisplay-row">
                     {row.map((cell, cellIndex) => {
-
-                        const isVisible = (cellIndex >= x - viewRadius) && (cellIndex <= x + viewRadius) &&
-                            (rowIndex >= y - viewRadius) && (rowIndex <= y + viewRadius);
-
-                        const isPlayerHere = isVisible && playerList.some((player) =>
-                            player.position.x === cellIndex && player.position.y === rowIndex);
+                        const isVisible = cellIndex >= startX && cellIndex < endX && rowIndex >= startY && rowIndex < endY;
+                        const isPlayerHere = playerList.some(player => player.position.x === cellIndex && player.position.y === rowIndex);
 
                         return (
-                            <div key={cellIndex} className={`minimap-cell ${cell ? 'walkable' : 'obstacle'} 
+                            <div key={cellIndex} className={`minimap-cell ${cell != '#' ? 'walkable' : 'obstacle'} 
                                 ${isPlayerHere ? 'player' : ''} 
                                 ${!isVisible ? 'dimmed' : ''}`}/>
                         );

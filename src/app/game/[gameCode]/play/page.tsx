@@ -12,6 +12,7 @@ import { fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
+import { AnimationProvider } from "@/app/AnimationContext";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -19,6 +20,7 @@ export default function PlayGame() {
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
   const [showChat, setShowChat] = useState(false);
+  const [mirroring, setMirroring] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -39,9 +41,9 @@ export default function PlayGame() {
     updateGame(gameResult.data as Game);
 
     const mapResult = await fetchMap(gameResult.data?.map as string);
-    if (mapResult.status === 200) {
+    if (mapResult && mapResult.status === 200) {
       setMap(mapResult.data as Map);
-    } else if (mapResult.status === 404) {
+    } else if (mapResult && mapResult.status === 404) {
       console.error("Map not found");
     }
   }
@@ -82,6 +84,14 @@ export default function PlayGame() {
       );
 
       stompClient.subscribe(
+        "/topic/IdleChange",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+        }
+      );
+
+      stompClient.subscribe(
         "/topic/playerKill",
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
@@ -103,6 +113,7 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+
     if (
       playerId &&
       validKeyCodes.includes(keyCode) &&
@@ -111,10 +122,15 @@ export default function PlayGame() {
       game?.gameStatus === GameStatus.IN_GAME &&
       !showChat
     ) {
+      let newMirroring =
+        keyCode === "KeyA" ? true : keyCode === "KeyD" ? false : mirroring;
+
       const moveMessage = {
         id: playerId,
         keyCode: keyCode,
         gameCode: game?.gameCode,
+        Mirrored: newMirroring,
+        isMoving: true,
       };
 
       if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
@@ -172,7 +188,7 @@ export default function PlayGame() {
               currentPlayer={currentPlayer}
               game={game}
               killPlayer={killPlayer}
-            /> // @ts-ignore
+            />
           ) : playerRole === Role.CREWMATE_GHOST ||
             playerRole === Role.IMPOSTOR_GHOST ? (
             <Modal modalText={"GAME OVER!"}>
@@ -183,8 +199,6 @@ export default function PlayGame() {
               map={map.map}
               playerList={game?.players as Player[]}
               currentPlayer={currentPlayer}
-              game={game}
-              reportBody={reportBody}
             />
           )}
         </div>

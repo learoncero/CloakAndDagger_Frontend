@@ -9,13 +9,13 @@ import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
 
-interface CrewmateViewProps {
-  map: boolean[][];
+type Props = {
+  map: string[][];
   playerList: Player[];
   currentPlayer: Player;
   game: Game;
   reportBody: (gameCode: string, playerId: number) => void;
-}
+};
 
 export default function CrewmateView({
   map,
@@ -23,7 +23,7 @@ export default function CrewmateView({
   currentPlayer,
   game,
   reportBody,
-}: CrewmateViewProps) {
+}: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);

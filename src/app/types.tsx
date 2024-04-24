@@ -15,6 +15,8 @@ export type Player = {
   username: string;
   position: { x: number; y: number };
   role: Role;
+  mirrored: boolean;
+  moving: boolean;
 };
 
 export type Sabotage = {
@@ -46,7 +48,7 @@ export enum GameStatus {
 export type Map = {
   id: number;
   name: string;
-  map: boolean[][];
+  map: string[][];
 };
 
 export type Chat = {
