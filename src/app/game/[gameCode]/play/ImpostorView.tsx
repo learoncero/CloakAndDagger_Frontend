@@ -104,6 +104,7 @@ export default function ImpostorView({
             map={map}
             playerList={game.players}
             currentPlayer={currentPlayer}
+            tasks={game.tasks}
           />
         ) : (
           <div>Loading map...</div>
@@ -136,6 +137,7 @@ export default function ImpostorView({
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
+              // todo tasks={game.tasks}
             />
           </div>
         </div>

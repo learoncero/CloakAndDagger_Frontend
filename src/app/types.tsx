@@ -25,7 +25,7 @@ export type Task = {
   miniGameId: number;
   title: string;
   description: string;
-  Position: { x: number; y: number };
+  position: { x: number; y: number };
   completed: boolean;
 };
 

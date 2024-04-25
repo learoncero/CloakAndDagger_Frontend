@@ -8,6 +8,7 @@ import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
+import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 
 type Props = {
   map: string[][];
@@ -102,13 +103,14 @@ export default function CrewmateView({
         <RoleInformation role={"CREWMATE"} />
         <TaskList tasks={game.tasks}/>
       </div>
-
+      <TaskIconDisplay completed={false}></TaskIconDisplay>
       <div className="flex-grow flex justify-center">
         {map ? (
           <MapDisplay
             map={map}
             playerList={game.players}
             currentPlayer={currentPlayer}
+            tasks={game.tasks}
           />
         ) : (
           <div>Loading map...</div>
@@ -144,6 +146,7 @@ export default function CrewmateView({
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
+              //todo tasks={game.tasks}
             />
           </div>
         </div>
