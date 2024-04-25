@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
-import { Game, Player } from "@/app/types";
+import { Game, Player, Role } from "@/app/types";
 import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
 import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
+import useNearbyEntities from "@/hooks/useNearbyEntities";
+
 
 type Props = {
   map: string[][];
@@ -28,36 +30,10 @@ export default function CrewmateView({
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
   };
-  const [nearbyGhosts, setNearbyGhosts] = useState<Player[]>([]);
-
-  // Ref to store the latest value of nearbyGhosts
-  const nearbyGhostsRef = useRef<Player[]>([]);
-  nearbyGhostsRef.current = nearbyGhosts;
-
-  useEffect(() => {
-    const filterInterval = setInterval(() => {
-      if (game?.players) {
-        const updatedNearbyGhosts = filterNearbyGhosts(game.players);
-        setNearbyGhosts(updatedNearbyGhosts);
-      }
-    }, 200);
-
-    return () => clearInterval(filterInterval);
-  }, [game.players]);
-
-  useEffect(() => {
-    const toggleMiniMap = (event: KeyboardEvent) => {
-      if (event.key === "m" || event.key === "M") {
-        setShowMiniMap(!showMiniMap);
-      }
-    };
-
-    window.addEventListener("keydown", toggleMiniMap);
-
-    return () => {
-      window.removeEventListener("keydown", toggleMiniMap);
-    };
-  }, [showMiniMap]);
+  const nearbyGhosts = useNearbyEntities(game.players, currentPlayer, [
+    Role.CREWMATE_GHOST,
+    Role.IMPOSTOR_GHOST,
+  ]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -73,24 +49,11 @@ export default function CrewmateView({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentPlayer]);
-
-  function filterNearbyGhosts(players: Player[]): Player[] {
-    return players.filter(
-      (player) =>
-        Math.abs(player.position.x - currentPlayer.position.x) <= 1 &&
-        Math.abs(player.position.y - currentPlayer.position.y) <= 1 &&
-        player.id !== currentPlayer.id &&
-        player.role !== "CREWMATE" &&
-        player.role !== "IMPOSTOR"
-    );
-  }
+  }, [handleReportBody, setShowMiniMap]);
 
   function handleReportBody() {
-    console.log("reported bodies: ", game.reportedBodies);
-    const currentNearbyGhosts = nearbyGhostsRef.current;
-    if (currentNearbyGhosts.length > 0) {
-      const bodyToReportId = currentNearbyGhosts[0].id;
+    if (nearbyGhosts.length > 0) {
+      const bodyToReportId = nearbyGhosts[0].id;
       if (!game.reportedBodies.includes(bodyToReportId)) {
         reportBody(game.gameCode, bodyToReportId);
       }

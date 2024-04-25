@@ -1,7 +1,8 @@
 import {Player, Task} from "@/app/types";
-//import './MapDisplay.css';
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
+import { useEffect, useState } from "react";
+
 
 type Props = {
   map: string[][];
@@ -10,8 +11,9 @@ type Props = {
   tasks: Task[]
 };
 
+
 export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Props) {
-  console.log("MapDisplay tasks: ", tasks);
+  //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.position;
@@ -20,15 +22,21 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
   let startY = Math.max(0, y - halfViewport);
   let endY = Math.min(map.length, y + halfViewport + 1);
 
-
-  if (startX == 0) {
-    endX = viewportSize;
+  if (startX === 0) {
+    endX = Math.min(viewportSize, map[0].length);
   }
-  if (startY == 0) {
-    endY = viewportSize;
+  if (startY === 0) {
+    endY = Math.min(viewportSize, map.length);
   }
-
   console.log("PlayerID:" + currentPlayer.id);
+
+  if (endX >= map[0].length) {
+    startX = Math.max(0, map[0].length - viewportSize);
+  }
+  if (endY >= map.length) {
+    startY = Math.max(0, map.length - viewportSize);
+  }
+
 
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
