@@ -2,9 +2,7 @@
 
 import useGame from "@/state/useGame";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
+import { useEffect } from "react";
 import LobbyStartGameButton from "./LobbyStartGameButton";
 import LobbyGameCode from "./LobbyGameCode";
 import LobbyPlayerList from "./LobbyPlayerList";
@@ -12,13 +10,13 @@ import LobbyReadyToStartText from "./LobbyReadyToStartText";
 import LobbyHeader from "./LobbyHeader";
 import { fetchGame } from "./actions";
 import { Game } from "@/app/types";
-import { useWebSocket } from "@/state/useWebSocket";
+import useWebSocket from "@/state/useWebSocket";
 
 export default function Lobby() {
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const router = useRouter();
   const { gameCode } = useParams();
-  const { game, updateGame } = useGame();
+  const { game, updateGame } = useGame(gameCode as string);
 
   async function loadGameData() {
     const gameResult = await fetchGame(gameCode as string);

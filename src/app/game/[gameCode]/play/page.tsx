@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Game, GameStatus, Player, Role, Map } from "@/app/types";
+import { GameStatus, Player, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import { endGame, fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
@@ -16,13 +15,12 @@ import useWebSocket from "@/state/useWebSocket";
 export default function PlayGame() {
   const { gameCode } = useParams();
   const stompClient = useWebSocket("http://localhost:5010/ws");
-  const { game, updateGame } = useGame();
-  const [map, setMap] = useState<Map>({} as Map);
+  const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(45);
+  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(-1);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -36,19 +34,6 @@ export default function PlayGame() {
     (player) => player.id.toString() === playerId
   );
   const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
-
-  async function loadGameData() {
-    const gameResult = await fetchGame(gameCode as string);
-    console.log(gameResult);
-    updateGame(gameResult.data as Game);
-
-    const mapResult = await fetchMap(gameResult.data?.map as string);
-    if (mapResult && mapResult.status === 200) {
-      setMap(mapResult.data as Map);
-    } else if (mapResult && mapResult.status === 404) {
-      console.error("Map not found");
-    }
-  }
 
   useEffect(() => {
     loadGameData();
@@ -97,6 +82,11 @@ export default function PlayGame() {
           setShowChat(true);
         }
       );
+
+      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+      });
     }
   }, [stompClient]);
 
@@ -186,11 +176,6 @@ export default function PlayGame() {
     setCrewmatesWinTimer(45);
   }
 
-  async function handleEndGame() {
-    const game = await endGame(gameCode as string);
-    updateGame(game.data as Game);
-  }
-
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
@@ -198,8 +183,11 @@ export default function PlayGame() {
       countdownInterval = setInterval(() => {
         setCrewmatesWinTimer((prevTime) => prevTime - 1);
       }, 1000);
-    } else {
-      handleEndGame();
+    } else if (crewmatesWinTimer === 0) {
+      const endGameMessage = {
+        gameCode: gameCode,
+      };
+      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
     }
 
     return () => clearInterval(countdownInterval);
@@ -215,11 +203,15 @@ export default function PlayGame() {
             players={game.players}
           />
         )}
-        {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+        {game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
+        currentPlayer?.role != Role.CREWMATE_GHOST &&
+        currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
           <Modal modalText={"IMPOSTORS WIN!"}>
             <BackLink href={"/"}>Return to Landing Page</BackLink>
           </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+        ) : game?.gameStatus === GameStatus.CREWMATES_WIN &&
+          currentPlayer?.role != Role.CREWMATE_GHOST &&
+          currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
           <Modal modalText={"CREWMATES WIN!"}>
             <BackLink href={"/"}>Return to Landing Page</BackLink>
           </Modal>

@@ -39,12 +39,4 @@ export default class GameService {
 
     return joinedGame as ApiResponse<Game>;
   }
-
-  static async endGame(gameCode: string) {
-    const game = await ApiService.post("game", "/api/game/end", {
-      gameCode,
-    });
-
-    return game as ApiResponse<Game>;
-  }
 }
