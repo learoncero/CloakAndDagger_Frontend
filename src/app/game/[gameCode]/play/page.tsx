@@ -1,7 +1,7 @@
 "use client";
 
 import Stomp from "stompjs";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
@@ -21,6 +21,8 @@ export default function PlayGame() {
   const [map, setMap] = useState<Map>({} as Map);
   const [showChat, setShowChat] = useState(false);
   const [mirroring, setMirroring] = useState(false);
+  const pressedKeys = useRef<Set<string>>(new Set());
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -68,8 +70,10 @@ export default function PlayGame() {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [stompClient, game?.players, handleChatClose]);
 
@@ -113,7 +117,6 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-
     if (
       playerId &&
       validKeyCodes.includes(keyCode) &&
@@ -122,20 +125,46 @@ export default function PlayGame() {
       game?.gameStatus === GameStatus.IN_GAME &&
       !showChat
     ) {
-      let newMirroring =
-        keyCode === "KeyA" ? true : keyCode === "KeyD" ? false : mirroring;
-
-      const moveMessage = {
-        id: playerId,
-        keyCode: keyCode,
-        gameCode: game?.gameCode,
-        Mirrored: newMirroring,
-        isMoving: true,
-      };
-
-      if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
-        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
+      if (!pressedKeys.current.has(keyCode)) {
+        pressedKeys.current.add(keyCode);
+          sendMoveMessage();
+        if (!intervalId.current) {
+          intervalId.current = setInterval(sendMoveMessage, 175);
+        }
       }
+    }
+  }
+
+  function handleKeyUp(event: KeyboardEvent) {
+    const keyCode = event.code;
+    const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
+    if (validKeyCodes.includes(keyCode)) {
+      pressedKeys.current.delete(keyCode);
+      if (pressedKeys.current.size === 0 && intervalId.current) {
+        clearInterval(intervalId.current);
+        intervalId.current = null;
+      }
+    }
+  }
+
+  function sendMoveMessage() {
+    const keysArray = Array.from(pressedKeys.current.values());
+    const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
+      let newMirroring = (keyCodeToSend === "KeyA") ? true :
+          (keyCodeToSend === "KeyD") ? false : mirroring;
+
+    if (!keyCodeToSend) return;
+
+    const moveMessage = {
+      id: playerId,
+      keyCode: keyCodeToSend,
+      gameCode: game?.gameCode,
+      Mirrored: newMirroring,
+      isMoving: true,
+    };
+
+    if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
+      stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
     }
   }
 
