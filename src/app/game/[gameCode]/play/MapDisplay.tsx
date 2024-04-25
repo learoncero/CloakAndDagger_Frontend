@@ -22,11 +22,18 @@ export default function MapDisplay({ map, playerList, currentPlayer }: Props) {
   let endY = Math.min(map.length, y + halfViewport + 1);
 
 
-  if (startX == 0) {
-    endX = viewportSize;
+  if (startX === 0) {
+    endX = Math.min(viewportSize, map[0].length);
   }
-  if (startY == 0) {
-    endY = viewportSize;
+  if (startY === 0) {
+    endY = Math.min(viewportSize, map.length);
+  }
+
+  if (endX >= map[0].length) {
+    startX = Math.max(0, map[0].length - viewportSize);
+  }
+  if (endY >= map.length) {
+    startY = Math.max(0, map.length - viewportSize);
   }
 
   console.log("SpielerID:" + currentPlayer.id);
