@@ -13,18 +13,18 @@ import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
-import GameService from "@/services/GameService";
+import { useWebSocket } from "@/state/useWebSocket";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
-  const [stompClient, setStompClient] = useState<any>(null);
+  const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, updateGame } = useGame();
   const [map, setMap] = useState<Map>({} as Map);
   const [showChat, setShowChat] = useState(false);
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(5);
+  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(45);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -51,24 +51,6 @@ export default function PlayGame() {
       console.error("Map not found");
     }
   }
-
-  useEffect(() => {
-    if (!stompClient) {
-      const socket = new SockJS("http://localhost:5010/ws");
-      const client = Stomp.over(socket);
-      client.connect({}, () => {
-        setStompClient(client);
-      });
-
-      return () => {
-        if (stompClient) {
-          stompClient.disconnect();
-        }
-      };
-    }
-
-    loadGameData().then((r) => console.log("Game loaded"));
-  }, [stompClient]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -199,7 +181,12 @@ export default function PlayGame() {
   }
 
   function handleCrewmatesWinTimer() {
-    setCrewmatesWinTimer(5);
+    setCrewmatesWinTimer(45);
+  }
+
+  async function handleEndGame() {
+    const game = await endGame(gameCode as string);
+    updateGame(game.data as Game);
   }
 
   useEffect(() => {
@@ -210,8 +197,7 @@ export default function PlayGame() {
         setCrewmatesWinTimer((prevTime) => prevTime - 1);
       }, 1000);
     } else {
-      const game = endGame(gameCode as string);
-      updateGame(game.data);
+      handleEndGame();
     }
 
     return () => clearInterval(countdownInterval);
@@ -245,7 +231,7 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
-                setCrewmatesWinTimer={handleCrewmatesWinTimer}
+                handleCrewmateWinTimer={handleCrewmatesWinTimer}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (

@@ -16,7 +16,7 @@ type Props = {
   map: string[][];
   currentPlayer: Player;
   playerList: Player[];
-  setCrewmatesWinTimer: () => void;
+  handleCrewmateWinTimer: () => void;
 };
 
 export default function ImpostorView({
@@ -26,7 +26,7 @@ export default function ImpostorView({
   currentPlayer,
   game,
   killPlayer,
-  setCrewmatesWinTimer,
+  handleCrewmateWinTimer,
 }: Props) {
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   const [isTimer, setIsTimer] = useState(false);
@@ -103,7 +103,7 @@ export default function ImpostorView({
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList
           sabotages={sabotages ?? []}
-          setCrewmatesWinTimer={setCrewmatesWinTimer}
+          handleCrewmateWinTimer={handleCrewmateWinTimer}
         />
       </div>
 
@@ -140,7 +140,7 @@ export default function ImpostorView({
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
           <SabotageList
             sabotages={sabotages ?? []}
-            setCrewmatesWinTimer={setCrewmatesWinTimer}
+            handleCrewmateWinTimer={handleCrewmateWinTimer}
           />
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap

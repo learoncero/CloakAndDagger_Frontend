@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import SabotageListItem from "./SabotageListItem";
 import { Sabotage } from "@/app/types";
-import GameService from "@/services/GameService";
 
 type Props = {
   sabotages: Sabotage[];
-  setCrewmatesWinTimer: () => void;
+  handleCrewmateWinTimer: () => void;
 };
 
 export default function SabotageList({
   sabotages,
-  setCrewmatesWinTimer,
+  handleCrewmateWinTimer,
 }: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
@@ -31,7 +30,7 @@ export default function SabotageList({
 
   function handleSabotageComplete(sabotageId: number) {
     if (!isSabotageCooldown) {
-      setCrewmatesWinTimer();
+      handleCrewmateWinTimer();
       const sabotageIndex = incompleteSabotages.findIndex(
         (sabotage) => sabotage.id === sabotageId
       );
