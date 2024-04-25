@@ -1,8 +1,6 @@
 "use client";
 
-import Stomp from "stompjs";
 import { useEffect, useRef, useState } from "react";
-import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
@@ -13,7 +11,7 @@ import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
-import { useWebSocket } from "@/state/useWebSocket";
+import useWebSocket from "@/state/useWebSocket";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -51,6 +49,10 @@ export default function PlayGame() {
       console.error("Map not found");
     }
   }
+
+  useEffect(() => {
+    loadGameData();
+  }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);

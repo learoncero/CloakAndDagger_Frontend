@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Stomp from "stompjs";
 import SockJS from "sockjs-client";
 
-export function useWebSocket(url: string) {
+export default function useWebSocket(url: string) {
   const [stompClient, setStompClient] = useState<any>(null);
 
   useEffect(() => {
