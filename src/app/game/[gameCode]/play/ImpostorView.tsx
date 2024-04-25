@@ -116,7 +116,7 @@ export default function ImpostorView({
         <div className="mb-20">
           <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
           <PlayerList playerId={currentPlayer.id} playerList={game.players} />     
-          <CrewmateCounter playerList={playerList} />
+          <CrewmateCounter playerList={game.players} />
         </div>
 
         <div className="flex justify-center gap-5">
