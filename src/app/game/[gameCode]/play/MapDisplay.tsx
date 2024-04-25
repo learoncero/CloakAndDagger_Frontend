@@ -1,8 +1,6 @@
 import {Player, Task} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
-import { useEffect, useState } from "react";
-
 
 type Props = {
   map: string[][];
