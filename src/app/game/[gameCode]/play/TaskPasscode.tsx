@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import TaskService from "@/services/TaskService";
 import toast, { Toaster } from "react-hot-toast";
 import TaskCompletedPopup from "./TaskCompletedPopup";
+import {Task} from "@/app/types";
 
-interface TaskPopupProps {
+type TaskPasscodeProps = {
     onClose: () => void;
+    gameCode: string;
 }
 
-export default function TaskPopup({ onClose }: TaskPopupProps) {
+export default function TaskPasscode({ onClose, gameCode }: TaskPasscodeProps) {
     const [currentSum, setCurrentSum] = useState<number>(0);
     const [randomSum, setRandomSum] = useState<number>(0);
     const [taskDone, setTaskDone] = useState<boolean>(false);
@@ -15,7 +17,7 @@ export default function TaskPopup({ onClose }: TaskPopupProps) {
     useEffect(() => {
         async function fetchRandomSum() {
             try {
-                const response = await TaskService.getRandomSum();
+                const response = await TaskService.getRandomSum(gameCode);
                 setRandomSum(response.data as number);
                 setCurrentSum(0);
                 setTaskDone(false);
@@ -24,14 +26,14 @@ export default function TaskPopup({ onClose }: TaskPopupProps) {
             }
         }
         fetchRandomSum();
-    }, []);
+    }, [gameCode]);
 
     const handleButtonClick = async (value: number) => {
         if (taskDone) {
             return;
         }
         try {
-            const response = await TaskService.sumUp(value);
+            const response = await TaskService.sumUp(value, gameCode);
             const newCurrentSum = response.data as number;
 
             if (newCurrentSum > randomSum) {
@@ -62,7 +64,7 @@ export default function TaskPopup({ onClose }: TaskPopupProps) {
             return;
         }
         try {
-            await TaskService.resetSum();
+            await TaskService.resetSum(gameCode);
             setCurrentSum(0);
             setTaskDone(false);
         } catch (error) {

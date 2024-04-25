@@ -168,7 +168,7 @@ export default function CrewmateView({
         </div>
       )}
       {showTaskPopup && (
-          <Task taskType={taskType} onClose={() => setShowTaskPopup(false)} />
+          <Task taskType={taskType} onClose={() => setShowTaskPopup(false)} gameCode={game.gameCode} />
       )}
     </div>
   );
