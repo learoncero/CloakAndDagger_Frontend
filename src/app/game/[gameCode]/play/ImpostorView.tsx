@@ -7,6 +7,7 @@ import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import ActionButton from "@/components/ActionButton";
 import PlayerList from "./PlayerList";
+import CrewmateCounter from "./CrewmateCounter";
 import MapDisplay from "./MapDisplay";
 
 type Props = {
@@ -115,9 +116,10 @@ export default function ImpostorView({
       </div>
 
       <div className="flex-none w-1/4">
-        <div className="mb-32">
+        <div className="mb-20">
           <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
           <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+          <CrewmateCounter playerList={playerList} />
         </div>
 
         <div className="flex justify-center">
