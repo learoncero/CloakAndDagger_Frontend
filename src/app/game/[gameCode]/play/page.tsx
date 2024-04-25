@@ -1,18 +1,19 @@
 "use client";
 
 import Stomp from "stompjs";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import SockJS from "sockjs-client";
 import { Game, GameStatus, Player, Role, Map } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/state/useGame";
 import { useParams } from "next/navigation";
-import { fetchGame, fetchMap } from "./actions";
+import { endGame, fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
+import GameService from "@/services/GameService";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -23,6 +24,7 @@ export default function PlayGame() {
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(5);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -127,7 +129,7 @@ export default function PlayGame() {
     ) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
-          sendMoveMessage();
+        sendMoveMessage();
         if (!intervalId.current) {
           intervalId.current = setInterval(sendMoveMessage, 175);
         }
@@ -150,8 +152,12 @@ export default function PlayGame() {
   function sendMoveMessage() {
     const keysArray = Array.from(pressedKeys.current.values());
     const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
-      let newMirroring = (keyCodeToSend === "KeyA") ? true :
-          (keyCodeToSend === "KeyD") ? false : mirroring;
+    let newMirroring =
+      keyCodeToSend === "KeyA"
+        ? true
+        : keyCodeToSend === "KeyD"
+        ? false
+        : mirroring;
 
     if (!keyCodeToSend) return;
 
@@ -192,6 +198,25 @@ export default function PlayGame() {
     setShowChat(false);
   }
 
+  function handleCrewmatesWinTimer() {
+    setCrewmatesWinTimer(5);
+  }
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout;
+
+    if (crewmatesWinTimer > 0) {
+      countdownInterval = setInterval(() => {
+        setCrewmatesWinTimer((prevTime) => prevTime - 1);
+      }, 1000);
+    } else {
+      const game = endGame(gameCode as string);
+      updateGame(game.data);
+    }
+
+    return () => clearInterval(countdownInterval);
+  }, [crewmatesWinTimer]);
+
   return (
     <AnimationProvider>
       <div className="min-h-screen min-w-screen bg-black text-white">
@@ -207,7 +232,9 @@ export default function PlayGame() {
             <BackLink href={"/"}>Return to Landing Page</BackLink>
           </Modal>
         ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-          <h1>Crewmates win!</h1>
+          <Modal modalText={"CREWMATES WIN!"}>
+            <BackLink href={"/"}>Return to Landing Page</BackLink>
+          </Modal>
         ) : currentPlayer ? (
           <div>
             {playerRole === Role.IMPOSTOR ? (
@@ -218,6 +245,7 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
+                setCrewmatesWinTimer={handleCrewmatesWinTimer}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (

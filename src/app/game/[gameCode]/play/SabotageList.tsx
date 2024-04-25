@@ -1,47 +1,52 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import SabotageListItem from "./SabotageListItem";
 import { Sabotage } from "@/app/types";
+import GameService from "@/services/GameService";
 
 type Props = {
   sabotages: Sabotage[];
+  setCrewmatesWinTimer: () => void;
 };
 
-export default function SabotageList({ sabotages }: Props) {
+export default function SabotageList({
+  sabotages,
+  setCrewmatesWinTimer,
+}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
-  const [isSabotageCooldown , setIsSabotageCooldown] = useState( false);
-  const [cooldownTime, setCooldownTime] = useState(30);
+  const [isSabotageCooldown, setIsSabotageCooldown] = useState(false);
+  const [sabotageCooldownTime, setSabotageCooldownTime] = useState(30);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
     if (isSabotageCooldown) {
       countdownInterval = setInterval(() => {
-        setCooldownTime((prevTime) => prevTime - 1);
+        setSabotageCooldownTime((prevTime) => prevTime - 1);
       }, 1000);
     }
     return () => clearInterval(countdownInterval);
   }, [isSabotageCooldown]);
 
   function handleSabotageComplete(sabotageId: number) {
-    if(!isSabotageCooldown) {
+    if (!isSabotageCooldown) {
+      setCrewmatesWinTimer();
       const sabotageIndex = incompleteSabotages.findIndex(
-          (sabotage) => sabotage.id === sabotageId
+        (sabotage) => sabotage.id === sabotageId
       );
       if (sabotageIndex !== -1) {
         const completedSabotage = incompleteSabotages[sabotageIndex];
         setCompletedSabotages([...completedSabotages, completedSabotage]);
         const updatedSabotages = incompleteSabotages.filter(
-            (sabotage) => sabotage.id !== sabotageId
+          (sabotage) => sabotage.id !== sabotageId
         );
         setIncompleteSabotages(updatedSabotages);
         setIsSabotageCooldown(true);
-        setTimeout( () => {
+        setTimeout(() => {
           setIsSabotageCooldown(false);
-          setCooldownTime(30);
-        }, 30000)
-
+          setSabotageCooldownTime(30);
+        }, 30000);
       }
     }
   }
@@ -49,11 +54,11 @@ export default function SabotageList({ sabotages }: Props) {
   const displayedSabotages = incompleteSabotages.slice(0, 2);
 
   return (
-    <div className={'relative'}>
+    <div className={"relative"}>
       {isSabotageCooldown && (
         <div className="absolute inset-0 bg-gray-500 opacity-50 flex justify-center items-center">
-          <div className={'text-white text-lg font-semibold'}>
-            Cooldown {cooldownTime}s
+          <div className={"text-white text-lg font-semibold"}>
+            Cooldown {sabotageCooldownTime}s
           </div>
         </div>
       )}
