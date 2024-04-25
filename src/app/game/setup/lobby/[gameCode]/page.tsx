@@ -1,6 +1,6 @@
 "use client";
 
-import useGame from "@/state/useGame";
+import useGame from "@/hooks/useGame";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import LobbyStartGameButton from "./LobbyStartGameButton";

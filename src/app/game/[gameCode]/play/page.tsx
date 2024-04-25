@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { GameStatus, Player, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
-import useGame from "@/state/useGame";
+import useGame from "@/hooks/useGame";
 import { useParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
-import useWebSocket from "@/state/useWebSocket";
+import useWebSocket from "@/hooks/useWebSocket";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -226,6 +226,7 @@ export default function PlayGame() {
                 game={game}
                 killPlayer={killPlayer}
                 handleCrewmateWinTimer={handleCrewmatesWinTimer}
+                reportBody={reportBody}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (
