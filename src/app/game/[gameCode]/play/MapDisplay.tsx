@@ -41,11 +41,11 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
                 const cellPosY = rowIndex + startY;
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
-                //console.log("Task in Cell: ", taskInCell)
                 return (
                     <div
                         key={cellIndex}
-                        className={`w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border border-1 border-gray-300 box-border ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
+                        className={`w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border border-1 border-gray-300 box-border 
+                                  ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
                     >
                     {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
                           .map(player => (

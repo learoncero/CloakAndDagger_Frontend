@@ -103,7 +103,6 @@ export default function CrewmateView({
         <RoleInformation role={"CREWMATE"} />
         <TaskList tasks={game.tasks}/>
       </div>
-      <TaskIconDisplay completed={false}></TaskIconDisplay>
       <div className="flex-grow flex justify-center">
         {map ? (
           <MapDisplay
