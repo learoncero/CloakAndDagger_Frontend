@@ -17,6 +17,7 @@ export default function SabotageList({
   const [isSabotageCooldown, setIsSabotageCooldown] = useState(false);
   const [sabotageCooldownTime, setSabotageCooldownTime] = useState(30);
 
+
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
@@ -53,15 +54,15 @@ export default function SabotageList({
   const displayedSabotages = incompleteSabotages.slice(0, 2);
 
   return (
-    <div className={"relative"}>
+    <div className="relative">
       {isSabotageCooldown && (
         <div className="absolute inset-0 bg-gray-500 opacity-50 flex justify-center items-center">
           <div className={"text-white text-lg font-semibold"}>
-            Cooldown {sabotageCooldownTime}s
+            Cooldown {cooldownTime}s
           </div>
         </div>
       )}
-      <div className="sabotageList bg-black text-white border border-gray-600 shadow-md rounded-lg p-4 font-sans text-sm w-full max-w-lg min-h-64 min-w-80">
+      <div className="bg-black text-white border border-gray-600 shadow-md rounded-lg p-4 font-sans text-sm w-full max-w-lg min-h-64">
         <h2 className="text-lg font-semibold mb-4">Sabotages</h2>
         <ul className="overflow-x-hidden">
           {displayedSabotages.map((sabotage) => (
