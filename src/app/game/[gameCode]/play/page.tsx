@@ -23,7 +23,9 @@ export default function PlayGame() {
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const [isGameSabotaged, setIsGameSabotaged] = useState(false);
 
+  //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
@@ -212,9 +214,7 @@ export default function PlayGame() {
           <div>
             {playerRole === Role.IMPOSTOR ? (
               <ImpostorView
-                sabotages={game?.sabotages}
                 map={map.map}
-                playerList={game?.players as Player[]}
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
