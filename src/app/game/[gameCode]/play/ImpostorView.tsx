@@ -12,20 +12,16 @@ import MapDisplay from "./MapDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 
 type Props = {
-  sabotages: Sabotage[] | undefined;
-  game: Game;
-  killPlayer: (gameCode: string, playerId: number) => void;
   map: string[][];
   currentPlayer: Player;
-  playerList: Player[];
   handleCrewmateWinTimer: () => void;
+  game: Game;
+  killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
 };
 
 export default function ImpostorView({
-  sabotages,
   map,
-  playerList,
   currentPlayer,
   game,
   killPlayer,
@@ -102,7 +98,7 @@ export default function ImpostorView({
       <div className="flex-none w-1/4">
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList
-          sabotages={sabotages ?? []}
+          sabotages={game.sabotages ?? []}
           handleCrewmateWinTimer={handleCrewmateWinTimer}
         />
       </div>
@@ -111,8 +107,9 @@ export default function ImpostorView({
         {map ? (
           <MapDisplay
             map={map}
-            playerList={playerList}
+            playerList={game.players}
             currentPlayer={currentPlayer}
+            tasks={game.tasks}
           />
         ) : (
           <div>Loading map...</div>
@@ -122,8 +119,8 @@ export default function ImpostorView({
       <div className="flex-none w-1/4">
         <div className="mb-20">
           <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
-          <PlayerList playerId={currentPlayer.id} playerList={playerList} />
-          <CrewmateCounter playerList={playerList} />
+          <PlayerList playerId={currentPlayer.id} playerList={game.players} />
+          <CrewmateCounter playerList={game.players} />
         </div>
 
         <div className="flex justify-center gap-5">
@@ -150,15 +147,16 @@ export default function ImpostorView({
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
           <SabotageList
-            sabotages={sabotages ?? []}
+            sabotages={game.sabotages ?? []}
             handleCrewmateWinTimer={handleCrewmateWinTimer}
           />
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
-              playerList={playerList}
+              playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
+              // todo tasks={game.tasks}
             />
           </div>
         </div>

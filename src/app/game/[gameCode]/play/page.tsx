@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GameStatus, Player, Role } from "@/app/types";
+import { GameStatus, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/hooks/useGame";
@@ -219,9 +219,7 @@ export default function PlayGame() {
           <div>
             {playerRole === Role.IMPOSTOR ? (
               <ImpostorView
-                sabotages={game?.sabotages}
                 map={map.map}
-                playerList={game?.players as Player[]}
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
@@ -236,7 +234,6 @@ export default function PlayGame() {
             ) : (
               <CrewmateView
                 map={map.map}
-                playerList={game?.players as Player[]}
                 currentPlayer={currentPlayer}
                 game={game}
                 reportBody={reportBody}
