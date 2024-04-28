@@ -17,7 +17,7 @@ type Props = {
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
-  startSabotage: (sabotageId: number) => void;
+  getSabotagePosition: (sabotageId: number) => void;
 };
 
 export default function ImpostorView({
@@ -26,7 +26,7 @@ export default function ImpostorView({
   game,
   killPlayer,
   reportBody,
-  startSabotage,
+  getSabotagePosition,
 }: Props) {
   const [isTimer, setIsTimer] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(false);
@@ -97,7 +97,7 @@ export default function ImpostorView({
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"IMPOSTOR"} />
-        <SabotageList sabotages={game.sabotages ?? []} gameCode={game.gameCode} mapName={game.map} startSabotage={startSabotage}/>
+        <SabotageList sabotages={game.sabotages ?? []} getSabotagePosition={getSabotagePosition}/>
       </div>
 
       <div className="flex-grow flex justify-center">
@@ -106,6 +106,7 @@ export default function ImpostorView({
             map={map}
             playerList={game.players}
             currentPlayer={currentPlayer}
+            sabotages={game.sabotages ?? []}
           />
         ) : (
           <div>Loading map...</div>
@@ -142,7 +143,7 @@ export default function ImpostorView({
 
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <SabotageList sabotages={game.sabotages ?? []} gameCode={game.gameCode} mapName={game.map} startSabotage={startSabotage}/>
+          <SabotageList sabotages={game.sabotages ?? []} getSabotagePosition={getSabotagePosition}/>
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}

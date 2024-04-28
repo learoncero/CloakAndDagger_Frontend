@@ -72,6 +72,7 @@ export default function CrewmateView({
             map={map}
             playerList={playerList}
             currentPlayer={currentPlayer}
+            sabotages={game.sabotages ?? []}
           />
         ) : (
           <div>Loading map...</div>

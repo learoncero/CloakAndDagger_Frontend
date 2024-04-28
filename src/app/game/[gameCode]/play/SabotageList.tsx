@@ -4,12 +4,10 @@ import { Sabotage } from "@/app/types";
 
 type Props = {
   sabotages: Sabotage[];
-  gameCode: string;
-  mapName: string;
-  startSabotage: (sabotageId: number) => void
+  getSabotagePosition: (sabotageId: number) => void
 };
 
-export default function SabotageList({ sabotages, gameCode, mapName, startSabotage}: Props) {
+export default function SabotageList({ sabotages, getSabotagePosition}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
@@ -39,7 +37,7 @@ export default function SabotageList({ sabotages, gameCode, mapName, startSabota
           (sabotage) => sabotage.id !== sabotageId
         );
 
-        startSabotage(sabotageId); //sends id back to page to make a fetch for random position
+        getSabotagePosition(sabotageId); //sends id back to page to make a fetch for random position
         setIncompleteSabotages(updatedSabotages);
         setIsSabotageCooldown(true);
         setTimeout(() => {
