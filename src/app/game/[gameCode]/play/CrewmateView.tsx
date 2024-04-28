@@ -8,11 +8,11 @@ import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
+import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 
 type Props = {
   map: string[][];
-  playerList: Player[];
   currentPlayer: Player;
   game: Game;
   reportBody: (gameCode: string, playerId: number) => void;
@@ -20,7 +20,6 @@ type Props = {
 
 export default function CrewmateView({
   map,
-  playerList,
   currentPlayer,
   game,
   reportBody,
@@ -63,15 +62,15 @@ export default function CrewmateView({
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"CREWMATE"} />
-        <TaskList />
+        <TaskList tasks={game.tasks}/>
       </div>
-
       <div className="flex-grow flex justify-center">
         {map ? (
           <MapDisplay
             map={map}
-            playerList={playerList}
+            playerList={game.players}
             currentPlayer={currentPlayer}
+            tasks={game.tasks}
             sabotages={game.sabotages ?? []}
           />
         ) : (
@@ -82,7 +81,7 @@ export default function CrewmateView({
       <div className="flex-none w-1/4">
         <div className="mb-32">
           <MapButton onClick={handleToggleMiniMap} label="Show MiniMap" />
-          <PlayerList playerId={currentPlayer.id} playerList={playerList} />
+          <PlayerList playerId={currentPlayer.id} playerList={game.players} />
         </div>
 
         <div className="flex justify-center">
@@ -101,13 +100,14 @@ export default function CrewmateView({
 
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <TaskList />
+          <TaskList tasks={game.tasks}/>
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
-              playerList={playerList}
+              playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
+              //todo tasks={game.tasks}
             />
           </div>
         </div>

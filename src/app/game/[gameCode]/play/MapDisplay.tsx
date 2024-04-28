@@ -1,16 +1,20 @@
-import {Player, Sabotage} from "@/app/types";
-import "./MapDisplay.css";
-import PlayerSprites from "./PlayerSprites";
+import {Player, Task, Sabotage} from "@/app/types";
+import PlayerSprites from './PlayerSprites';
+import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
+
 
 type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
+  tasks: Task[]
   sabotages: Sabotage[];
 };
 
-export default function MapDisplay({ map, playerList, currentPlayer, sabotages }: Props) {
+
+export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages }: Props) {
+  //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.position;
@@ -36,44 +40,38 @@ export default function MapDisplay({ map, playerList, currentPlayer, sabotages }
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
   return (
-    <div className="MapDisplay-map-container">
-      {map.slice(startY, endY).map((row, rowIndex) => (
-        <div key={rowIndex} className="MapDisplay-row">
-          {row.slice(startX, endX).map((cell, cellIndex) => {
-            const cellPosX = cellIndex + startX;
-            const cellPosY = rowIndex + startY;
-            const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
-            const isPlayerHere = playerList.some(
-              (player) =>
-                player.position.x === cellPosX && player.position.y === cellPosY
-            );
+      <div className="relative border-3 border-black">
+        {map.slice(startY, endY).map((row, rowIndex) => (
+            <div key={rowIndex} className="flex">
+              {row.slice(startX, endX).map((cell, cellIndex) => {
+                const cellPosX = cellIndex + startX;
+                const cellPosY = rowIndex + startY;
+                const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
+                const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
+                const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
+                return (
+                    <div
+                        key={cellIndex}
+                        className={`w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border border-1 border-gray-300 box-border 
+                                  ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
+                    >
+                    {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
+                          .map(player => (
+                              <PlayerSprites key={player.id} player={player} />
+                              // eslint-disable-next-line react/jsx-no-comment-textnodes
+                          ))}
 
-            return (
-              <div
-                key={cellIndex}
-                className={`MapDisplay-cell ${
-                  cell != "#" ? "walkable" : "obstacle"
-                }`}
-              >
-                {isPlayerHere &&
-                  playerList
-                    .filter(
-                      (player) =>
-                        player.position.x === cellPosX &&
-                        player.position.y === cellPosY
-                  )
-                    .map((player) => (
-                      <PlayerSprites key={player.id} player={player}/>
-                    ))}
-                {sabotageInCell !== undefined && (
-                  <SabotageIconDisplay/>
-                  )
-                }
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
+                      {taskInCell !== undefined && (
+                          <TaskIconDisplay completed={taskInCell.completed} />
+                        )}
+                      {sabotageInCell !== undefined && (
+                          <SabotageIconDisplay/>
+                      )}
+                    </div>
+                );
+              })}
+            </div>
+        ))}
+      </div>
   );
 }

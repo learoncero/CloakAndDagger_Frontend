@@ -14,6 +14,7 @@ import useNearbyEntities from "@/hooks/useNearbyEntities";
 type Props = {
   map: string[][];
   currentPlayer: Player;
+  handleCrewmateWinTimer: () => void;
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
@@ -25,6 +26,7 @@ export default function ImpostorView({
   currentPlayer,
   game,
   killPlayer,
+  handleCrewmateWinTimer,
   reportBody,
   getSabotagePosition,
 }: Props) {
@@ -97,7 +99,11 @@ export default function ImpostorView({
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"IMPOSTOR"} />
-        <SabotageList sabotages={game.sabotages ?? []} getSabotagePosition={getSabotagePosition}/>
+        <SabotageList
+          sabotages={game.sabotages ?? []}
+          handleCrewmateWinTimer={handleCrewmateWinTimer}
+          getSabotagePosition={getSabotagePosition}
+        />
       </div>
 
       <div className="flex-grow flex justify-center">
@@ -106,6 +112,7 @@ export default function ImpostorView({
             map={map}
             playerList={game.players}
             currentPlayer={currentPlayer}
+            tasks={game.tasks}
             sabotages={game.sabotages ?? []}
           />
         ) : (
@@ -143,13 +150,18 @@ export default function ImpostorView({
 
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <SabotageList sabotages={game.sabotages ?? []} getSabotagePosition={getSabotagePosition}/>
+          <SabotageList
+            sabotages={game.sabotages ?? []}
+            handleCrewmateWinTimer={handleCrewmateWinTimer}
+            getSabotagePosition={getSabotagePosition}
+          />
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
+              // todo tasks={game.tasks}
             />
           </div>
         </div>
