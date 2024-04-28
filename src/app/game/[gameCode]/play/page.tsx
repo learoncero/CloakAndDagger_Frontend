@@ -1,28 +1,26 @@
 "use client";
 
-import Stomp from "stompjs";
-import {useEffect, useRef, useState} from "react";
-import SockJS from "sockjs-client";
-import { Game, GameStatus, Role, Map } from "@/app/types";
+import { useEffect, useRef, useState } from "react";
+import { GameStatus, Role } from "@/app/types";
 import ImpostorView from "./ImpostorView";
 import CrewmateView from "./CrewmateView";
 import useGame from "@/hooks/useGame";
 import { useParams } from "next/navigation";
-import { fetchGame, fetchMap } from "./actions";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
+import useWebSocket from "@/hooks/useWebSocket";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
-  const [stompClient, setStompClient] = useState<any>(null);
-  const { game, updateGame } = useGame();
-  const [map, setMap] = useState<Map>({} as Map);
+  const stompClient = useWebSocket("http://localhost:5010/ws");
+  const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(-1);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -37,36 +35,9 @@ export default function PlayGame() {
   );
   const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
 
-  async function loadGameData() {
-    const gameResult = await fetchGame(gameCode as string);
-    console.log(gameResult);
-    updateGame(gameResult.data as Game);
-
-    const mapResult = await fetchMap(gameResult.data?.map as string);
-    if (mapResult && mapResult.status === 200) {
-      setMap(mapResult.data as Map);
-    } else if (mapResult && mapResult.status === 404) {
-      console.error("Map not found");
-    }
-  }
-
   useEffect(() => {
-    if (!stompClient) {
-      const socket = new SockJS("http://localhost:5010/ws");
-      const client = Stomp.over(socket);
-      client.connect({}, () => {
-        setStompClient(client);
-      });
-
-      return () => {
-        if (stompClient) {
-          stompClient.disconnect();
-        }
-      };
-    }
-
-    loadGameData().then(() => console.log("Game loaded"));
-  }, [stompClient]);
+    loadGameData();
+  }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -111,6 +82,11 @@ export default function PlayGame() {
           setShowChat(true);
         }
       );
+
+      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+      });
     }
   }, [stompClient]);
 
@@ -127,7 +103,7 @@ export default function PlayGame() {
     ) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
-          sendMoveMessage();
+        sendMoveMessage();
         if (!intervalId.current) {
           intervalId.current = setInterval(sendMoveMessage, 175);
         }
@@ -150,8 +126,12 @@ export default function PlayGame() {
   function sendMoveMessage() {
     const keysArray = Array.from(pressedKeys.current.values());
     const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
-      let newMirroring = (keyCodeToSend === "KeyA") ? true :
-          (keyCodeToSend === "KeyD") ? false : mirroring;
+    let newMirroring =
+      keyCodeToSend === "KeyA"
+        ? true
+        : keyCodeToSend === "KeyD"
+        ? false
+        : mirroring;
 
     if (!keyCodeToSend) return;
 
@@ -192,6 +172,27 @@ export default function PlayGame() {
     setShowChat(false);
   }
 
+  function handleCrewmatesWinTimer() {
+    setCrewmatesWinTimer(45);
+  }
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout;
+
+    if (crewmatesWinTimer > 0) {
+      countdownInterval = setInterval(() => {
+        setCrewmatesWinTimer((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (crewmatesWinTimer === 0) {
+      const endGameMessage = {
+        gameCode: gameCode,
+      };
+      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
+    }
+
+    return () => clearInterval(countdownInterval);
+  }, [crewmatesWinTimer]);
+
   return (
     <AnimationProvider>
       <div className="min-h-screen min-w-screen bg-black text-white">
@@ -202,12 +203,18 @@ export default function PlayGame() {
             players={game.players}
           />
         )}
-        {game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+        {game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
+        currentPlayer?.role != Role.CREWMATE_GHOST &&
+        currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
           <Modal modalText={"IMPOSTORS WIN!"}>
             <BackLink href={"/"}>Return to Landing Page</BackLink>
           </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-          <h1>Crewmates win!</h1>
+        ) : game?.gameStatus === GameStatus.CREWMATES_WIN &&
+          currentPlayer?.role != Role.CREWMATE_GHOST &&
+          currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
+          <Modal modalText={"CREWMATES WIN!"}>
+            <BackLink href={"/"}>Return to Landing Page</BackLink>
+          </Modal>
         ) : currentPlayer ? (
           <div>
             {playerRole === Role.IMPOSTOR ? (
@@ -216,6 +223,7 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
+                handleCrewmateWinTimer={handleCrewmatesWinTimer}
                 reportBody={reportBody}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
