@@ -6,11 +6,11 @@ type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
-  tasks: Task[]
+  tasks: Task[];
+  nearbyTask: Task;
 };
 
-
-export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Props) {
+export default function MapDisplay({ map, playerList, currentPlayer, tasks, nearbyTask }: Props) {
   //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -37,6 +37,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
 
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
+
   return (
       <div className="relative border-3 border-black">
         {map.slice(startY, endY).map((row, rowIndex) => (
@@ -59,8 +60,11 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
                           ))}
 
                       {taskInCell !== undefined && (
-                          <TaskIconDisplay completed={taskInCell.completed} />
-                        )}
+                          <TaskIconDisplay
+                              completed={taskInCell.completed}
+                              isTaskInteractable={!!nearbyTask}
+                          />
+                      )}
                     </div>
                 );
               })}

@@ -42,8 +42,9 @@ export default function CrewmateView({
 
   const nearbyTasks = useNearbyTasks(game.tasks, currentPlayer.position);
 
-  const handleToggleTaskPopup = useCallback((miniGameId: number) => {
+  const handleToggleTaskPopup = useCallback(() => {
     if (nearbyTasks.length > 0) {
+      const miniGameId = nearbyTasks[0].miniGameId;
       setTaskMiniGameId(miniGameId);
       setShowTaskPopup((prevShowTaskPopup) => !prevShowTaskPopup);
     }
@@ -52,10 +53,7 @@ export default function CrewmateView({
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
-        const firstTask = nearbyTasks[0];
-        if (firstTask) {
-          handleToggleTaskPopup(firstTask.miniGameId);
-        }
+        handleToggleTaskPopup();
       }
     };
 
@@ -105,6 +103,7 @@ export default function CrewmateView({
             playerList={game.players}
             currentPlayer={currentPlayer}
             tasks={game.tasks}
+            nearbyTask={nearbyTasks[0]}
           />
         ) : (
           <div>Loading map...</div>
