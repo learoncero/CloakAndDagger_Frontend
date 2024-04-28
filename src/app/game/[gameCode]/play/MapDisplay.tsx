@@ -1,4 +1,4 @@
-import {Player, Task, Sabotage} from "@/app/types";
+import {Player, Task, Sabotage, Role} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
@@ -49,6 +49,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
                 const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
+                const notImpostorOrGhost = ![Role.IMPOSTOR, Role.IMPOSTOR_GHOST].includes(currentPlayer.role);
                 return (
                     <div
                         key={cellIndex}
@@ -61,7 +62,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                               // eslint-disable-next-line react/jsx-no-comment-textnodes
                           ))}
 
-                      {taskInCell !== undefined && (
+                      {taskInCell !== undefined && notImpostorOrGhost && (
                           <TaskIconDisplay completed={taskInCell.completed} />
                         )}
                       {sabotageInCell !== undefined && (
