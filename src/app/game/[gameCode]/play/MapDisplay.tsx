@@ -1,7 +1,7 @@
 import {Player, Sabotage} from "@/app/types";
 import "./MapDisplay.css";
 import PlayerSprites from "./PlayerSprites";
-import { useEffect, useState } from "react";
+import SabotageIconDisplay from "./SabotageIconDisplay";
 
 type Props = {
   map: string[][];
@@ -66,10 +66,8 @@ export default function MapDisplay({ map, playerList, currentPlayer, sabotages }
                       <PlayerSprites key={player.id} player={player}/>
                     ))}
                 {sabotageInCell !== undefined && (
-                  <div className={`flex place-content-center w-full h-full z-10`}>
-                    <img src={'/sabotage.png'}
-                        alt={'Sabotage'}/>
-                  </div>)
+                  <SabotageIconDisplay/>
+                  )
                 }
               </div>
             );
