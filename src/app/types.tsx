@@ -23,6 +23,7 @@ export type Sabotage = {
   id: number;
   title: string;
   description: string;
+  position: { x: number; y: number };
 };
 
 export type ApiResponse<Data = unknown> = {
