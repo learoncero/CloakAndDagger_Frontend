@@ -6,9 +6,10 @@ type Props = {
   sabotages: Sabotage[];
   gameCode: string;
   mapName: string;
+  startSabotage: (sabotageId: number) => void
 };
 
-export default function SabotageList({ sabotages, gameCode, mapName }: Props) {
+export default function SabotageList({ sabotages, gameCode, mapName, startSabotage}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
@@ -37,30 +38,18 @@ export default function SabotageList({ sabotages, gameCode, mapName }: Props) {
         const updatedSabotages = incompleteSabotages.filter(
           (sabotage) => sabotage.id !== sabotageId
         );
+
+        startSabotage(sabotageId); //sends id back to page to make a fetch for random position
         setIncompleteSabotages(updatedSabotages);
         setIsSabotageCooldown(true);
         setTimeout(() => {
           setIsSabotageCooldown(false);
           setCooldownTime(30);
         }, 30000);
+
       }
     }
   }
-
-  // async function getSabotagePosition(completedSabotage: Sabotage) {
-  //   const sabotageMessage = {
-  //     gameCode: gameCode,
-  //     sabotageId: completedSabotage.id,
-  //     map: mapName,
-  //   };
-  //   console.log(sabotageMessage);
-  //   if(stompClient) {
-  //     stompClient.send(`/app/game/sabotage`, {}, JSON.stringify(sabotageMessage));
-  //   }
-  // } todo move to page.tsx
-
-
-
 
   const displayedSabotages = incompleteSabotages.slice(0, 2);
 
