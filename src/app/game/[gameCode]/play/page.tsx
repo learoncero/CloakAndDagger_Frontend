@@ -23,7 +23,6 @@ export default function PlayGame() {
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [isGameSabotaged, setIsGameSabotaged] = useState(false);
 
   //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
@@ -117,7 +116,6 @@ export default function PlayGame() {
           "/topic/sabotage",
             (message: { body: string }) => {
                 const receivedMessage = JSON.parse(message.body);
-                setIsGameSabotaged(true);
                 updateGame(receivedMessage.body);
             }
       )
@@ -198,7 +196,7 @@ export default function PlayGame() {
     }
   }
 
-  function startSabotage(sabotageId: number) {
+  function getSabotagePosition(sabotageId: number) {
     const sabotageMessage = {
       gameCode: gameCode,
       sabotageId: sabotageId,
@@ -238,7 +236,7 @@ export default function PlayGame() {
                 game={game}
                 killPlayer={killPlayer}
                 reportBody={reportBody}
-                startSabotage={startSabotage}
+                getSabotagePosition={getSabotagePosition}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (
