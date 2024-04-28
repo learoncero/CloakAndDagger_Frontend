@@ -21,10 +21,13 @@ export type Player = {
 };
 
 export type Task = {
-    id: number;
-    title: string;
-    description: string;
-}
+  id: number;
+  miniGameId: number;
+  title: string;
+  description: string;
+  position: { x: number; y: number };
+  completed: boolean;
+};
 
 export type Sabotage = {
   id: number;
