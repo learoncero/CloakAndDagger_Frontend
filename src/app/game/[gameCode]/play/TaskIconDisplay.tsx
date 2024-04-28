@@ -8,7 +8,7 @@ export default function TaskIconDisplay({ completed }: Props) {
   return (
       <div className={`flex place-content-center w-full h-full z-10`}>
           <img src={completed ? taskComplete : taskNotComplete}
-               alt={completed ? 'Task Complete' : 'Task Not Complete'}/>
+               alt={completed ? 'TaskGateway Complete' : 'TaskGateway Not Complete'}/>
       </div>
   );
 }

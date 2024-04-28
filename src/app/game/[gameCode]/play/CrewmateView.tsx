@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
-import { Game, Player, Role } from "@/app/types";
+import { Game, Player, Role, Task as TaskType } from "@/app/types";
 import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
-import Task from "@/app/game/[gameCode]/play/Task";
+import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
 import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
-
+import useNearbyTasks from "@/hooks/useNearbyTasks";
 
 type Props = {
   map: string[][];
@@ -29,29 +29,43 @@ export default function CrewmateView({
 
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [showTaskPopup, setShowTaskPopup] = useState(false);
-  const [taskType, setTaskType] = useState<string>("passcode"); // TODO: Hardcoded value for now
+  const [taskMiniGameId, setTaskMiniGameId] = useState<number>(0);
 
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
   };
+
   const nearbyGhosts = useNearbyEntities(game.players, currentPlayer, [
     Role.CREWMATE_GHOST,
     Role.IMPOSTOR_GHOST,
   ]);
 
+  const nearbyTasks = useNearbyTasks(game.tasks, currentPlayer.position);
+
+  const handleToggleTaskPopup = useCallback((miniGameId: number) => {
+    if (nearbyTasks.length > 0) {
+      setTaskMiniGameId(miniGameId);
+      setShowTaskPopup((prevShowTaskPopup) => !prevShowTaskPopup);
+    }
+  }, [nearbyTasks]);
+
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
-        setShowTaskPopup(!showTaskPopup);
+        const firstTask = nearbyTasks[0];
+        if (firstTask) {
+          handleToggleTaskPopup(firstTask.miniGameId);
+        }
       }
     };
+
 
     window.addEventListener("keydown", handleKeyPress);
 
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [showTaskPopup]);
+  }, [handleToggleTaskPopup, nearbyTasks]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -132,7 +146,11 @@ export default function CrewmateView({
         </div>
       )}
       {showTaskPopup && (
-          <Task taskType={taskType} onClose={() => setShowTaskPopup(false)} gameCode={game.gameCode} />
+          <TaskGateway
+              taskType={taskMiniGameId}
+              onClose={() => setShowTaskPopup(false)}
+              gameCode={game.gameCode}
+          />
       )}
     </div>
   );

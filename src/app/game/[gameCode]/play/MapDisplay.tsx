@@ -26,7 +26,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
   if (startY === 0) {
     endY = Math.min(viewportSize, map.length);
   }
-  console.log("PlayerID:" + currentPlayer.id);
 
   if (endX >= map[0].length) {
     startX = Math.max(0, map[0].length - viewportSize);
