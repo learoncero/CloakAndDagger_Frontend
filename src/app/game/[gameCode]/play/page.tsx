@@ -21,6 +21,7 @@ export default function PlayGame() {
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(-1);
+  const isSabotageActive = crewmatesWinTimer != -1;
 
   //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
@@ -193,7 +194,7 @@ export default function PlayGame() {
   }
 
   function handleCrewmatesWinTimer() {
-    setCrewmatesWinTimer(45);
+    setCrewmatesWinTimer(10000); //Todo set back to 45 Timer
   }
 
   useEffect(() => {
@@ -246,6 +247,7 @@ export default function PlayGame() {
                 handleCrewmateWinTimer={handleCrewmatesWinTimer}
                 reportBody={reportBody}
                 getSabotagePosition={getSabotagePosition}
+                isSabotageActive={isSabotageActive}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (
@@ -258,6 +260,7 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 reportBody={reportBody}
+                isSabotageActive={isSabotageActive}
               />
             )}
           </div>

@@ -19,6 +19,7 @@ type Props = {
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
   getSabotagePosition: (sabotageId: number) => void;
+  isSabotageActive: boolean;
 };
 
 export default function ImpostorView({
@@ -29,6 +30,8 @@ export default function ImpostorView({
   handleCrewmateWinTimer,
   reportBody,
   getSabotagePosition,
+  isSabotageActive
+
 }: Props) {
   const [isTimer, setIsTimer] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(false);
@@ -114,6 +117,7 @@ export default function ImpostorView({
             currentPlayer={currentPlayer}
             tasks={game.tasks}
             sabotages={game.sabotages ?? []}
+            isSabotageActive={isSabotageActive}
           />
         ) : (
           <div>Loading map...</div>
@@ -161,7 +165,9 @@ export default function ImpostorView({
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
-              // todo tasks={game.tasks}
+              tasks={game.tasks}
+              sabotages={game.sabotages}
+              isSabotageActive={isSabotageActive}
             />
           </div>
         </div>
