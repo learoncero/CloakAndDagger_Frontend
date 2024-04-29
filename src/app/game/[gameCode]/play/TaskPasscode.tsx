@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
-import TaskService from "@/services/TaskService";
+import MiniGameService from "@/services/MiniGameService";
 import toast, { Toaster } from "react-hot-toast";
-import TaskCompletedPopup from "./TaskCompletedPopup";
 
 type TaskPasscodeProps = {
   taskId: number;
-  onClose: () => void;
   gameCode: string;
+  handleTaskCompleted: (taskId: number) => void;
 };
 
 export default function TaskPasscode({
-  onClose,
   gameCode,
   taskId,
+  handleTaskCompleted,
 }: TaskPasscodeProps) {
   const [currentSum, setCurrentSum] = useState<number>(0);
   const [randomSum, setRandomSum] = useState<number>(0);
@@ -20,7 +19,7 @@ export default function TaskPasscode({
   useEffect(() => {
     async function fetchRandomSum() {
       try {
-        const response = await TaskService.getRandomSum(gameCode);
+        const response = await MiniGameService.getRandomSum(gameCode, taskId);
         setRandomSum(response.data as number);
         setCurrentSum(0);
       } catch (error) {
@@ -32,7 +31,7 @@ export default function TaskPasscode({
 
   const handleButtonClick = async (value: number) => {
     try {
-      const response = await TaskService.sumUp(value, taskId, gameCode);
+      const response = await MiniGameService.sumUp(value, taskId, gameCode);
       const newCurrentSum = response.data as number;
 
       if (newCurrentSum > randomSum) {
@@ -47,21 +46,21 @@ export default function TaskPasscode({
           },
           icon: "✖️",
         });
+      } else if (newCurrentSum === randomSum) {
+        handleTaskCompleted(taskId);
+        toast.success("Passcode correct!", {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#10B981",
+          },
+          icon: "🎉",
+        });
+        handleReset();
       } else {
         setCurrentSum(newCurrentSum);
-        if (newCurrentSum === randomSum) {
-          toast.success("Passcode correct!", {
-            position: "bottom-right",
-            style: {
-              border: "2px solid black",
-              padding: "16px",
-              color: "white",
-              backgroundColor: "#10B981",
-            },
-            icon: "🎉",
-          });
-          handleReset();
-        }
       }
     } catch (error) {
       console.error("Error sending value:", error);
@@ -70,7 +69,7 @@ export default function TaskPasscode({
 
   const handleReset = async () => {
     try {
-      await TaskService.resetSum(gameCode);
+      await MiniGameService.resetSum(gameCode);
       setCurrentSum(0);
     } catch (error) {
       console.error("Error resetting sum:", error);

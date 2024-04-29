@@ -1,13 +1,14 @@
 import { ApiResponse } from "@/app/types";
 import ApiService from "./ApiService";
 
-export default class TaskService {
-  static async startTask(taskId: number, gameCode: string) {
+export default class MiniGameService {
+  static async startTask(taskId: number, miniGameId: number, gameCode: string) {
     const startedTask = await ApiService.post(
       "task",
       `/api/minigame/${gameCode}/start`,
       {
         taskId,
+        miniGameId,
       }
     );
     console.log("Task started: ", startedTask);
@@ -17,17 +18,18 @@ export default class TaskService {
   static async sumUp(value: number, taskId: number, gameCode: string) {
     const currentSum = await ApiService.post(
       "task",
-      `/api/task/${gameCode}/passcode/add`,
+      `/api/passcode/${gameCode}/add`,
       { value, taskId }
     );
     console.log("Sum:", currentSum);
     return currentSum as ApiResponse<number>;
   }
 
-  static async getRandomSum(gameCode: string) {
-    const randomSum = await ApiService.get(
+  static async getRandomSum(gameCode: string, taskId: number) {
+    const randomSum = await ApiService.post(
       "task",
-      `/api/task/${gameCode}/passcode/random`
+      `/api/passcode/${gameCode}/random`,
+      { taskId }
     );
     console.log("Random sum:", randomSum);
     return randomSum as ApiResponse<number>;
@@ -36,18 +38,9 @@ export default class TaskService {
   static async resetSum(gameCode: string) {
     const currentSum = await ApiService.post(
       "task",
-      `/api/task/${gameCode}/passcode/reset`
+      `/api/passcode/${gameCode}/reset`
     );
     console.log("Reset sum:", currentSum);
-    return currentSum as ApiResponse<number>;
-  }
-
-  static async getCurrentSum(gameCode: string) {
-    const currentSum = await ApiService.get(
-      "task",
-      `/api/task/${gameCode}/passcode/current`
-    );
-    console.log("Current sum:", currentSum);
     return currentSum as ApiResponse<number>;
   }
 }

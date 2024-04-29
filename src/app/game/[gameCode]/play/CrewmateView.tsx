@@ -11,7 +11,7 @@ import PlayerList from "./PlayerList";
 import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import useNearbyTasks from "@/hooks/useNearbyTasks";
-import TaskService from "@/services/TaskService";
+import MiniGameService from "@/services/MiniGameService";
 
 type Props = {
   map: string[][];
@@ -47,8 +47,12 @@ export default function CrewmateView({
     if (nearbyTasks.length > 0) {
       if (showTaskPopup) {
         handleShowTaskPopup(false);
+        showTaskPopup = false;
+        console.log("Show task popup: ", showTaskPopup);
       } else {
         handleShowTaskPopup(true);
+        showTaskPopup = true;
+        console.log("Show task popup: ", showTaskPopup);
       }
     }
   }, [nearbyTasks]);
@@ -56,8 +60,9 @@ export default function CrewmateView({
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
-        const response = await TaskService.startTask(
+        const response = await MiniGameService.startTask(
           nearbyTasks[0].id,
+          nearbyTasks[0].miniGameId,
           game.gameCode
         );
         if (response.status === 200) {
@@ -108,6 +113,14 @@ export default function CrewmateView({
         reportBody(game.gameCode, bodyToReportId);
       }
     }
+  }
+
+  function handleTaskCompleted(taskId: number) {
+    let task = game.tasks.find((task) => task.id === taskId);
+    if (task) {
+      task.completed = true;
+    }
+    handleShowTaskPopup(false);
   }
 
   return (
@@ -166,8 +179,9 @@ export default function CrewmateView({
       )}
       {showTaskPopup && (
         <TaskGateway
-          taskId={nearbyTasks[0].id}
-          onClose={() => handleShowTaskPopup(false)}
+          // TODO id should be nearbyTasks[0].id
+          taskId={1}
+          handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].id)}
           gameCode={game.gameCode}
         />
       )}

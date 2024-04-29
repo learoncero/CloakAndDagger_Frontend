@@ -3,15 +3,24 @@ import TaskPasscode from "./TaskPasscode";
 
 type TaskProps = {
   taskId: number;
-  onClose: () => void;
   gameCode: string;
+  handleTaskCompleted: (taskId: number) => void;
 };
 
-export default function TaskGateway({ onClose, gameCode, taskId }: TaskProps) {
+export default function TaskGateway({
+  gameCode,
+  taskId,
+  handleTaskCompleted,
+}: TaskProps) {
   switch (taskId) {
     case 1:
       return (
-        <TaskPasscode onClose={onClose} gameCode={gameCode} taskId={taskId} />
+        <TaskPasscode
+          gameCode={gameCode}
+          // TODO id should be taskId
+          taskId={1}
+          handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
+        />
       );
     default:
       return null;
