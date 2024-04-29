@@ -11,7 +11,6 @@ import PlayerList from "./PlayerList";
 import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 
-
 type Props = {
   map: string[][];
   currentPlayer: Player;
@@ -24,8 +23,7 @@ export default function CrewmateView({
   currentPlayer,
   game,
   reportBody,
-  }: Props) {
-
+}: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
@@ -73,6 +71,7 @@ export default function CrewmateView({
             playerList={game.players}
             currentPlayer={currentPlayer}
             tasks={game.tasks}
+            sabotages={game.sabotages ?? []}
           />
         ) : (
           <div>Loading map...</div>

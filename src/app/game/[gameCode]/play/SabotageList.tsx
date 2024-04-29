@@ -5,12 +5,10 @@ import { Sabotage } from "@/app/types";
 type Props = {
   sabotages: Sabotage[];
   handleCrewmateWinTimer: () => void;
+  getSabotagePosition: (sabotageId: number) => void
 };
 
-export default function SabotageList({
-  sabotages,
-  handleCrewmateWinTimer,
-}: Props) {
+export default function SabotageList({ sabotages, handleCrewmateWinTimer, getSabotagePosition}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
@@ -41,12 +39,15 @@ export default function SabotageList({
         const updatedSabotages = incompleteSabotages.filter(
           (sabotage) => sabotage.id !== sabotageId
         );
+
+        getSabotagePosition(sabotageId); //sends id back to page to make a fetch for random position
         setIncompleteSabotages(updatedSabotages);
         setIsSabotageCooldown(true);
         setTimeout(() => {
           setIsSabotageCooldown(false);
           setSabotageCooldownTime(30);
         }, 30000);
+
       }
     }
   }

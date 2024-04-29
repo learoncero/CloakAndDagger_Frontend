@@ -22,6 +22,7 @@ export default function PlayGame() {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(-1);
 
+  //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
@@ -82,6 +83,14 @@ export default function PlayGame() {
           setShowChat(true);
         }
       );
+
+      stompClient.subscribe(
+          "/topic/sabotage",
+            (message: { body: string }) => {
+                const receivedMessage = JSON.parse(message.body);
+                updateGame(receivedMessage.body);
+            }
+      )
 
       stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -168,6 +177,17 @@ export default function PlayGame() {
     }
   }
 
+  function getSabotagePosition(sabotageId: number) {
+    const sabotageMessage = {
+      gameCode: gameCode,
+      sabotageId: sabotageId,
+      map: game.map,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/sabotage`, {}, JSON.stringify(sabotageMessage));
+    }
+  }
+
   function handleChatClose() {
     setShowChat(false);
   }
@@ -225,6 +245,7 @@ export default function PlayGame() {
                 killPlayer={killPlayer}
                 handleCrewmateWinTimer={handleCrewmatesWinTimer}
                 reportBody={reportBody}
+                getSabotagePosition={getSabotagePosition}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (

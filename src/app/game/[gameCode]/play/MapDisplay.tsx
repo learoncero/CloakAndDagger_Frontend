@@ -1,16 +1,19 @@
-import {Player, Task} from "@/app/types";
+import {Player, Task, Sabotage, Role} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
+import SabotageIconDisplay from "./SabotageIconDisplay";
+
 
 type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
   tasks: Task[]
+  sabotages: Sabotage[];
 };
 
 
-export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Props) {
+export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages }: Props) {
   //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -26,7 +29,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
   if (startY === 0) {
     endY = Math.min(viewportSize, map.length);
   }
-  console.log("PlayerID:" + currentPlayer.id);
 
   if (endX >= map[0].length) {
     startX = Math.max(0, map[0].length - viewportSize);
@@ -34,7 +36,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
   if (endY >= map.length) {
     startY = Math.max(0, map.length - viewportSize);
   }
-
 
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
@@ -47,6 +48,8 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
                 const cellPosY = rowIndex + startY;
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
+                const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
+                const notImpostorOrGhost = ![Role.IMPOSTOR, Role.IMPOSTOR_GHOST].includes(currentPlayer.role);
                 return (
                     <div
                         key={cellIndex}
@@ -59,9 +62,12 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks }: Pr
                               // eslint-disable-next-line react/jsx-no-comment-textnodes
                           ))}
 
-                      {taskInCell !== undefined && (
+                      {taskInCell !== undefined && notImpostorOrGhost && (
                           <TaskIconDisplay completed={taskInCell.completed} />
                         )}
+                      {sabotageInCell !== undefined && (
+                          <SabotageIconDisplay/>
+                      )}
                     </div>
                 );
               })}
