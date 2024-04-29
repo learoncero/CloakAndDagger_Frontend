@@ -18,6 +18,8 @@ type Props = {
   currentPlayer: Player;
   game: Game;
   reportBody: (gameCode: string, playerId: number) => void;
+  showTaskPopup: boolean;
+  handleShowTaskPopup: (show: boolean) => void;
 };
 
 export default function CrewmateView({
@@ -25,10 +27,11 @@ export default function CrewmateView({
   currentPlayer,
   game,
   reportBody,
+  showTaskPopup,
+  handleShowTaskPopup,
   }: Props) {
 
   const [showMiniMap, setShowMiniMap] = useState(false);
-  const [showTaskPopup, setShowTaskPopup] = useState(false);
   const [taskMiniGameId, setTaskMiniGameId] = useState<number>(0);
 
   const handleToggleMiniMap = () => {
@@ -46,7 +49,11 @@ export default function CrewmateView({
     if (nearbyTasks.length > 0) {
       const miniGameId = nearbyTasks[0].miniGameId;
       setTaskMiniGameId(miniGameId);
-      setShowTaskPopup((prevShowTaskPopup) => !prevShowTaskPopup);
+      if(showTaskPopup) {
+        handleShowTaskPopup(false);
+      } else {
+        handleShowTaskPopup(true);
+      }
     }
   }, [nearbyTasks]);
 
@@ -147,7 +154,7 @@ export default function CrewmateView({
       {showTaskPopup && (
           <TaskGateway
               taskType={taskMiniGameId}
-              onClose={() => setShowTaskPopup(false)}
+              onClose={() => handleShowTaskPopup(false)}
               gameCode={game.gameCode}
           />
       )}
