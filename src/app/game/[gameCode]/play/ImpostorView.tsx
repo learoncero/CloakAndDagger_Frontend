@@ -153,13 +153,13 @@ export default function ImpostorView({
       </div>
 
       {showMiniMap && (
-        <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
+        <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
           <SabotageList
             sabotages={game.sabotages ?? []}
             handleCrewmateWinTimer={handleCrewmateWinTimer}
             getSabotagePosition={getSabotagePosition}
           />
-          <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
+          <div className={'flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp'} onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
               playerList={game.players}

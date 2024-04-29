@@ -59,7 +59,6 @@ const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer, tasks, sabot
                         const taskInCell = tasks.find(task => task.position.x === cellIndex && task.position.y === rowIndex);
                         const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellIndex && sabotage.position.y === rowIndex);
 
-
                         return (
                             <div key={cellIndex} style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
                                  className={`border border-white box-border 
