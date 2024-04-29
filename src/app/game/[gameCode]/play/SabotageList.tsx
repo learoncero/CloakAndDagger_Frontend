@@ -58,7 +58,7 @@ export default function SabotageList({
       {isSabotageCooldown && (
         <div className="absolute inset-0 bg-gray-500 opacity-50 flex justify-center items-center">
           <div className={"text-white text-lg font-semibold"}>
-            Cooldown {cooldownTime}s
+            Cooldown {sabotageCooldownTime}s
           </div>
         </div>
       )}
