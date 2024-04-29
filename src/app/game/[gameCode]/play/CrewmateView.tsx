@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
@@ -9,9 +9,9 @@ import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
 import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
-import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import useNearbyTasks from "@/hooks/useNearbyTasks";
+import TaskService from "@/services/TaskService";
 
 type Props = {
   map: string[][];
@@ -29,10 +29,8 @@ export default function CrewmateView({
   reportBody,
   showTaskPopup,
   handleShowTaskPopup,
-  }: Props) {
-
+}: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
-  const [taskMiniGameId, setTaskMiniGameId] = useState<number>(0);
 
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
@@ -47,9 +45,7 @@ export default function CrewmateView({
 
   const handleToggleTaskPopup = useCallback(() => {
     if (nearbyTasks.length > 0) {
-      const miniGameId = nearbyTasks[0].miniGameId;
-      setTaskMiniGameId(miniGameId);
-      if(showTaskPopup) {
+      if (showTaskPopup) {
         handleShowTaskPopup(false);
       } else {
         handleShowTaskPopup(true);
@@ -58,12 +54,17 @@ export default function CrewmateView({
   }, [nearbyTasks]);
 
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
+    const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
-        handleToggleTaskPopup();
+        const response = await TaskService.startTask(
+          nearbyTasks[0].id,
+          game.gameCode
+        );
+        if (response.status === 200) {
+          handleToggleTaskPopup();
+        }
       }
     };
-
 
     window.addEventListener("keydown", handleKeyPress);
 
@@ -73,20 +74,32 @@ export default function CrewmateView({
   }, [handleToggleTaskPopup, nearbyTasks]);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "KeyR") {
-        handleReportBody();
-      } else if (event.key === "m" || event.key === "M") {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "m" || event.key === "M") {
         setShowMiniMap((prev) => !prev);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyPress);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [handleReportBody, setShowMiniMap]);
+  }, [setShowMiniMap]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "KeyR") {
+        handleReportBody();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [handleReportBody]);
 
   function handleReportBody() {
     if (nearbyGhosts.length > 0) {
@@ -101,7 +114,7 @@ export default function CrewmateView({
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"CREWMATE"} />
-        <TaskList tasks={game.tasks}/>
+        <TaskList tasks={game.tasks} />
       </div>
       <div className="flex-grow flex justify-center">
         {map ? (
@@ -139,7 +152,7 @@ export default function CrewmateView({
 
       {showMiniMap && (
         <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <TaskList tasks={game.tasks}/>
+          <TaskList tasks={game.tasks} />
           <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
@@ -152,12 +165,11 @@ export default function CrewmateView({
         </div>
       )}
       {showTaskPopup && (
-          <TaskGateway
-              taskType={taskMiniGameId}
-              taskId={nearbyTasks[0].id}
-              onClose={() => handleShowTaskPopup(false)}
-              gameCode={game.gameCode}
-          />
+        <TaskGateway
+          taskId={nearbyTasks[0].id}
+          onClose={() => handleShowTaskPopup(false)}
+          gameCode={game.gameCode}
+        />
       )}
     </div>
   );
