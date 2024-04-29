@@ -10,7 +10,7 @@ import LobbyReadyToStartText from "./LobbyReadyToStartText";
 import LobbyHeader from "./LobbyHeader";
 import { fetchGame } from "./actions";
 import { Game } from "@/app/types";
-import useWebSocket from "@/state/useWebSocket";
+import useWebSocket from "@/hooks/useWebSocket";
 
 export default function Lobby() {
   const stompClient = useWebSocket("http://localhost:5010/ws");
