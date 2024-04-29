@@ -8,17 +8,17 @@ type TaskProps = {
 };
 
 export default function TaskGateway({
-  gameCode,
   taskId,
+  gameCode,
   handleTaskCompleted,
 }: TaskProps) {
   switch (taskId) {
     case 1:
       return (
         <TaskPasscode
-          gameCode={gameCode}
           // TODO id should be taskId
           taskId={1}
+          gameCode={gameCode}
           handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
         />
       );

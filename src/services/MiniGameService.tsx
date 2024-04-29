@@ -19,7 +19,10 @@ export default class MiniGameService {
     const currentSum = await ApiService.post(
       "task",
       `/api/passcode/${gameCode}/add`,
-      { value, taskId }
+      {
+        value,
+        taskId
+      }
     );
     console.log("Sum:", currentSum);
     return currentSum as ApiResponse<number>;
@@ -29,7 +32,7 @@ export default class MiniGameService {
     const randomSum = await ApiService.post(
       "task",
       `/api/passcode/${gameCode}/random`,
-      { taskId }
+      taskId
     );
     console.log("Random sum:", randomSum);
     return randomSum as ApiResponse<number>;

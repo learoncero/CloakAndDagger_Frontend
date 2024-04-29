@@ -181,8 +181,8 @@ export default function CrewmateView({
         <TaskGateway
           // TODO id should be nearbyTasks[0].id
           taskId={1}
-          handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].id)}
           gameCode={game.gameCode}
+          handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].id)}
         />
       )}
     </div>

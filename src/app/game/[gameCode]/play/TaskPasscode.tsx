@@ -9,8 +9,8 @@ type TaskPasscodeProps = {
 };
 
 export default function TaskPasscode({
-  gameCode,
   taskId,
+  gameCode,
   handleTaskCompleted,
 }: TaskPasscodeProps) {
   const [currentSum, setCurrentSum] = useState<number>(0);
