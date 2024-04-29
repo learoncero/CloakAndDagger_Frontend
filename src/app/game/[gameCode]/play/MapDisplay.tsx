@@ -10,10 +10,11 @@ type Props = {
   currentPlayer: Player;
   tasks: Task[]
   sabotages: Sabotage[];
+  isSabotageActive: boolean;
 };
 
 
-export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages }: Props) {
+export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages, isSabotageActive }: Props) {
   //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -49,7 +50,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
                 const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
-                const notImpostorOrGhost = ![Role.IMPOSTOR, Role.IMPOSTOR_GHOST].includes(currentPlayer.role);
                 return (
                     <div
                         key={cellIndex}
@@ -62,10 +62,10 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                               // eslint-disable-next-line react/jsx-no-comment-textnodes
                           ))}
 
-                      {taskInCell !== undefined && notImpostorOrGhost && (
+                      {taskInCell !== undefined && (
                           <TaskIconDisplay completed={taskInCell.completed} />
                         )}
-                      {sabotageInCell !== undefined && (
+                      {sabotageInCell !== undefined && isSabotageActive && (
                           <SabotageIconDisplay/>
                       )}
                     </div>
