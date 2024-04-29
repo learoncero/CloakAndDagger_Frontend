@@ -2,8 +2,8 @@ import { ApiResponse } from "@/app/types";
 import ApiService from "./ApiService";
 
 export default class TaskService {
-    static async sumUp(value: number, gameCode: string) {
-        const currentSum = await ApiService.post("task", `/api/task/${gameCode}/passcode/add`, { value });
+    static async sumUp(value: number, taskId: number, gameCode: string) {
+        const currentSum = await ApiService.post("task", `/api/task/${gameCode}/passcode/add`, { value, taskId });
         console.log("Sum:", currentSum);
         return currentSum as ApiResponse<number>;
     }

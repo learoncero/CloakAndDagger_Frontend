@@ -5,11 +5,12 @@ import TaskCompletedPopup from "./TaskCompletedPopup";
 import {Task} from "@/app/types";
 
 type TaskPasscodeProps = {
+    taskId: number;
     onClose: () => void;
     gameCode: string;
 }
 
-export default function TaskPasscode({ onClose, gameCode }: TaskPasscodeProps) {
+export default function TaskPasscode({ onClose, gameCode, taskId }: TaskPasscodeProps) {
     const [currentSum, setCurrentSum] = useState<number>(0);
     const [randomSum, setRandomSum] = useState<number>(0);
     const [taskDone, setTaskDone] = useState<boolean>(false);
@@ -33,7 +34,7 @@ export default function TaskPasscode({ onClose, gameCode }: TaskPasscodeProps) {
             return;
         }
         try {
-            const response = await TaskService.sumUp(value, gameCode);
+            const response = await TaskService.sumUp(value, taskId, gameCode);
             const newCurrentSum = response.data as number;
 
             if (newCurrentSum > randomSum) {

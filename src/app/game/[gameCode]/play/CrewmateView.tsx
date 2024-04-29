@@ -154,6 +154,7 @@ export default function CrewmateView({
       {showTaskPopup && (
           <TaskGateway
               taskType={taskMiniGameId}
+              taskId={nearbyTasks[0].id}
               onClose={() => handleShowTaskPopup(false)}
               gameCode={game.gameCode}
           />
