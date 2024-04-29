@@ -1,5 +1,5 @@
 
-.MiniMap-overlay {
+/*.MiniMap-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -12,9 +12,9 @@
     z-index: 1000;
     overflow: auto;
 
-}
+}*/
 
-.MiniMap-content {
+/*.MiniMap-content {
 
     display: flex;
     flex-direction: column;
@@ -28,12 +28,12 @@
     justify-content: center;
     align-items: stretch;
     margin-left: 20px;
-}
-.minimap-container {
+}*/
+/*.minimap-container {
     width: 1150px;
     height: 565px;
-}
-.minimap-cell {
+}*/
+/*.minimap-cell {
     width: 30px;
     height: 17px;
     border: 1px solid #ccc;
@@ -58,7 +58,7 @@
 
 .minimap-cell.dimmed.walkable {
     background-color: rgba(0, 0, 0, 0.3);
-}
+}*/
 
 
 
