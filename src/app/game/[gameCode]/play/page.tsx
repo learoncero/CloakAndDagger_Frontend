@@ -21,7 +21,7 @@ export default function PlayGame() {
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
-  const isSabotageActive = crewmatesWinTimer != -1;
+  const isSabotageActive = impostorWinTimer != -1;
 
   //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
