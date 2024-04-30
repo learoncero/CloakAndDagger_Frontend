@@ -1,19 +1,24 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
-import { Game, Player, Role } from "@/app/types";
+import { Game, Player, Role, Task as TaskType } from "@/app/types";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
+import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
+import useNearbyTasks from "@/hooks/useNearbyTasks";
+import MiniGameService from "@/services/MiniGameService";
 
 type Props = {
   map: string[][];
   currentPlayer: Player;
   game: Game;
   reportBody: (gameCode: string, playerId: number) => void;
+  showTaskPopup: boolean;
+  handleShowTaskPopup: (show: boolean) => void;
 };
 
 export default function CrewmateView({
@@ -21,31 +26,85 @@ export default function CrewmateView({
   currentPlayer,
   game,
   reportBody,
+  showTaskPopup,
+  handleShowTaskPopup,
 }: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
+
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
   };
+
   const nearbyGhosts = useNearbyEntities(game.players, currentPlayer, [
     Role.CREWMATE_GHOST,
     Role.IMPOSTOR_GHOST,
   ]);
 
+  const nearbyTasks = useNearbyTasks(game.tasks, currentPlayer.position);
+
+  const handleToggleTaskPopup = useCallback(() => {
+    if (nearbyTasks.length > 0) {
+      if (showTaskPopup) {
+        handleShowTaskPopup(false);
+        showTaskPopup = false;
+        console.log("Show task popup: ", showTaskPopup);
+      } else {
+        handleShowTaskPopup(true);
+        showTaskPopup = true;
+        console.log("Show task popup: ", showTaskPopup);
+      }
+    }
+  }, [nearbyTasks]);
+
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "KeyR") {
-        handleReportBody();
-      } else if (event.key === "m" || event.key === "M") {
+    const handleKeyPress = async (event: KeyboardEvent) => {
+      if (event.key === "e" || event.key === "E") {
+        if (nearbyTasks.length === 0) return;
+        const response = await MiniGameService.startTask(
+          nearbyTasks[0].taskId,
+          nearbyTasks[0].miniGameId,
+          game.gameCode
+        );
+        if (response.status === 200) {
+          handleToggleTaskPopup();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [handleToggleTaskPopup, nearbyTasks]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "m" || event.key === "M") {
         setShowMiniMap((prev) => !prev);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyPress);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [handleReportBody, setShowMiniMap]);
+  }, [setShowMiniMap]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "KeyR") {
+        handleReportBody();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [handleReportBody]);
 
   function handleReportBody() {
     if (nearbyGhosts.length > 0) {
@@ -56,11 +115,19 @@ export default function CrewmateView({
     }
   }
 
+  function handleTaskCompleted(taskId: number) {
+    let task = game.tasks.find((task) => task.taskId === taskId);
+    if (task) {
+      task.completed = true;
+    }
+    handleShowTaskPopup(false);
+  }
+
   return (
     <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
       <div className="flex-none w-1/4">
         <RoleInformation role={"CREWMATE"} />
-        <TaskList tasks={game.tasks}/>
+        <TaskList tasks={game.tasks} />
       </div>
       <div className="flex-grow flex justify-center">
         {map ? (
@@ -70,6 +137,7 @@ export default function CrewmateView({
             currentPlayer={currentPlayer}
             tasks={game.tasks}
             sabotages={game.sabotages ?? []}
+            nearbyTask={nearbyTasks[0]}
           />
         ) : (
           <div>Loading map...</div>
@@ -107,10 +175,17 @@ export default function CrewmateView({
               closeMiniMap={() => setShowMiniMap(false)}
               tasks={game.tasks}
               sabotages={game.sabotages}
-              //todo tasks={game.tasks}
             />
           </div>
         </div>
+      )}
+      {showTaskPopup && (
+        <TaskGateway
+          miniGameId={nearbyTasks[0].miniGameId}
+          taskId={nearbyTasks[0].taskId}
+          gameCode={game.gameCode}
+          handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].taskId)}
+        />
       )}
     </div>
   );

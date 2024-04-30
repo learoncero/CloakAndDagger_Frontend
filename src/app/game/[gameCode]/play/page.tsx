@@ -21,6 +21,7 @@ export default function PlayGame() {
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -109,7 +110,8 @@ export default function PlayGame() {
       playerRole !== Role.CREWMATE_GHOST &&
       playerRole !== Role.IMPOSTOR_GHOST &&
       game?.gameStatus === GameStatus.IN_GAME &&
-      !showChat
+      !showChat &&
+      !showTaskPopup
     ) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
@@ -197,6 +199,10 @@ export default function PlayGame() {
     setImpostorWinTimer(45);
   }
 
+  function handleShowTaskPopup(show: boolean) {
+    setShowTaskPopup(show);
+  }
+
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
@@ -259,6 +265,8 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 reportBody={reportBody}
+                showTaskPopup={showTaskPopup}
+                handleShowTaskPopup={handleShowTaskPopup}
               />
             )}
           </div>

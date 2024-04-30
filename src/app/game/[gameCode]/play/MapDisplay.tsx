@@ -10,10 +10,11 @@ type Props = {
   currentPlayer: Player;
   tasks: Task[]
   sabotages: Sabotage[];
+  nearbyTask: Task;
 };
 
 
-export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages }: Props) {
+export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages, nearbyTask }: Props) {
   //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -39,6 +40,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
 
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
+
   return (
       <div className="relative border-3 border-black">
         {map.slice(startY, endY).map((row, rowIndex) => (
@@ -49,7 +51,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
                 const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
-                //console.log("Sabotage In Cell (MapDisplay): ", sabotageInCell);
                 return (
                     <div
                         key={cellIndex}
@@ -63,8 +64,11 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                           ))}
 
                       {taskInCell !== undefined && (
-                          <TaskIconDisplay completed={taskInCell.completed} />
-                        )}
+                          <TaskIconDisplay
+                              completed={taskInCell.completed}
+                              isTaskInteractable={!!nearbyTask}
+                          />
+                      )}
                       {sabotageInCell !== undefined && (
                           <SabotageIconDisplay/>
                       )}

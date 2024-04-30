@@ -32,11 +32,21 @@ export default class ApiService {
     });
   }
 
+  static get(baseUrl: string, pathname: string) {
+    return ApiService.fetch(baseUrl, pathname, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
   static getBackendUrl(microservice: string) {
     // Define backend URLs based on microservice
     const backendUrls: { [key: string]: string } = {
       game: "http://localhost:5010",
       chat: "http://localhost:5011",
+      task: "http://localhost:5022",
     };
 
     return backendUrls[microservice];

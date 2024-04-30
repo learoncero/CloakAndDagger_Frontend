@@ -21,7 +21,7 @@ export type Player = {
 };
 
 export type Task = {
-  id: number;
+  taskId: number;
   miniGameId: number;
   title: string;
   description: string;
