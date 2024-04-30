@@ -14,12 +14,11 @@ import useNearbyEntities from "@/hooks/useNearbyEntities";
 type Props = {
   map: string[][];
   currentPlayer: Player;
-  handleCrewmateWinTimer: () => void;
+  handleImpostorWinTimer: () => void;
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
   getSabotagePosition: (sabotageId: number) => void;
-  isSabotageActive: boolean;
 };
 
 export default function ImpostorView({
@@ -27,10 +26,9 @@ export default function ImpostorView({
   currentPlayer,
   game,
   killPlayer,
-  handleCrewmateWinTimer,
+  handleImpostorWinTimer,
   reportBody,
   getSabotagePosition,
-  isSabotageActive
 
 }: Props) {
   const [isTimer, setIsTimer] = useState(false);
@@ -104,7 +102,7 @@ export default function ImpostorView({
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList
           sabotages={game.sabotages ?? []}
-          handleCrewmateWinTimer={handleCrewmateWinTimer}
+          handleImpostorWinTimer={handleImpostorWinTimer}
           getSabotagePosition={getSabotagePosition}
         />
       </div>
@@ -117,7 +115,6 @@ export default function ImpostorView({
             currentPlayer={currentPlayer}
             tasks={game.tasks}
             sabotages={game.sabotages ?? []}
-            isSabotageActive={isSabotageActive}
           />
         ) : (
           <div>Loading map...</div>
@@ -156,7 +153,7 @@ export default function ImpostorView({
         <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
           <SabotageList
             sabotages={game.sabotages ?? []}
-            handleCrewmateWinTimer={handleCrewmateWinTimer}
+            handleImpostorWinTimer={handleImpostorWinTimer}
             getSabotagePosition={getSabotagePosition}
           />
           <div className={'flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp'} onClick={(e) => e.stopPropagation()}>
@@ -167,7 +164,6 @@ export default function ImpostorView({
               closeMiniMap={() => setShowMiniMap(false)}
               tasks={game.tasks}
               sabotages={game.sabotages}
-              isSabotageActive={isSabotageActive}
             />
           </div>
         </div>
