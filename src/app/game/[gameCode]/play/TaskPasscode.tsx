@@ -86,19 +86,25 @@ export default function TaskPasscode({
             <div className="mb-4">
               <p className="text-lg">Sum to be achieved: {randomSum}</p>
             </div>
-            <div className="grid grid-cols-5 gap-4 mb-4">
-              {[...Array(10)].map((_, index) => (
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              {[...Array(9)].map((_, index) => (
                 <button
                   key={index + 1}
-                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
                   onClick={() => handleButtonClick(index + 1)}
+                  style={{ fontSize: "1.3rem" }}
                 >
                   {index + 1}
                 </button>
               ))}
             </div>
             <div className="mb-4">
-              <p className="text-lg">Current sum: {currentSum}</p>
+              <p className="text-lg font-bold">
+                Current sum:{" "}
+                <span className="bg-transparent px-2 py-2 rounded border border-white">
+                  {currentSum}
+                </span>
+              </p>
             </div>
             <button
               className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
