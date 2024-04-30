@@ -4,11 +4,9 @@ import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import { Game, Player, Role } from "@/app/types";
-import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
-import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 
 type Props = {
@@ -16,7 +14,6 @@ type Props = {
   currentPlayer: Player;
   game: Game;
   reportBody: (gameCode: string, playerId: number) => void;
-  isSabotageActive: boolean;
 };
 
 export default function CrewmateView({
@@ -24,7 +21,6 @@ export default function CrewmateView({
   currentPlayer,
   game,
   reportBody,
-  isSabotageActive,
 }: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
   const handleToggleMiniMap = () => {
@@ -74,7 +70,6 @@ export default function CrewmateView({
             currentPlayer={currentPlayer}
             tasks={game.tasks}
             sabotages={game.sabotages ?? []}
-            isSabotageActive={isSabotageActive}
           />
         ) : (
           <div>Loading map...</div>
@@ -112,7 +107,6 @@ export default function CrewmateView({
               closeMiniMap={() => setShowMiniMap(false)}
               tasks={game.tasks}
               sabotages={game.sabotages}
-              isSabotageActive={isSabotageActive}
               //todo tasks={game.tasks}
             />
           </div>
