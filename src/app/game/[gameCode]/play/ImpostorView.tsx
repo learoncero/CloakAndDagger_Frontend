@@ -18,6 +18,7 @@ type Props = {
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
+  getSabotagePosition: (sabotageId: number) => void;
 };
 
 export default function ImpostorView({
@@ -27,6 +28,7 @@ export default function ImpostorView({
   killPlayer,
   handleCrewmateWinTimer,
   reportBody,
+  getSabotagePosition,
 }: Props) {
   const [isTimer, setIsTimer] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(false);
@@ -100,6 +102,7 @@ export default function ImpostorView({
         <SabotageList
           sabotages={game.sabotages ?? []}
           handleCrewmateWinTimer={handleCrewmateWinTimer}
+          getSabotagePosition={getSabotagePosition}
         />
       </div>
 
@@ -110,6 +113,7 @@ export default function ImpostorView({
             playerList={game.players}
             currentPlayer={currentPlayer}
             tasks={game.tasks}
+            sabotages={game.sabotages ?? []}
           />
         ) : (
           <div>Loading map...</div>
@@ -119,7 +123,7 @@ export default function ImpostorView({
       <div className="flex-none w-1/4">
         <div className="mb-20">
           <MapButton onClick={toggleMiniMap} label="Show MiniMap" />
-          <PlayerList playerId={currentPlayer.id} playerList={game.players} />
+          <PlayerList playerId={currentPlayer.id} playerList={game.players}/>
           <CrewmateCounter playerList={game.players} />
         </div>
 
@@ -145,12 +149,13 @@ export default function ImpostorView({
       </div>
 
       {showMiniMap && (
-        <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
+        <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
           <SabotageList
             sabotages={game.sabotages ?? []}
             handleCrewmateWinTimer={handleCrewmateWinTimer}
+            getSabotagePosition={getSabotagePosition}
           />
-          <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
+          <div className={'flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp'} onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
               playerList={game.players}

@@ -5,12 +5,10 @@ import { Sabotage } from "@/app/types";
 type Props = {
   sabotages: Sabotage[];
   handleCrewmateWinTimer: () => void;
+  getSabotagePosition: (sabotageId: number) => void
 };
 
-export default function SabotageList({
-  sabotages,
-  handleCrewmateWinTimer,
-}: Props) {
+export default function SabotageList({ sabotages, handleCrewmateWinTimer, getSabotagePosition}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
@@ -41,12 +39,15 @@ export default function SabotageList({
         const updatedSabotages = incompleteSabotages.filter(
           (sabotage) => sabotage.id !== sabotageId
         );
+
+        getSabotagePosition(sabotageId); //sends id back to page to make a fetch for random position
         setIncompleteSabotages(updatedSabotages);
         setIsSabotageCooldown(true);
         setTimeout(() => {
           setIsSabotageCooldown(false);
           setSabotageCooldownTime(30);
         }, 30000);
+
       }
     }
   }
@@ -58,7 +59,7 @@ export default function SabotageList({
       {isSabotageCooldown && (
         <div className="absolute inset-0 bg-gray-500 opacity-50 flex justify-center items-center">
           <div className={"text-white text-lg font-semibold"}>
-            Cooldown {cooldownTime}s
+            Cooldown {sabotageCooldownTime}s
           </div>
         </div>
       )}

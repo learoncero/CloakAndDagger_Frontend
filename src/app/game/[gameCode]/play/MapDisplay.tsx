@@ -1,16 +1,20 @@
-import {Player, Task} from "@/app/types";
+import {Player, Task, Sabotage, Role} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
+import SabotageIconDisplay from "./SabotageIconDisplay";
+
 
 type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
-  tasks: Task[];
+  tasks: Task[]
+  sabotages: Sabotage[];
   nearbyTask: Task;
 };
 
-export default function MapDisplay({ map, playerList, currentPlayer, tasks, nearbyTask }: Props) {
+
+export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages, nearbyTask }: Props) {
   //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -34,7 +38,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, near
     startY = Math.max(0, map.length - viewportSize);
   }
 
-
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
 
@@ -47,6 +50,8 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, near
                 const cellPosY = rowIndex + startY;
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
+                const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
+                const notImpostorOrGhost = ![Role.IMPOSTOR, Role.IMPOSTOR_GHOST].includes(currentPlayer.role);
                 return (
                     <div
                         key={cellIndex}
@@ -64,6 +69,9 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, near
                               completed={taskInCell.completed}
                               isTaskInteractable={!!nearbyTask}
                           />
+                      )}
+                      {sabotageInCell !== undefined && (
+                          <SabotageIconDisplay/>
                       )}
                     </div>
                 );

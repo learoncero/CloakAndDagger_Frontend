@@ -137,6 +137,7 @@ export default function CrewmateView({
             playerList={game.players}
             currentPlayer={currentPlayer}
             tasks={game.tasks}
+            sabotages={game.sabotages ?? []}
             nearbyTask={nearbyTasks[0]}
           />
         ) : (
