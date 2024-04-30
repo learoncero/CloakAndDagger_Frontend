@@ -20,7 +20,7 @@ export default function PlayGame() {
   const [mirroring, setMirroring] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [crewmatesWinTimer, setCrewmatesWinTimer] = useState(-1);
+  const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
 
   //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
@@ -193,17 +193,17 @@ export default function PlayGame() {
   }
 
   function handleCrewmatesWinTimer() {
-    setCrewmatesWinTimer(45);
+    setImpostorWinTimer(45);
   }
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
-    if (crewmatesWinTimer > 0) {
+    if (impostorWinTimer > 0) {
       countdownInterval = setInterval(() => {
-        setCrewmatesWinTimer((prevTime) => prevTime - 1);
+        setImpostorWinTimer((prevTime) => prevTime - 1);
       }, 1000);
-    } else if (crewmatesWinTimer === 0) {
+    } else if (impostorWinTimer === 0) {
       const endGameMessage = {
         gameCode: gameCode,
       };
@@ -211,7 +211,7 @@ export default function PlayGame() {
     }
 
     return () => clearInterval(countdownInterval);
-  }, [crewmatesWinTimer]);
+  }, [impostorWinTimer]);
 
   return (
     <AnimationProvider>
