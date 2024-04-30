@@ -4,7 +4,6 @@ import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import { Game, Player, Role, Task as TaskType } from "@/app/types";
-import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
@@ -166,15 +165,16 @@ export default function CrewmateView({
       </div>
 
       {showMiniMap && (
-        <div className="MiniMap-overlay" onClick={() => setShowMiniMap(false)}>
-          <TaskList tasks={game.tasks} />
-          <div className="MiniMap-content" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
+          <TaskList tasks={game.tasks}/>
+          <div className="flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp" onClick={(e) => e.stopPropagation()}>
             <MiniMap
               map={map}
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
-              //todo tasks={game.tasks}
+              tasks={game.tasks}
+              sabotages={game.sabotages}
             />
           </div>
         </div>

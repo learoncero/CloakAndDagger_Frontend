@@ -8,7 +8,7 @@ export default function SabotageIconDisplay() {
            alt={'Sabotage'}
            width={100}
            height={100}
-           className={`object-contain p-2`}
+           className={`object-contain p-[10%]`}
       />
     </div>
   );

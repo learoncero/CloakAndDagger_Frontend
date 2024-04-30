@@ -23,7 +23,6 @@ export default function PlayGame() {
   const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
   const [showTaskPopup, setShowTaskPopup] = useState(false);
 
-  //todo pass boolean down to ImpostorView and list, update with timer and handle websocket here
   let playerId: string | null;
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
@@ -93,9 +92,11 @@ export default function PlayGame() {
             }
       )
 
-      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
-        const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage.body);
+      stompClient.subscribe(
+          "/topic/gameEnd",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
       });
     }
   }, [stompClient]);
@@ -194,7 +195,7 @@ export default function PlayGame() {
     setShowChat(false);
   }
 
-  function handleCrewmatesWinTimer() {
+  function handleImpostorWinTimer() {
     setImpostorWinTimer(45);
   }
 
@@ -249,7 +250,7 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
-                handleCrewmateWinTimer={handleCrewmatesWinTimer}
+                handleImpostorWinTimer={handleImpostorWinTimer}
                 reportBody={reportBody}
                 getSabotagePosition={getSabotagePosition}
               />

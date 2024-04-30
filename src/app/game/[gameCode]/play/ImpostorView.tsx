@@ -14,7 +14,7 @@ import useNearbyEntities from "@/hooks/useNearbyEntities";
 type Props = {
   map: string[][];
   currentPlayer: Player;
-  handleCrewmateWinTimer: () => void;
+  handleImpostorWinTimer: () => void;
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
@@ -26,9 +26,10 @@ export default function ImpostorView({
   currentPlayer,
   game,
   killPlayer,
-  handleCrewmateWinTimer,
+  handleImpostorWinTimer,
   reportBody,
   getSabotagePosition,
+
 }: Props) {
   const [isTimer, setIsTimer] = useState(false);
   const [showMiniMap, setShowMiniMap] = useState(false);
@@ -101,7 +102,7 @@ export default function ImpostorView({
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList
           sabotages={game.sabotages ?? []}
-          handleCrewmateWinTimer={handleCrewmateWinTimer}
+          handleImpostorWinTimer={handleImpostorWinTimer}
           getSabotagePosition={getSabotagePosition}
         />
       </div>
@@ -152,7 +153,7 @@ export default function ImpostorView({
         <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
           <SabotageList
             sabotages={game.sabotages ?? []}
-            handleCrewmateWinTimer={handleCrewmateWinTimer}
+            handleImpostorWinTimer={handleImpostorWinTimer}
             getSabotagePosition={getSabotagePosition}
           />
           <div className={'flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp'} onClick={(e) => e.stopPropagation()}>
@@ -161,7 +162,8 @@ export default function ImpostorView({
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
-              // todo tasks={game.tasks}
+              tasks={game.tasks}
+              sabotages={game.sabotages}
             />
           </div>
         </div>

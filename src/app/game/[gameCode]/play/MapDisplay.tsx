@@ -51,7 +51,6 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
                 const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
-                const notImpostorOrGhost = ![Role.IMPOSTOR, Role.IMPOSTOR_GHOST].includes(currentPlayer.role);
                 return (
                     <div
                         key={cellIndex}
