@@ -12,7 +12,8 @@ export default function useNearbyTasks(
       const filteredTasks = tasks.filter(
         (task) =>
           Math.abs(task.position.x - currentPlayerPosition.x) <= 1 &&
-          Math.abs(task.position.y - currentPlayerPosition.y) <= 1
+          Math.abs(task.position.y - currentPlayerPosition.y) <= 1 &&
+          !task.completed
       );
       setNearbyTasks(filteredTasks);
     };

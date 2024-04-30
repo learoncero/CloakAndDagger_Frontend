@@ -60,8 +60,9 @@ export default function CrewmateView({
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
+        if (nearbyTasks.length === 0) return;
         const response = await MiniGameService.startTask(
-          nearbyTasks[0].id,
+          nearbyTasks[0].taskId,
           nearbyTasks[0].miniGameId,
           game.gameCode
         );
@@ -116,7 +117,7 @@ export default function CrewmateView({
   }
 
   function handleTaskCompleted(taskId: number) {
-    let task = game.tasks.find((task) => task.id === taskId);
+    let task = game.tasks.find((task) => task.taskId === taskId);
     if (task) {
       task.completed = true;
     }
@@ -179,10 +180,10 @@ export default function CrewmateView({
       )}
       {showTaskPopup && (
         <TaskGateway
-          // TODO id should be nearbyTasks[0].id
-          taskId={1}
+          miniGameId={nearbyTasks[0].miniGameId}
+          taskId={nearbyTasks[0].taskId}
           gameCode={game.gameCode}
-          handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].id)}
+          handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].taskId)}
         />
       )}
     </div>

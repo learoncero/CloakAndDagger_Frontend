@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MiniGameService from "@/services/MiniGameService";
 import toast, { Toaster } from "react-hot-toast";
+import TaskCompletedPopup from "./TaskCompletedPopup";
 
 type TaskPasscodeProps = {
   taskId: number;
@@ -15,6 +16,8 @@ export default function TaskPasscode({
 }: TaskPasscodeProps) {
   const [currentSum, setCurrentSum] = useState<number>(0);
   const [randomSum, setRandomSum] = useState<number>(0);
+  const [isShowTaskCompletedPopUp, setIsShowTaskCompletedPopUp] =
+    useState<boolean>(false);
 
   useEffect(() => {
     async function fetchRandomSum() {
@@ -36,6 +39,7 @@ export default function TaskPasscode({
 
       if (newCurrentSum > randomSum) {
         setCurrentSum(0);
+        console.log("Passcode value exceeded");
         toast("Passcode value exceeded", {
           position: "bottom-right",
           style: {
@@ -47,18 +51,8 @@ export default function TaskPasscode({
           icon: "✖️",
         });
       } else if (newCurrentSum === randomSum) {
-        handleTaskCompleted(taskId);
-        toast.success("Passcode correct!", {
-          position: "bottom-right",
-          style: {
-            border: "2px solid black",
-            padding: "16px",
-            color: "white",
-            backgroundColor: "#10B981",
-          },
-          icon: "🎉",
-        });
-        handleReset();
+        setIsShowTaskCompletedPopUp(true);
+        setCurrentSum(0);
       } else {
         setCurrentSum(newCurrentSum);
       }
@@ -69,44 +63,53 @@ export default function TaskPasscode({
 
   const handleReset = async () => {
     try {
-      await MiniGameService.resetSum(gameCode);
+      await MiniGameService.resetSum(gameCode, taskId);
       setCurrentSum(0);
     } catch (error) {
       console.error("Error resetting sum:", error);
     }
   };
 
+  function onClose() {
+    setIsShowTaskCompletedPopUp(false);
+    handleTaskCompleted(taskId);
+  }
+
   return (
     <>
-      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
-        <div className="bg-black rounded-lg p-8 max-w-md">
-          <h2 className="text-2xl font-bold mb-4">Passcode</h2>
-          <div className="mb-4">
-            <p className="text-lg">Sum to be achieved: {randomSum}</p>
+      {isShowTaskCompletedPopUp ? (
+        <TaskCompletedPopup onClose={onClose} />
+      ) : (
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
+          <div className="bg-black rounded-lg p-8 max-w-md">
+            <h2 className="text-2xl font-bold mb-4">Passcode</h2>
+            <div className="mb-4">
+              <p className="text-lg">Sum to be achieved: {randomSum}</p>
+            </div>
+            <div className="grid grid-cols-5 gap-4 mb-4">
+              {[...Array(10)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => handleButtonClick(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+            <div className="mb-4">
+              <p className="text-lg">Current sum: {currentSum}</p>
+            </div>
+            <button
+              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
           </div>
-          <div className="grid grid-cols-5 gap-4 mb-4">
-            {[...Array(10)].map((_, index) => (
-              <button
-                key={index + 1}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-                onClick={() => handleButtonClick(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </div>
-          <div className="mb-4">
-            <p className="text-lg">Current sum: {currentSum}</p>
-          </div>
-          <button
-            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-            onClick={handleReset}
-          >
-            Reset
-          </button>
+          <Toaster />
         </div>
-        <Toaster />
-      </div>
+      )}
     </>
   );
 }

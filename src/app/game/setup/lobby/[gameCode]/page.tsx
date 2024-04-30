@@ -20,6 +20,7 @@ export default function Lobby() {
 
   async function loadGameData() {
     const gameResult = await fetchGame(gameCode as string);
+    console.log(gameResult.data);
     if (gameResult.status === 200) {
       updateGame(gameResult.data as Game);
     }

@@ -21,10 +21,10 @@ export default class MiniGameService {
       `/api/passcode/${gameCode}/add`,
       {
         value,
-        taskId
+        taskId,
       }
     );
-    console.log("Sum:", currentSum);
+    console.log("Sum:", currentSum.data);
     return currentSum as ApiResponse<number>;
   }
 
@@ -38,10 +38,11 @@ export default class MiniGameService {
     return randomSum as ApiResponse<number>;
   }
 
-  static async resetSum(gameCode: string) {
+  static async resetSum(gameCode: string, taskId: number) {
     const currentSum = await ApiService.post(
       "task",
-      `/api/passcode/${gameCode}/reset`
+      `/api/passcode/${gameCode}/reset`,
+      taskId
     );
     console.log("Reset sum:", currentSum);
     return currentSum as ApiResponse<number>;
