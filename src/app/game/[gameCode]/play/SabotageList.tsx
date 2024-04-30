@@ -4,11 +4,11 @@ import { Sabotage } from "@/app/types";
 
 type Props = {
   sabotages: Sabotage[];
-  handleCrewmateWinTimer: () => void;
+  handleImpostorWinTimer: () => void;
   getSabotagePosition: (sabotageId: number) => void
 };
 
-export default function SabotageList({ sabotages, handleCrewmateWinTimer, getSabotagePosition}: Props) {
+export default function SabotageList({ sabotages, handleImpostorWinTimer, getSabotagePosition}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
@@ -29,7 +29,7 @@ export default function SabotageList({ sabotages, handleCrewmateWinTimer, getSab
 
   function handleSabotageComplete(sabotageId: number) {
     if (!isSabotageCooldown) {
-      handleCrewmateWinTimer();
+      handleImpostorWinTimer();
       const sabotageIndex = incompleteSabotages.findIndex(
         (sabotage) => sabotage.id === sabotageId
       );

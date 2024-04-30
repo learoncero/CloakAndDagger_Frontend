@@ -1,14 +1,18 @@
 import React from 'react';
-import { Player } from "@/app/types";
+import {Player, Sabotage, Task} from "@/app/types";
+import SabotageIconDisplay from "@/app/game/[gameCode]/play/SabotageIconDisplay";
+import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 
 type Props = {
     map: string[][];
     playerList: Player[];
     closeMiniMap: () => any;
     currentPlayer: Player;
+    tasks: Task[];
+    sabotages: Sabotage[];
 };
 
-const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer }: Props) => {
+const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer, tasks, sabotages }) => {
     if (!map) {
         return <div>Can not show Minimap right now</div>;
     }
@@ -51,13 +55,22 @@ const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer }: Props) => 
                         const isPlayerHere = playerList.some(player => player.position.x === cellIndex && player.position.y === rowIndex);
                         const cellWidth = Math.floor(1150 / row.length); //Rundet das Ergebnis ab
                         const cellHeight = Math.floor(565/ map.length);
+                        const taskInCell = tasks.find(task => task.position.x === cellIndex && task.position.y === rowIndex);
+                        const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellIndex && sabotage.position.y === rowIndex);
 
                         return (
                             <div key={cellIndex} style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
                                  className={`border border-white box-border 
                                 ${cell!= '#' ? !isVisible ? 'bg-gray-200' : 'bg-gray-400' : !isVisible ? 'bg-red-950 opacity-30' : 'bg-red-950'} 
                                 ${isPlayerHere && isVisible ? 'bg-red-600' : ''} 
-                                `}/>
+                                `}>
+                                {sabotageInCell != undefined && (
+                                    <SabotageIconDisplay/>
+                                )}
+                                {taskInCell && isVisible && (
+                                    <TaskIconDisplay completed={taskInCell.completed}/>
+                                )}
+                            </div>
                         );
                     })}
                 </div>

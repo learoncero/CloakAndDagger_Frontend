@@ -49,7 +49,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
                 const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
                 const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
-                const notImpostorOrGhost = ![Role.IMPOSTOR, Role.IMPOSTOR_GHOST].includes(currentPlayer.role);
+                //console.log("Sabotage In Cell (MapDisplay): ", sabotageInCell);
                 return (
                     <div
                         key={cellIndex}
@@ -62,7 +62,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                               // eslint-disable-next-line react/jsx-no-comment-textnodes
                           ))}
 
-                      {taskInCell !== undefined && notImpostorOrGhost && (
+                      {taskInCell !== undefined && (
                           <TaskIconDisplay completed={taskInCell.completed} />
                         )}
                       {sabotageInCell !== undefined && (

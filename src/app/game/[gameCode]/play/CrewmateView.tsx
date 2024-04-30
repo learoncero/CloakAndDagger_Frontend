@@ -4,11 +4,9 @@ import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
 import { Game, Player, Role } from "@/app/types";
-import "./MiniMap.css";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
-import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 
 type Props = {
@@ -107,6 +105,8 @@ export default function CrewmateView({
               playerList={game.players}
               currentPlayer={currentPlayer}
               closeMiniMap={() => setShowMiniMap(false)}
+              tasks={game.tasks}
+              sabotages={game.sabotages}
               //todo tasks={game.tasks}
             />
           </div>
