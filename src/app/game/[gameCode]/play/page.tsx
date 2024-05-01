@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { GameStatus, Role } from "@/app/types";
-import ImpostorView from "./ImpostorView";
-import CrewmateView from "./CrewmateView";
+import {useEffect, useRef, useState} from "react";
+import {GameStatus, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
-import { useParams } from "next/navigation";
+import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
-import { AnimationProvider } from "@/app/AnimationContext";
+import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
+import GameView from "@/app/game/[gameCode]/play/GameView";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -21,19 +20,24 @@ export default function PlayGame() {
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
-  const [showTaskPopup, setShowTaskPopup] = useState(false);
-
   let playerId: string | null;
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
   }
+  const currentPlayer = game?.players?.find(
+      (player) => player.id.toString() === playerId
+  );
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
+
+
+  // const [showTaskPopup, setShowTaskPopup] = useState(false);
+  //const [showMiniMap, setShowMiniMap] = useState(false);
+
 
   const playerIndex = game?.players?.findIndex(
     (player) => player.id.toString() === playerId
   );
-  const currentPlayer = game?.players?.find(
-    (player) => player.id.toString() === playerId
-  );
+
   const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
 
   useEffect(() => {
@@ -85,7 +89,7 @@ export default function PlayGame() {
       );
 
       stompClient.subscribe(
-          "/topic/sabotage",
+          "/topic/sabotageStart",
             (message: { body: string }) => {
                 const receivedMessage = JSON.parse(message.body);
                 updateGame(receivedMessage.body);
@@ -99,7 +103,7 @@ export default function PlayGame() {
             updateGame(receivedMessage.body);
       });
     }
-  }, [stompClient]);
+  }, []);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
@@ -187,7 +191,7 @@ export default function PlayGame() {
       map: game.map,
     };
     if (stompClient) {
-      stompClient.send(`/app/game/sabotage`, {}, JSON.stringify(sabotageMessage));
+      stompClient.send(`/app/game/startSabotage`, {}, JSON.stringify(sabotageMessage));
     }
   }
 
@@ -199,9 +203,7 @@ export default function PlayGame() {
     setImpostorWinTimer(45);
   }
 
-  function handleShowTaskPopup(show: boolean) {
-    setShowTaskPopup(show);
-  }
+
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
@@ -220,7 +222,18 @@ export default function PlayGame() {
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
 
+    //todo needs to be sent to backend
+    function handleTaskCompleted(taskId: number) {
+      let task = game.tasks.find((task) => task.taskId === taskId);
+      if (task) {
+        task.completed = true;
+      }
+      setShowTaskPopup(false);
+    }
+
+  console.log("PAGE RENDERED");
   return (
+
     <AnimationProvider>
       <div className="min-h-screen min-w-screen bg-black text-white">
         {showChat && (
@@ -233,47 +246,35 @@ export default function PlayGame() {
         {game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
         currentPlayer?.role != Role.CREWMATE_GHOST &&
         currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
-          <Modal modalText={"IMPOSTORS WIN!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
+            <Modal modalText={"IMPOSTORS WIN!"}>
+              <BackLink href={"/"}>Return to Landing Page</BackLink>
+            </Modal>
         ) : game?.gameStatus === GameStatus.CREWMATES_WIN &&
-          currentPlayer?.role != Role.CREWMATE_GHOST &&
-          currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
-          <Modal modalText={"CREWMATES WIN!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
+        currentPlayer?.role != Role.CREWMATE_GHOST &&
+        currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
+            <Modal modalText={"CREWMATES WIN!"}>
+              <BackLink href={"/"}>Return to Landing Page</BackLink>
+            </Modal>
         ) : currentPlayer ? (
-          <div>
-            {playerRole === Role.IMPOSTOR ? (
-              <ImpostorView
+
+              <GameView
+                game={game}
                 map={map.map}
                 currentPlayer={currentPlayer}
-                game={game}
-                killPlayer={killPlayer}
-                handleImpostorWinTimer={handleImpostorWinTimer}
-                reportBody={reportBody}
-                getSabotagePosition={getSabotagePosition}
-              />
-            ) : playerRole === Role.CREWMATE_GHOST ||
-              playerRole === Role.IMPOSTOR_GHOST ? (
-              <Modal modalText={"GAME OVER!"}>
-                <BackLink href={"/"}>Return to Landing Page</BackLink>
-              </Modal>
-            ) : (
-              <CrewmateView
-                map={map.map}
-                currentPlayer={currentPlayer}
-                game={game}
-                reportBody={reportBody}
                 showTaskPopup={showTaskPopup}
-                handleShowTaskPopup={handleShowTaskPopup}
+                getSabotagePosition={getSabotagePosition}
+                killPlayer={killPlayer}
+                reportBody={reportBody}
+                handleTaskCompleted={handleTaskCompleted}
+                handleImpostorWinTimer={handleImpostorWinTimer}
+                handleShowTaskPopup={setShowTaskPopup}
               />
-            )}
-          </div>
-        ) : (
-          <div>No Player Data Found</div>
-        )}
+
+            ) :
+            <div>No Player Data Found</div>}
+
       </div>
-    </AnimationProvider>
-  );
-}
+
+          </AnimationProvider>
+          );
+        }
