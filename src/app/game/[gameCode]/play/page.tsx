@@ -11,6 +11,7 @@ import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function PlayGame() {
   const { gameCode } = useParams();
@@ -85,20 +86,58 @@ export default function PlayGame() {
       );
 
       stompClient.subscribe(
-          "/topic/sabotage",
-            (message: { body: string }) => {
-                const receivedMessage = JSON.parse(message.body);
-                updateGame(receivedMessage.body);
+        "/topic/sabotageStart",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+          setImpostorWinTimer(30);
+          toast(
+            "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
+            {
+              position: "top-center",
+              style: {
+                border: "2px solid black",
+                padding: "16px",
+                color: "white",
+                backgroundColor: "#eF4444",
+              },
+              icon: "❕",
             }
-      )
+          );
+        }
+      );
 
       stompClient.subscribe(
-          "/topic/gameEnd",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
+        "/topic/sabotageCancel",
+        (message: { body: string }) => {
+          const receivedMessage = JSON.parse(message.body);
+          updateGame(receivedMessage.body);
+          setImpostorWinTimer(-1);
+          toast("Sabotage cancelled. Crewmates, you're safe for now!", {
+            position: "top-center",
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "white",
+              backgroundColor: "#eF4444",
+            },
+            icon: "❕",
+          });
+        }
+      );
+
+      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
       });
     }
+
+    return () => {
+      // Unsubscribe from WebSocket events when the component unmounts
+      if (stompClient) {
+        stompClient.disconnect(); // Disconnect from WebSocket
+      }
+    };
   }, [stompClient]);
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -187,16 +226,16 @@ export default function PlayGame() {
       map: game.map,
     };
     if (stompClient) {
-      stompClient.send(`/app/game/sabotage`, {}, JSON.stringify(sabotageMessage));
+      stompClient.send(
+        `/app/game/startSabotage`,
+        {},
+        JSON.stringify(sabotageMessage)
+      );
     }
   }
 
   function handleChatClose() {
     setShowChat(false);
-  }
-
-  function handleImpostorWinTimer() {
-    setImpostorWinTimer(45);
   }
 
   function handleShowTaskPopup(show: boolean) {
@@ -219,6 +258,18 @@ export default function PlayGame() {
 
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
+
+  console.log("impostorWinTimer", impostorWinTimer);
+
+  function handleCancelSabotage() {
+    if (impostorWinTimer > 0) {
+      stompClient.send(
+        `/app/game/${game.gameCode}/cancelSabotage`,
+        {},
+        JSON.stringify({})
+      );
+    }
+  }
 
   return (
     <AnimationProvider>
@@ -250,9 +301,9 @@ export default function PlayGame() {
                 currentPlayer={currentPlayer}
                 game={game}
                 killPlayer={killPlayer}
-                handleImpostorWinTimer={handleImpostorWinTimer}
                 reportBody={reportBody}
                 getSabotagePosition={getSabotagePosition}
+                handleCancelSabotage={handleCancelSabotage}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (
@@ -267,6 +318,7 @@ export default function PlayGame() {
                 reportBody={reportBody}
                 showTaskPopup={showTaskPopup}
                 handleShowTaskPopup={handleShowTaskPopup}
+                handleCancelSabotage={handleCancelSabotage}
               />
             )}
           </div>
@@ -274,6 +326,7 @@ export default function PlayGame() {
           <div>No Player Data Found</div>
         )}
       </div>
+      <Toaster />
     </AnimationProvider>
   );
 }
