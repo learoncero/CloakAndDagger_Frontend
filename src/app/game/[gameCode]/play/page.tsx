@@ -263,7 +263,6 @@ export default function PlayGame() {
 
   function handleCancelSabotage() {
     if (impostorWinTimer > 0) {
-      setImpostorWinTimer(-1);
       stompClient.send(
         `/app/game/${game.gameCode}/cancelSabotage`,
         {},
