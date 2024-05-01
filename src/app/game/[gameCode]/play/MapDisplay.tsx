@@ -1,4 +1,4 @@
-import {Player, Task, Sabotage, Role} from "@/app/types";
+import {Player, Task, Sabotage} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
@@ -15,7 +15,6 @@ type Props = {
 
 
 export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages, nearbyTask }: Props) {
-  //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.position;
@@ -67,6 +66,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                           <TaskIconDisplay
                               completed={taskInCell.completed}
                               isTaskInteractable={!!nearbyTask}
+                              role={currentPlayer.role}
                           />
                       )}
                       {sabotageInCell !== undefined && (
