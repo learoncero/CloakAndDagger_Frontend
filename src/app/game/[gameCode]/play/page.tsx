@@ -112,6 +112,7 @@ export default function PlayGame() {
         (message: { body: string }) => {
           const receivedMessage = JSON.parse(message.body);
           updateGame(receivedMessage.body);
+          setImpostorWinTimer(-1);
           toast("Sabotage cancelled. Crewmates, you're safe for now!", {
             position: "top-center",
             style: {
@@ -257,6 +258,8 @@ export default function PlayGame() {
 
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
+
+  console.log("impostorWinTimer", impostorWinTimer);
 
   function handleCancelSabotage() {
     if (impostorWinTimer > 0) {
