@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Task as TaskType } from "@/app/types";
+import { Task } from "@/app/types";
 
-export default function useNearbyTasks(
-  tasks: TaskType[],
-  currentPlayerPosition: { x: number; y: number }
-) {
-  const [nearbyTasks, setNearbyTasks] = useState<TaskType[]>([]);
+type Props ={
+  tasks: Task[];
+  currentPlayerPosition: { x: number; y: number };
+}
+
+export default function useNearbyTasks({tasks, currentPlayerPosition }: Props) {
+  const [nearbyTasks, setNearbyTasks] = useState<Task[]>([]);
 
   useEffect(() => {
     const filterNearbyTasks = () => {
