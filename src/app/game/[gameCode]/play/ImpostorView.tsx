@@ -15,7 +15,6 @@ import useNearbyItems from "@/hooks/useNearbyItems";
 type Props = {
   map: string[][];
   currentPlayer: Player;
-  handleImpostorWinTimer: () => void;
   game: Game;
   killPlayer: (gameCode: string, playerId: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
@@ -28,7 +27,6 @@ export default function ImpostorView({
   currentPlayer,
   game,
   killPlayer,
-  handleImpostorWinTimer,
   reportBody,
   getSabotagePosition,
   handleCancelSabotage,
@@ -126,7 +124,6 @@ export default function ImpostorView({
         <RoleInformation role={"IMPOSTOR"} />
         <SabotageList
           sabotages={game.sabotages ?? []}
-          handleImpostorWinTimer={handleImpostorWinTimer}
           getSabotagePosition={getSabotagePosition}
         />
       </div>
@@ -180,7 +177,6 @@ export default function ImpostorView({
         >
           <SabotageList
             sabotages={game.sabotages ?? []}
-            handleImpostorWinTimer={handleImpostorWinTimer}
             getSabotagePosition={getSabotagePosition}
           />
           <div

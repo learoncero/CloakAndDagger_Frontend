@@ -91,6 +91,7 @@ export default function CrewmateView({
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.code === "KeyC" && nearbySabotages.length > 0) {
+        console.log("Cancel sabotage");
         handleCancelSabotage();
       }
     };

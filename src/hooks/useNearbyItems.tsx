@@ -14,6 +14,7 @@ export default function useNearbyItems(
     const filterNearbyItems = () => {
       const filteredItems = items.filter(
         (item) =>
+          item.position &&
           Math.abs(item.position.x - currentPlayerPosition.x) <= 1 &&
           Math.abs(item.position.y - currentPlayerPosition.y) <= 1
       );

@@ -9,7 +9,7 @@ type Props = {
   currentPlayer: Player;
   tasks: Task[];
   sabotages: Sabotage[];
-  nearbyTask: Task;
+  nearbyTask?: Task;
 };
 
 export default function MapDisplay({
@@ -63,6 +63,7 @@ export default function MapDisplay({
             );
             const sabotageInCell = sabotages.find(
               (sabotage) =>
+                sabotage.position &&
                 sabotage.position.x === cellPosX &&
                 sabotage.position.y === cellPosY
             );
