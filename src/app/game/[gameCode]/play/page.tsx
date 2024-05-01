@@ -84,19 +84,14 @@ export default function PlayGame() {
         }
       );
 
-      stompClient.subscribe(
-          "/topic/sabotage",
-            (message: { body: string }) => {
-                const receivedMessage = JSON.parse(message.body);
-                updateGame(receivedMessage.body);
-            }
-      )
+      stompClient.subscribe("/topic/sabotage", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+      });
 
-      stompClient.subscribe(
-          "/topic/gameEnd",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
+      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
       });
     }
   }, [stompClient]);
@@ -187,7 +182,11 @@ export default function PlayGame() {
       map: game.map,
     };
     if (stompClient) {
-      stompClient.send(`/app/game/sabotage`, {}, JSON.stringify(sabotageMessage));
+      stompClient.send(
+        `/app/game/sabotage`,
+        {},
+        JSON.stringify(sabotageMessage)
+      );
     }
   }
 
@@ -196,7 +195,7 @@ export default function PlayGame() {
   }
 
   function handleImpostorWinTimer() {
-    setImpostorWinTimer(45);
+    setImpostorWinTimer(20);
   }
 
   function handleShowTaskPopup(show: boolean) {
@@ -219,6 +218,13 @@ export default function PlayGame() {
 
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
+
+  function handleCancelSabotage() {
+    alert("Sabotage has been cancelled!");
+    if (impostorWinTimer > 0) {
+      setImpostorWinTimer(-1);
+    }
+  }
 
   return (
     <AnimationProvider>
@@ -253,6 +259,7 @@ export default function PlayGame() {
                 handleImpostorWinTimer={handleImpostorWinTimer}
                 reportBody={reportBody}
                 getSabotagePosition={getSabotagePosition}
+                handleCancelSabotage={handleCancelSabotage}
               />
             ) : playerRole === Role.CREWMATE_GHOST ||
               playerRole === Role.IMPOSTOR_GHOST ? (
@@ -267,6 +274,7 @@ export default function PlayGame() {
                 reportBody={reportBody}
                 showTaskPopup={showTaskPopup}
                 handleShowTaskPopup={handleShowTaskPopup}
+                handleCancelSabotage={handleCancelSabotage}
               />
             )}
           </div>
