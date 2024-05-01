@@ -1,3 +1,4 @@
+/*
 import { Game, Player, Role, Sabotage } from "@/app/types";
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
@@ -172,3 +173,4 @@ export default function ImpostorView({
     </div>
   );
 }
+*/

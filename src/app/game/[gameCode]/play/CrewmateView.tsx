@@ -1,3 +1,4 @@
+/*
 import { useCallback, useEffect, useState } from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
@@ -190,3 +191,4 @@ export default function CrewmateView({
     </div>
   );
 }
+*/
