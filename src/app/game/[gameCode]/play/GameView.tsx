@@ -127,7 +127,7 @@ export default function GameView ({
 
     useEffect(() => {
         const handleKeyPress = async (event: KeyboardEvent) => {
-            if (!isImpostor && event.key === "e" || event.key === "E") {
+            if ((!isImpostor && !showMiniMap) && event.key === "e" || event.key === "E") {
                 if (nearbyTasks.length === 0) return;
                 const response = await MiniGameService.startTask(
                     nearbyTasks[0].taskId,
