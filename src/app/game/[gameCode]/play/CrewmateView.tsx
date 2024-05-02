@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
@@ -11,6 +11,7 @@ import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import useNearbyTasks from "@/hooks/useNearbyTasks";
 import MiniGameService from "@/services/MiniGameService";
+import toast, {Toaster} from "react-hot-toast";
 
 type Props = {
   map: string[][];
@@ -42,31 +43,60 @@ export default function CrewmateView({
 
   const nearbyTasks = useNearbyTasks(game.tasks, currentPlayer.position);
 
-  const handleToggleTaskPopup = useCallback(() => {
+  const handleToggleTaskPopup = useCallback(async () => {
     if (nearbyTasks.length > 0) {
+      const setActiveStatusAndLog = async () => {
+        const active = await MiniGameService.setActiveStatus(
+            nearbyTasks[0].taskId,
+            game.gameCode
+        );
+        console.log("Active status: ", active);
+      };
+
       if (showTaskPopup) {
         handleShowTaskPopup(false);
-        showTaskPopup = false;
-        console.log("Show task popup: ", showTaskPopup);
+        console.log("Show task popup: ", false);
+        await setActiveStatusAndLog();
       } else {
         handleShowTaskPopup(true);
-        showTaskPopup = true;
-        console.log("Show task popup: ", showTaskPopup);
+        console.log("Show task popup: ", true);
+        await setActiveStatusAndLog();
       }
     }
-  }, [nearbyTasks]);
+  }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
+
 
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
         if (nearbyTasks.length === 0) return;
+
+        const status = await MiniGameService.getActiveStatus(
+            nearbyTasks[0].taskId,
+            game.gameCode
+        );
+
+        if (status.data === true && !showTaskPopup) {
+          toast("Task already occupied", {
+            position: "bottom-right",
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "white",
+              backgroundColor: "#eF4444",
+            },
+            icon: "✖️",
+          });
+          return;
+        }
+
         const response = await MiniGameService.startTask(
           nearbyTasks[0].taskId,
           nearbyTasks[0].miniGameId,
           game.gameCode
         );
         if (response.status === 200) {
-          handleToggleTaskPopup();
+          await handleToggleTaskPopup();
         }
       }
     };
@@ -76,7 +106,7 @@ export default function CrewmateView({
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [handleToggleTaskPopup, nearbyTasks]);
+  }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -163,7 +193,7 @@ export default function CrewmateView({
           </ActionButton>
         </div>
       </div>
-
+      <Toaster />
       {showMiniMap && (
         <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
           <TaskList tasks={game.tasks}/>
