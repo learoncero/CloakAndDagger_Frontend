@@ -12,7 +12,13 @@ type Props = {
     sabotages: Sabotage[];
 };
 
-const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer, tasks, sabotages }) => {
+const MiniMap: React.FC<Props> = ({
+  map,
+  playerList,
+  currentPlayer,
+  tasks,
+  sabotages,
+  } : Props) => {
     if (!map) {
         return <div>Can not show Minimap right now</div>;
     }
@@ -68,7 +74,11 @@ const MiniMap: React.FC<Props> = ({ map, playerList, currentPlayer, tasks, sabot
                                     <SabotageIconDisplay/>
                                 )}
                                 {taskInCell && isVisible && (
-                                    <TaskIconDisplay completed={taskInCell.completed}/>
+                                    <TaskIconDisplay
+                                        completed={taskInCell.completed}
+                                        isTaskInteractable={false}
+                                        role={currentPlayer.role}
+                                    />
                                 )}
                             </div>
                         );
