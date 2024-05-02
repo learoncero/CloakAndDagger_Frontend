@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState} from "react";
 import {GameStatus, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
+//import useGameSubscriptions from "@/hooks/useGameSubscriptions"
 import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
@@ -10,16 +11,19 @@ import Chat from "./Chat";
 import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "@/app/game/[gameCode]/play/GameView";
+import toast from "react-hot-toast";
 
 export default function PlayGame() {
+  console.log("PAGE RENDERED");
   const { gameCode } = useParams();
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
-  const [mirroring, setMirroring] = useState(false);
+  const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
+
   let playerId: string | null;
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
@@ -27,21 +31,103 @@ export default function PlayGame() {
   const currentPlayer = game?.players?.find(
       (player) => player.id.toString() === playerId
   );
-  const [showTaskPopup, setShowTaskPopup] = useState(false);
 
+  const playerRole = currentPlayer?.role ?? "";
 
-  // const [showTaskPopup, setShowTaskPopup] = useState(false);
-  //const [showMiniMap, setShowMiniMap] = useState(false);
-
-
-  const playerIndex = game?.players?.findIndex(
-    (player) => player.id.toString() === playerId
-  );
-
-  const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
+  //useGameSubscriptions(stompClient, updateGame);
 
   useEffect(() => {
-    loadGameData();
+    if (stompClient) {
+      stompClient.subscribe(
+          "/topic/positionChange",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
+      );
+
+      stompClient.subscribe(
+          "/topic/IdleChange",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
+      );
+
+      stompClient.subscribe(
+          "/topic/playerKill",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
+      );
+
+      stompClient.subscribe(
+          "/topic/bodyReport",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+            setShowChat(true);
+          }
+      );
+
+      stompClient.subscribe(
+          "/topic/sabotageStart",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+            setImpostorWinTimer(30);
+            toast(
+                "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
+                {
+                  position: "top-center",
+                  style: {
+                    border: "2px solid black",
+                    padding: "16px",
+                    color: "white",
+                    backgroundColor: "#eF4444",
+                  },
+                  icon: "❕",
+                }
+            );
+          }
+      );
+
+      stompClient.subscribe(
+          "/topic/sabotageCancel",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+            setImpostorWinTimer(-1);
+            toast("Sabotage cancelled. Crewmates, you're safe for now!", {
+              position: "top-center",
+              style: {
+                border: "2px solid black",
+                padding: "16px",
+                color: "white",
+                backgroundColor: "#eF4444",
+              },
+              icon: "❕",
+            });
+          }
+      );
+
+      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+      });
+    }
+
+    return () => {
+      // Unsubscribe from WebSocket events when the component unmounts
+      if (stompClient) {
+        stompClient.disconnect(); // Disconnect from WebSocket
+      }
+    };
+  }, [stompClient]);
+
+  useEffect(() => {
+    loadGameData().then();
   }, []);
 
   useEffect(() => {
@@ -53,57 +139,24 @@ export default function PlayGame() {
     };
   }, [stompClient, game?.players, handleChatClose]);
 
+
+
   useEffect(() => {
-    if (stompClient) {
-      stompClient.subscribe(
-        "/topic/positionChange",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
-      );
+    let countdownInterval: NodeJS.Timeout;
 
-      stompClient.subscribe(
-        "/topic/IdleChange",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/playerKill",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/bodyReport",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setShowChat(true);
-        }
-      );
-
-      stompClient.subscribe(
-          "/topic/sabotageStart",
-            (message: { body: string }) => {
-                const receivedMessage = JSON.parse(message.body);
-                updateGame(receivedMessage.body);
-            }
-      )
-
-      stompClient.subscribe(
-          "/topic/gameEnd",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-      });
+    if (impostorWinTimer > 0) {
+      countdownInterval = setInterval(() => {
+        setImpostorWinTimer((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (impostorWinTimer === 0) {
+      const endGameMessage = {
+        gameCode: gameCode,
+      };
+      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
     }
-  }, [stompClient]);
+
+    return () => clearInterval(countdownInterval);
+  }, [impostorWinTimer]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
@@ -119,7 +172,7 @@ export default function PlayGame() {
     ) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
-        sendMoveMessage();
+        sendMoveMessage().then();
         if (!intervalId.current) {
           intervalId.current = setInterval(sendMoveMessage, 175);
         }
@@ -138,8 +191,24 @@ export default function PlayGame() {
       }
     }
   }
+  function handleChatClose() {
+    setShowChat(false);
+  }
 
-  function sendMoveMessage() {
+  function handleImpostorWinTimer() {
+    setImpostorWinTimer(45);
+  }
+
+  //todo needs to be sent to backend
+  function handleTaskCompleted(taskId: number) {
+    let task = game.tasks.find((task) => task.taskId === taskId);
+    if (task) {
+      task.completed = true;
+    }
+    setShowTaskPopup(false);
+  }
+
+  async function sendMoveMessage() {
     const keysArray = Array.from(pressedKeys.current.values());
     const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
     let newMirroring =
@@ -147,14 +216,14 @@ export default function PlayGame() {
         ? true
         : keyCodeToSend === "KeyD"
         ? false
-        : mirroring;
+        : false;
 
     if (!keyCodeToSend) return;
 
     const moveMessage = {
       id: playerId,
       keyCode: keyCodeToSend,
-      gameCode: game?.gameCode,
+      gameCode: gameCode,
       Mirrored: newMirroring,
       isMoving: true,
     };
@@ -184,7 +253,7 @@ export default function PlayGame() {
     }
   }
 
-  function getSabotagePosition(sabotageId: number) {
+  async function getSabotagePosition(sabotageId: number) {
     const sabotageMessage = {
       gameCode: gameCode,
       sabotageId: sabotageId,
@@ -195,43 +264,16 @@ export default function PlayGame() {
     }
   }
 
-  function handleChatClose() {
-    setShowChat(false);
-  }
-
-  function handleImpostorWinTimer() {
-    setImpostorWinTimer(45);
-  }
-
-
-
-  useEffect(() => {
-    let countdownInterval: NodeJS.Timeout;
-
+  function handleCancelSabotage() {
     if (impostorWinTimer > 0) {
-      countdownInterval = setInterval(() => {
-        setImpostorWinTimer((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (impostorWinTimer === 0) {
-      const endGameMessage = {
-        gameCode: gameCode,
-      };
-      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
+      stompClient.send(
+          `/app/game/${game.gameCode}/cancelSabotage`,
+          {},
+          JSON.stringify({})
+      );
     }
+  }
 
-    return () => clearInterval(countdownInterval);
-  }, [impostorWinTimer]);
-
-    //todo needs to be sent to backend
-    function handleTaskCompleted(taskId: number) {
-      let task = game.tasks.find((task) => task.taskId === taskId);
-      if (task) {
-        task.completed = true;
-      }
-      setShowTaskPopup(false);
-    }
-
-  console.log("PAGE RENDERED");
   return (
 
     <AnimationProvider>
@@ -243,38 +285,37 @@ export default function PlayGame() {
             players={game.players}
           />
         )}
-        {game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
-        currentPlayer?.role != Role.CREWMATE_GHOST &&
-        currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
-            <Modal modalText={"IMPOSTORS WIN!"}>
-              <BackLink href={"/"}>Return to Landing Page</BackLink>
-            </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN &&
-        currentPlayer?.role != Role.CREWMATE_GHOST &&
-        currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
-            <Modal modalText={"CREWMATES WIN!"}>
-              <BackLink href={"/"}>Return to Landing Page</BackLink>
-            </Modal>
-        ) : currentPlayer ? (
-
-              <GameView
-                game={game}
-                map={map.map}
-                currentPlayer={currentPlayer}
-                showTaskPopup={showTaskPopup}
-                getSabotagePosition={getSabotagePosition}
-                killPlayer={killPlayer}
-                reportBody={reportBody}
-                handleTaskCompleted={handleTaskCompleted}
-                handleImpostorWinTimer={handleImpostorWinTimer}
-                handleShowTaskPopup={setShowTaskPopup}
-              />
-
-            ) :
-            <div>No Player Data Found</div>}
+        {game?.gameStatus === GameStatus.IMPOSTORS_WIN
+        ?
+        <Modal modalText={"IMPOSTORS WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        game?.gameStatus === GameStatus.CREWMATES_WIN
+        ?
+        <Modal modalText={"CREWMATES WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        currentPlayer
+        ?
+        <GameView
+          game={game}
+          map={map.map}
+          currentPlayer={currentPlayer}
+          showTaskPopup={showTaskPopup}
+          getSabotagePosition={getSabotagePosition}
+          handleCancelSabotage={handleCancelSabotage}
+          killPlayer={killPlayer}
+          reportBody={reportBody}
+          handleTaskCompleted={handleTaskCompleted}
+          handleImpostorWinTimer={handleImpostorWinTimer}
+          handleShowTaskPopup={setShowTaskPopup}
+        />
+        :
+        <div>No Player Data Found</div>}
 
       </div>
-
-          </AnimationProvider>
-          );
-        }
+    </AnimationProvider>
+  );
+}
