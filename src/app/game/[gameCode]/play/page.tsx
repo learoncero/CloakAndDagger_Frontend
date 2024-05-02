@@ -274,6 +274,18 @@ export default function PlayGame() {
     }
   }
 
+  console.log("impostorWinTimer", impostorWinTimer);
+
+  function handleCancelSabotage() {
+    if (impostorWinTimer > 0) {
+      stompClient.send(
+        `/app/game/${game.gameCode}/cancelSabotage`,
+        {},
+        JSON.stringify({})
+      );
+    }
+  }
+
   return (
 
     <AnimationProvider>
@@ -314,8 +326,8 @@ export default function PlayGame() {
         />
         :
         <div>No Player Data Found</div>}
-
       </div>
+      <Toaster />
     </AnimationProvider>
   );
 }

@@ -13,10 +13,10 @@ export default function useNearbyItems(
   useEffect(() => {
     const filterNearbyItems = () => {
       const filteredItems = items.filter(
-          (item) =>
-              item.position &&
-              Math.abs(item.position.x - currentPlayerPosition.x) <= 1 &&
-              Math.abs(item.position.y - currentPlayerPosition.y) <= 1
+        (item) =>
+          item.position &&
+          Math.abs(item.position.x - currentPlayerPosition.x) <= 1 &&
+          Math.abs(item.position.y - currentPlayerPosition.y) <= 1
       );
       setNearbyItems(filteredItems);
     };
@@ -28,3 +28,4 @@ export default function useNearbyItems(
 
   return nearbyItems;
 }
+

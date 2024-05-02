@@ -1,5 +1,6 @@
 import React from "react";
 import TaskPasscode from "./TaskPasscode";
+import TaskColorSeq from "./TaskColorSeq";
 
 type TaskProps = {
   miniGameId: number;
@@ -17,13 +18,24 @@ export default function TaskGateway({
   switch (miniGameId) {
     case 1:
       return (
-        <TaskPasscode
-          // TODO id should be taskId
-          taskId={taskId}
-          gameCode={gameCode}
-          handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
-        />
+          <div>
+            <TaskPasscode
+              // TODO id should be taskId
+              taskId={taskId}
+              gameCode={gameCode}
+              handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
+            />
+          </div>
       );
+      case 2:
+      return (
+          <TaskColorSeq
+              // TODO id should be taskId
+              taskId={taskId}
+              gameCode={gameCode}
+              handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
+          />
+      )
     default:
       return null;
   }

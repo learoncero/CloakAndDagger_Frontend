@@ -4,17 +4,18 @@ import { Sabotage } from "@/app/types";
 
 type Props = {
   sabotages: Sabotage[];
-  handleImpostorWinTimer: () => void;
-  getSabotagePosition: (sabotageId: number) => void
+  getSabotagePosition: (sabotageId: number) => void;
 };
 
-export default function SabotageList({ sabotages, handleImpostorWinTimer, getSabotagePosition}: Props) {
+export default function SabotageList({
+  sabotages,
+  getSabotagePosition,
+}: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
   const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
   const [isSabotageCooldown, setIsSabotageCooldown] = useState(false);
-  const [sabotageCooldownTime, setSabotageCooldownTime] = useState(30);
-
+  const [sabotageCooldownTime, setSabotageCooldownTime] = useState(60);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
@@ -29,7 +30,6 @@ export default function SabotageList({ sabotages, handleImpostorWinTimer, getSab
 
   function handleSabotageComplete(sabotageId: number) {
     if (!isSabotageCooldown) {
-      handleImpostorWinTimer();
       const sabotageIndex = incompleteSabotages.findIndex(
         (sabotage) => sabotage.id === sabotageId
       );
@@ -45,9 +45,8 @@ export default function SabotageList({ sabotages, handleImpostorWinTimer, getSab
         setIsSabotageCooldown(true);
         setTimeout(() => {
           setIsSabotageCooldown(false);
-          setSabotageCooldownTime(30);
-        }, 30000);
-
+          setSabotageCooldownTime(60);
+        }, 60000);
       }
     }
   }

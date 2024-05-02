@@ -1,20 +1,26 @@
+
 import {Player, Task, Sabotage} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
 
-
 type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
-  tasks: Task[]
+  tasks: Task[];
   sabotages: Sabotage[];
-  nearbyTask: Task;
+  nearbyTask?: Task;
 };
-
-
-export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages, nearbyTask }: Props) {
+export default function MapDisplay({
+  map,
+  playerList,
+  currentPlayer,
+  tasks,
+  sabotages,
+  nearbyTask,
+}: Props) {
+  //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.position;

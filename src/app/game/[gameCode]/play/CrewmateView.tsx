@@ -4,14 +4,14 @@ import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
 import TaskList from "@/app/game/[gameCode]/play/TaskList";
 import MiniMap from "@/app/game/[gameCode]/play/MiniMap";
-import { Game, Player, Role, Task as TaskType } from "@/app/types";
+import { Game, Player, Role, Sabotage, Task as TaskType } from "@/app/types";
 import ActionButton from "@/components/ActionButton";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
 import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
-import useNearbyTasks from "@/hooks/useNearbyTasks";
 import MiniGameService from "@/services/MiniGameService";
+import useNearbyItems from "@/hooks/useNearbyItems";
 
 type Props = {
   map: string[][];
@@ -20,6 +20,7 @@ type Props = {
   reportBody: (gameCode: string, playerId: number) => void;
   showTaskPopup: boolean;
   handleShowTaskPopup: (show: boolean) => void;
+  handleCancelSabotage: () => void;
 };
 
 export default function CrewmateView({
@@ -29,6 +30,7 @@ export default function CrewmateView({
   reportBody,
   showTaskPopup,
   handleShowTaskPopup,
+  handleCancelSabotage,
 }: Props) {
   const [showMiniMap, setShowMiniMap] = useState(false);
 
@@ -41,7 +43,15 @@ export default function CrewmateView({
     Role.IMPOSTOR_GHOST,
   ]);
 
-  const nearbyTasks = useNearbyTasks(game.tasks, currentPlayer.position);
+  const nearbyTasks = useNearbyItems(
+    game.tasks,
+    currentPlayer.position
+  ) as TaskType[];
+
+  const nearbySabotages = useNearbyItems(
+    game.sabotages,
+    currentPlayer.position
+  ) as Sabotage[];
 
   const handleToggleTaskPopup = useCallback(() => {
     if (nearbyTasks.length > 0) {
@@ -78,6 +88,21 @@ export default function CrewmateView({
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, [handleToggleTaskPopup, nearbyTasks]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "KeyC" && nearbySabotages.length > 0) {
+        console.log("Cancel sabotage");
+        handleCancelSabotage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [nearbySabotages]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -166,9 +191,15 @@ export default function CrewmateView({
       </div>
 
       {showMiniMap && (
-        <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto" onClick={() => setShowMiniMap(false)}>
-          <TaskList tasks={game.tasks}/>
-          <div className="flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
+          onClick={() => setShowMiniMap(false)}
+        >
+          <TaskList tasks={game.tasks} />
+          <div
+            className="flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MiniMap
               map={map}
               playerList={game.players}
