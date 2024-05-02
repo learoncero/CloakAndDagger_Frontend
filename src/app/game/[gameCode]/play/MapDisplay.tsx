@@ -53,7 +53,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 return (
                     <div
                         key={cellIndex}
-                        className={`w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border border-1 border-gray-300 box-border 
+                        className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
                                   ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
                     >
                     {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
