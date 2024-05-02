@@ -11,7 +11,7 @@ import Chat from "./Chat";
 import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "@/app/game/[gameCode]/play/GameView";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
@@ -275,16 +275,6 @@ export default function PlayGame() {
   }
 
   console.log("impostorWinTimer", impostorWinTimer);
-
-  function handleCancelSabotage() {
-    if (impostorWinTimer > 0) {
-      stompClient.send(
-        `/app/game/${game.gameCode}/cancelSabotage`,
-        {},
-        JSON.stringify({})
-      );
-    }
-  }
 
   return (
 
