@@ -103,7 +103,7 @@ export default function PlayGame() {
             updateGame(receivedMessage.body);
       });
     }
-  }, []);
+  }, [stompClient]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
