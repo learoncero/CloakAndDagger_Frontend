@@ -176,7 +176,6 @@ export default function GameView ({
                    {isImpostor ?
                        <SabotageList
                            sabotages={game.sabotages}
-                           handleImpostorWinTimer={handleImpostorWinTimer}
                            getSabotagePosition={getSabotagePosition}
                        />
                        :
@@ -207,7 +206,7 @@ export default function GameView ({
                        }
                    </div>
 
-                   <div className="flex justify-center">
+                   <div className="flex gap-5 justify-center">
                        {isImpostor &&
                            <ActionButton
                                onClick={handleKill}
@@ -236,7 +235,6 @@ export default function GameView ({
                        {isImpostor ?
                            <SabotageList
                                sabotages={game.sabotages}
-                               handleImpostorWinTimer={handleImpostorWinTimer}
                                getSabotagePosition={getSabotagePosition}
                            />
                            :
