@@ -195,10 +195,6 @@ export default function PlayGame() {
     setShowChat(false);
   }
 
-  function handleImpostorWinTimer() {
-    setImpostorWinTimer(45);
-  }
-
   //todo needs to be sent to backend
   function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
@@ -287,15 +283,22 @@ export default function PlayGame() {
             players={game.players}
           />
         )}
-        {game?.gameStatus === GameStatus.IMPOSTORS_WIN
+        {currentPlayer?.role === Role.CREWMATE_GHOST ||
+         currentPlayer?.role === Role.IMPOSTOR_GHOST
         ?
-        <Modal modalText={"IMPOSTORS WIN!"}>
+        <Modal modalText={"GAME OVER!"}>
           <BackLink href={"/"}>Return to Landing Page</BackLink>
         </Modal>
         :
         game?.gameStatus === GameStatus.CREWMATES_WIN
         ?
         <Modal modalText={"CREWMATES WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        game?.gameStatus === GameStatus.IMPOSTORS_WIN
+        ?
+        <Modal modalText={"IMPOSTORS WIN!"}>
           <BackLink href={"/"}>Return to Landing Page</BackLink>
         </Modal>
         :
@@ -311,7 +314,6 @@ export default function PlayGame() {
           killPlayer={killPlayer}
           reportBody={reportBody}
           handleTaskCompleted={handleTaskCompleted}
-          handleImpostorWinTimer={handleImpostorWinTimer}
           handleShowTaskPopup={setShowTaskPopup}
         />
         :
