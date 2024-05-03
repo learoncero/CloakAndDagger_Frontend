@@ -1,5 +1,7 @@
+import {Role} from "@/app/types";
+
 type Props = {
-  role: "CREWMATE" | "IMPOSTOR";
+  role: Role;
 };
 
 export default function RoleInformation({ role }: Props) {

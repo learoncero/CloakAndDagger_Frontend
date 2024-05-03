@@ -1,20 +1,25 @@
-import {Player, Task, Sabotage, Role} from "@/app/types";
+
+import {Player, Task, Sabotage} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
-
 
 type Props = {
   map: string[][];
   playerList: Player[];
   currentPlayer: Player;
-  tasks: Task[]
+  tasks: Task[];
   sabotages: Sabotage[];
-  nearbyTask: Task;
+  nearbyTask?: Task;
 };
-
-
-export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabotages, nearbyTask }: Props) {
+export default function MapDisplay({
+  map,
+  playerList,
+  currentPlayer,
+  tasks,
+  sabotages,
+  nearbyTask,
+}: Props) {
   //console.log("MapDisplay tasks: ", tasks);
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
@@ -54,7 +59,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                 return (
                     <div
                         key={cellIndex}
-                        className={`w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border border-1 border-gray-300 box-border 
+                        className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
                                   ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
                     >
                     {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
@@ -67,6 +72,7 @@ export default function MapDisplay({ map, playerList, currentPlayer, tasks, sabo
                           <TaskIconDisplay
                               completed={taskInCell.completed}
                               isTaskInteractable={!!nearbyTask}
+                              role={currentPlayer.role}
                           />
                       )}
                       {sabotageInCell !== undefined && (
