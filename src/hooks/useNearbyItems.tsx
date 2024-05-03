@@ -5,8 +5,8 @@ type Position = { x: number; y: number };
 type NearbyItem = TaskType | SabotageType;
 
 export default function useNearbyItems(
-  items: NearbyItem[],
-  currentPlayerPosition: Position
+    items: NearbyItem[],
+    currentPlayerPosition: Position
 ) {
   const [nearbyItems, setNearbyItems] = useState<NearbyItem[]>([]);
 
@@ -28,3 +28,4 @@ export default function useNearbyItems(
 
   return nearbyItems;
 }
+

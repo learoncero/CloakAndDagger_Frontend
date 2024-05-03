@@ -1,99 +1,105 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { GameStatus, Role } from "@/app/types";
-import ImpostorView from "./ImpostorView";
-import CrewmateView from "./CrewmateView";
+import {useEffect, useRef, useState} from "react";
+import {GameStatus, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
-import { useParams } from "next/navigation";
+//import useGameSubscriptions from "@/hooks/useGameSubscriptions"
+import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
-import { AnimationProvider } from "@/app/AnimationContext";
+import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
+import GameView from "@/app/game/[gameCode]/play/GameView";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function PlayGame() {
+  console.log("PAGE RENDERED");
   const { gameCode } = useParams();
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
-  const [mirroring, setMirroring] = useState(false);
-  const pressedKeys = useRef<Set<string>>(new Set());
-  const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
   const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const pressedKeys = useRef<Set<string>>(new Set());
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
   }
-
-  const playerIndex = game?.players?.findIndex(
-    (player) => player.id.toString() === playerId
-  );
   const currentPlayer = game?.players?.find(
-    (player) => player.id.toString() === playerId
+      (player) => player.id.toString() === playerId
   );
-  const playerRole = game?.players?.[playerIndex as number]?.role ?? "";
 
-  useEffect(() => {
-    loadGameData();
-  }, []);
+  const playerRole = currentPlayer?.role ?? "";
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [stompClient, game?.players, handleChatClose]);
+  //useGameSubscriptions(stompClient, updateGame);
 
   useEffect(() => {
     if (stompClient) {
       stompClient.subscribe(
-        "/topic/positionChange",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
+          "/topic/positionChange",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
       );
 
       stompClient.subscribe(
-        "/topic/IdleChange",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
+          "/topic/IdleChange",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
       );
 
       stompClient.subscribe(
-        "/topic/playerKill",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
+          "/topic/playerKill",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+          }
       );
 
       stompClient.subscribe(
-        "/topic/bodyReport",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setShowChat(true);
-        }
+          "/topic/bodyReport",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+            setShowChat(true);
+          }
       );
 
       stompClient.subscribe(
-        "/topic/sabotageStart",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setImpostorWinTimer(30);
-          toast(
-            "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
-            {
+          "/topic/sabotageStart",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+            setImpostorWinTimer(30);
+            toast(
+                "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
+                {
+                  position: "top-center",
+                  style: {
+                    border: "2px solid black",
+                    padding: "16px",
+                    color: "white",
+                    backgroundColor: "#eF4444",
+                  },
+                  icon: "❕",
+                }
+            );
+          }
+      );
+
+      stompClient.subscribe(
+          "/topic/sabotageCancel",
+          (message: { body: string }) => {
+            const receivedMessage = JSON.parse(message.body);
+            updateGame(receivedMessage.body);
+            setImpostorWinTimer(-1);
+            toast("Sabotage cancelled. Crewmates, you're safe for now!", {
               position: "top-center",
               style: {
                 border: "2px solid black",
@@ -102,28 +108,8 @@ export default function PlayGame() {
                 backgroundColor: "#eF4444",
               },
               icon: "❕",
-            }
-          );
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/sabotageCancel",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setImpostorWinTimer(-1);
-          toast("Sabotage cancelled. Crewmates, you're safe for now!", {
-            position: "top-center",
-            style: {
-              border: "2px solid black",
-              padding: "16px",
-              color: "white",
-              backgroundColor: "#eF4444",
-            },
-            icon: "❕",
-          });
-        }
+            });
+          }
       );
 
       stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
@@ -140,6 +126,38 @@ export default function PlayGame() {
     };
   }, [stompClient]);
 
+  useEffect(() => {
+    loadGameData().then();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [stompClient, game?.players, handleChatClose]);
+
+
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout;
+
+    if (impostorWinTimer > 0) {
+      countdownInterval = setInterval(() => {
+        setImpostorWinTimer((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (impostorWinTimer === 0) {
+      const endGameMessage = {
+        gameCode: gameCode,
+      };
+      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
+    }
+
+    return () => clearInterval(countdownInterval);
+  }, [impostorWinTimer]);
+
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
@@ -154,7 +172,7 @@ export default function PlayGame() {
     ) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
-        sendMoveMessage();
+        sendMoveMessage().then();
         if (!intervalId.current) {
           intervalId.current = setInterval(sendMoveMessage, 175);
         }
@@ -173,8 +191,20 @@ export default function PlayGame() {
       }
     }
   }
+  function handleChatClose() {
+    setShowChat(false);
+  }
 
-  function sendMoveMessage() {
+  //todo needs to be sent to backend
+  function handleTaskCompleted(taskId: number) {
+    let task = game.tasks.find((task) => task.taskId === taskId);
+    if (task) {
+      task.completed = true;
+    }
+    setShowTaskPopup(false);
+  }
+
+  async function sendMoveMessage() {
     const keysArray = Array.from(pressedKeys.current.values());
     const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
     let newMirroring =
@@ -182,14 +212,14 @@ export default function PlayGame() {
         ? true
         : keyCodeToSend === "KeyD"
         ? false
-        : mirroring;
+        : false;
 
     if (!keyCodeToSend) return;
 
     const moveMessage = {
       id: playerId,
       keyCode: keyCodeToSend,
-      gameCode: game?.gameCode,
+      gameCode: gameCode,
       Mirrored: newMirroring,
       isMoving: true,
     };
@@ -219,59 +249,31 @@ export default function PlayGame() {
     }
   }
 
-  function getSabotagePosition(sabotageId: number) {
+  async function getSabotagePosition(sabotageId: number) {
     const sabotageMessage = {
       gameCode: gameCode,
       sabotageId: sabotageId,
       map: game.map,
     };
     if (stompClient) {
-      stompClient.send(
-        `/app/game/startSabotage`,
-        {},
-        JSON.stringify(sabotageMessage)
-      );
+      stompClient.send(`/app/game/startSabotage`, {}, JSON.stringify(sabotageMessage));
     }
   }
-
-  function handleChatClose() {
-    setShowChat(false);
-  }
-
-  function handleShowTaskPopup(show: boolean) {
-    setShowTaskPopup(show);
-  }
-
-  useEffect(() => {
-    let countdownInterval: NodeJS.Timeout;
-
-    if (impostorWinTimer > 0) {
-      countdownInterval = setInterval(() => {
-        setImpostorWinTimer((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (impostorWinTimer === 0) {
-      const endGameMessage = {
-        gameCode: gameCode,
-      };
-      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
-    }
-
-    return () => clearInterval(countdownInterval);
-  }, [impostorWinTimer]);
-
-  console.log("impostorWinTimer", impostorWinTimer);
 
   function handleCancelSabotage() {
     if (impostorWinTimer > 0) {
       stompClient.send(
-        `/app/game/${game.gameCode}/cancelSabotage`,
-        {},
-        JSON.stringify({})
+          `/app/game/${game.gameCode}/cancelSabotage`,
+          {},
+          JSON.stringify({})
       );
     }
   }
 
+  console.log("impostorWinTimer", impostorWinTimer);
+
   return (
+
     <AnimationProvider>
       <div className="min-h-screen min-w-screen bg-black text-white">
         {showChat && (
@@ -281,50 +283,41 @@ export default function PlayGame() {
             players={game.players}
           />
         )}
-        {game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
-        currentPlayer?.role != Role.CREWMATE_GHOST &&
-        currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
-          <Modal modalText={"IMPOSTORS WIN!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN &&
-          currentPlayer?.role != Role.CREWMATE_GHOST &&
-          currentPlayer?.role != Role.IMPOSTOR_GHOST ? (
-          <Modal modalText={"CREWMATES WIN!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : currentPlayer ? (
-          <div>
-            {playerRole === Role.IMPOSTOR ? (
-              <ImpostorView
-                map={map.map}
-                currentPlayer={currentPlayer}
-                game={game}
-                killPlayer={killPlayer}
-                reportBody={reportBody}
-                getSabotagePosition={getSabotagePosition}
-                handleCancelSabotage={handleCancelSabotage}
-              />
-            ) : playerRole === Role.CREWMATE_GHOST ||
-              playerRole === Role.IMPOSTOR_GHOST ? (
-              <Modal modalText={"GAME OVER!"}>
-                <BackLink href={"/"}>Return to Landing Page</BackLink>
-              </Modal>
-            ) : (
-              <CrewmateView
-                map={map.map}
-                currentPlayer={currentPlayer}
-                game={game}
-                reportBody={reportBody}
-                showTaskPopup={showTaskPopup}
-                handleShowTaskPopup={handleShowTaskPopup}
-                handleCancelSabotage={handleCancelSabotage}
-              />
-            )}
-          </div>
-        ) : (
-          <div>No Player Data Found</div>
-        )}
+        {currentPlayer?.role === Role.CREWMATE_GHOST ||
+         currentPlayer?.role === Role.IMPOSTOR_GHOST
+        ?
+        <Modal modalText={"GAME OVER!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        game?.gameStatus === GameStatus.CREWMATES_WIN
+        ?
+        <Modal modalText={"CREWMATES WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        game?.gameStatus === GameStatus.IMPOSTORS_WIN
+        ?
+        <Modal modalText={"IMPOSTORS WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        currentPlayer
+        ?
+        <GameView
+          game={game}
+          map={map.map}
+          currentPlayer={currentPlayer}
+          showTaskPopup={showTaskPopup}
+          getSabotagePosition={getSabotagePosition}
+          handleCancelSabotage={handleCancelSabotage}
+          killPlayer={killPlayer}
+          reportBody={reportBody}
+          handleTaskCompleted={handleTaskCompleted}
+          handleShowTaskPopup={setShowTaskPopup}
+        />
+        :
+        <div>No Player Data Found</div>}
       </div>
       <Toaster />
     </AnimationProvider>
