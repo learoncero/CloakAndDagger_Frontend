@@ -15,6 +15,24 @@ export default class MiniGameService {
     return startedTask as ApiResponse;
   }
 
+  static async getActiveStatus(taskId: number, gameCode: string) {
+    const status = await ApiService.post(
+        "game",
+        `/api/game/task/${gameCode}/status`,
+          taskId
+    );
+    return status as ApiResponse;
+  }
+
+  static async setActiveStatus(taskId: number, gameCode: string) {
+    const isActive = await ApiService.post(
+        "game",
+        `/api/game/task/${gameCode}/active`,
+          taskId
+    );
+    return isActive as ApiResponse;
+  }
+
   static async sumUp(value: number, taskId: number, gameCode: string) {
     const currentSum = await ApiService.post(
       "task",

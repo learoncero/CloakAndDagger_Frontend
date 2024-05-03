@@ -65,19 +65,27 @@ export default function GameView ({
        Role.IMPOSTOR_GHOST,
    ]);
 
-   const handleToggleTaskPopup = useCallback(() => {
-       if (nearbyTasks.length > 0) {
-           if (showTaskPopup) {
-               handleShowTaskPopup(false);
-               showTaskPopup = false;
-               //console.log("Show task popup: ", showTaskPopup);
-           } else {
-               handleShowTaskPopup(true);
-               showTaskPopup = true;
-               //console.log("Show task popup: ", showTaskPopup);
-           }
-       }
-   }, [nearbyTasks]);
+    const handleToggleTaskPopup = useCallback(async () => {
+        if (nearbyTasks.length > 0) {
+            const setActiveStatusAndLog = async () => {
+                const active = await MiniGameService.setActiveStatus(
+                    nearbyTasks[0].taskId,
+                    game.gameCode
+                );
+                console.log("Active status: ", active);
+            };
+
+            if (showTaskPopup) {
+                handleShowTaskPopup(false);
+                console.log("Show task popup: ", false);
+                await setActiveStatusAndLog();
+            } else {
+                handleShowTaskPopup(true);
+                console.log("Show task popup: ", true);
+                await setActiveStatusAndLog();
+            }
+        }
+    }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
 
    useEffect(() => {
        const handleKeyDown = (event: KeyboardEvent) => {
@@ -97,26 +105,47 @@ export default function GameView ({
        };
    }, [handleKill, setShowMiniMap]);
 
-   useEffect(() => {
-       const handleKeyPress = async (event: KeyboardEvent) => {
-           if ((!isImpostor && !showMiniMap) && event.key === "e" || event.key === "E") {
-               if (nearbyTasks.length === 0) return;
-               const response = await MiniGameService.startTask(
-                   nearbyTasks[0].taskId,
-                   nearbyTasks[0].miniGameId,
-                   game.gameCode
-               );
-               if (response.status === 200) {
-                   handleToggleTaskPopup();
-               }
-           }
-       };
-       window.addEventListener("keydown", handleKeyPress);
+    useEffect(() => {
+        const handleKeyPress = async (event: KeyboardEvent) => {
+            if (event.key === "e" || event.key === "E") {
+                if (nearbyTasks.length === 0) return;
 
-       return () => {
-           window.removeEventListener("keydown", handleKeyPress);
-       };
-   }, [handleToggleTaskPopup, nearbyTasks]);
+                const status = await MiniGameService.getActiveStatus(
+                    nearbyTasks[0].taskId,
+                    game.gameCode
+                );
+
+                if (status.data === true && !showTaskPopup) {
+                    toast("Task already occupied", {
+                        position: "bottom-right",
+                        style: {
+                            border: "2px solid black",
+                            padding: "16px",
+                            color: "white",
+                            backgroundColor: "#eF4444",
+                        },
+                        icon: "✖️",
+                    });
+                    return;
+                }
+
+                const response = await MiniGameService.startTask(
+                    nearbyTasks[0].taskId,
+                    nearbyTasks[0].miniGameId,
+                    game.gameCode
+                );
+                if (response.status === 200) {
+                    await handleToggleTaskPopup();
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyPress);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
 
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -226,7 +255,7 @@ export default function GameView ({
                        </ActionButton>
                    </div>
                </div>
-
+               <Toaster />
                {showMiniMap && (
                    <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
                        onClick={() => setShowMiniMap(false)}>
