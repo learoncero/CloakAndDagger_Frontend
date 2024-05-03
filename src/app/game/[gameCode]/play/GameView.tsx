@@ -24,7 +24,6 @@ type Props = {
     killPlayer: (gameCode: string, playerId: number) => void;
     reportBody: (gameCode: string, playerId: number) => void;
     handleTaskCompleted: (taskId: number) => void;
-    handleImpostorWinTimer: () => void;
     showTaskPopup: boolean;
     handleShowTaskPopup: (show: boolean) => void;
 }
@@ -38,7 +37,6 @@ export default function GameView ({
     killPlayer,
     reportBody,
     handleTaskCompleted,
-    handleImpostorWinTimer,
     showTaskPopup,
     handleShowTaskPopup,
 }: Props) {
