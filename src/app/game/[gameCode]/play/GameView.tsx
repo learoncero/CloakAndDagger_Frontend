@@ -13,7 +13,7 @@ import TaskGateway from "./TaskGateway";
 import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
-import MiniGameService from "@/services/MiniGameService";
+import TaskService from "@/services/TaskService";
 
 type Props = {
     game: Game;
@@ -40,7 +40,6 @@ export default function GameView ({
     showTaskPopup,
     handleShowTaskPopup,
 }: Props) {
-    console.log("GAMEVIEW RENDERED");
     const isImpostor = (currentPlayer?.role == Role.IMPOSTOR || currentPlayer?.role == Role.IMPOSTOR_GHOST);
     const [showMiniMap, setShowMiniMap] = useState(false);
     const [isTimer, setIsTimer] = useState(false);
@@ -68,20 +67,17 @@ export default function GameView ({
     const handleToggleTaskPopup = useCallback(async () => {
         if (nearbyTasks.length > 0) {
             const setActiveStatusAndLog = async () => {
-                const active = await MiniGameService.setActiveStatus(
+                await TaskService.setActiveStatus(
                     nearbyTasks[0].taskId,
                     game.gameCode
                 );
-                console.log("Active status: ", active);
             };
 
             if (showTaskPopup) {
                 handleShowTaskPopup(false);
-                console.log("Show task popup: ", false);
                 await setActiveStatusAndLog();
             } else {
                 handleShowTaskPopup(true);
-                console.log("Show task popup: ", true);
                 await setActiveStatusAndLog();
             }
         }
@@ -108,9 +104,9 @@ export default function GameView ({
     useEffect(() => {
         const handleKeyPress = async (event: KeyboardEvent) => {
             if (event.key === "e" || event.key === "E") {
-                if (nearbyTasks.length === 0) return;
+                if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE) return;
 
-                const status = await MiniGameService.getActiveStatus(
+                const status = await TaskService.getActiveStatus(
                     nearbyTasks[0].taskId,
                     game.gameCode
                 );
@@ -126,10 +122,11 @@ export default function GameView ({
                         },
                         icon: "✖️",
                     });
+
                     return;
                 }
 
-                const response = await MiniGameService.startTask(
+                const response = await TaskService.startTask(
                     nearbyTasks[0].taskId,
                     nearbyTasks[0].miniGameId,
                     game.gameCode
@@ -150,7 +147,6 @@ export default function GameView ({
     useEffect(() => {
         const handleKeyPress = (event: KeyboardEvent) => {
             if (event.code === "KeyC" && nearbySabotages.length > 0) {
-                console.log("Cancel sabotage");
                 handleCancelSabotage();
             }
         };
