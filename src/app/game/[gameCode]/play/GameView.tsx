@@ -110,7 +110,7 @@ export default function GameView ({
     useEffect(() => {
         const handleKeyPress = async (event: KeyboardEvent) => {
             if (event.key === "e" || event.key === "E") {
-                if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE) return;
+                if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE || nearbyTasks[0]?.completed) return;
 
                 const status = await TaskService.getActiveStatus(
                     nearbyTasks[0].taskId,
