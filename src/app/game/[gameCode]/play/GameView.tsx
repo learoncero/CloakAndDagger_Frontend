@@ -12,7 +12,6 @@ import MiniMap from "./MiniMap";
 import TaskGateway from "./TaskGateway";
 import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
-import useNearbyItemsForKill from "@/hooks/useNearbyItemsForKill";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
 
@@ -50,9 +49,10 @@ export default function GameView ({
         currentPlayer.position
     ) as Task[];
 
-    const nearbyTasksForKill = useNearbyItemsForKill(
+    const nearbyTasksForKill = useNearbyItems(
         game.tasks,
-        currentPlayer.position
+        currentPlayer.position,
+        2
     ) as Task[];
 
     const nearbySabotages = useNearbyItems(

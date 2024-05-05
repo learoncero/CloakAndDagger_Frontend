@@ -26,7 +26,7 @@ export default function TaskGateway({
             />
           </div>
       );
-      case 2:
+    case 2:
       return (
           <TaskColorSeq
               taskId={taskId}
