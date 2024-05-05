@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import MiniGameService from "@/services/MiniGameService";
 import toast, { Toaster } from "react-hot-toast";
 import TaskCompletedPopup from "./TaskCompletedPopup";
+import MiniGamePasscodeService from "@/services/MiniGamePasscodeService";
 
 type TaskPasscodeProps = {
   taskId: number;
@@ -22,7 +22,7 @@ export default function TaskPasscode({
   useEffect(() => {
     async function fetchRandomSum() {
       try {
-        const response = await MiniGameService.getRandomSum(gameCode, taskId);
+        const response = await MiniGamePasscodeService.getRandomSum(gameCode, taskId);
         setRandomSum(response.data as number);
         setCurrentSum(0);
       } catch (error) {
@@ -30,16 +30,15 @@ export default function TaskPasscode({
       }
     }
     fetchRandomSum();
-  }, [gameCode]);
+  }, [gameCode, taskId]);
 
   const handleButtonClick = async (value: number) => {
     try {
-      const response = await MiniGameService.sumUp(value, taskId, gameCode);
+      const response = await MiniGamePasscodeService.sumUp(value, taskId, gameCode);
       const newCurrentSum = response.data as number;
 
       if (newCurrentSum > randomSum) {
         setCurrentSum(0);
-        console.log("Passcode value exceeded");
         toast("Passcode value exceeded", {
           position: "bottom-right",
           style: {
@@ -63,7 +62,7 @@ export default function TaskPasscode({
 
   const handleReset = async () => {
     try {
-      await MiniGameService.resetSum(gameCode, taskId);
+      await MiniGamePasscodeService.resetSum(gameCode, taskId);
       setCurrentSum(0);
     } catch (error) {
       console.error("Error resetting sum:", error);
@@ -88,14 +87,14 @@ export default function TaskPasscode({
             </div>
             <div className="grid grid-cols-3 gap-4 mb-4">
               {[...Array(9)].map((_, index) => (
-                <button
-                  key={index + 1}
-                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
-                  onClick={() => handleButtonClick(index + 1)}
-                  style={{ fontSize: "1.3rem" }}
-                >
-                  {index + 1}
-                </button>
+                  <button
+                      key={index + 1}
+                      className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
+                      onClick={() => handleButtonClick(index + 1)}
+                      style={{fontSize: "1.3rem"}}
+                  >
+                    {index + 1}
+                  </button>
               ))}
             </div>
             <div className="mb-4">
@@ -107,13 +106,13 @@ export default function TaskPasscode({
               </p>
             </div>
             <button
-              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-              onClick={handleReset}
+                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                onClick={handleReset}
             >
               Reset
             </button>
           </div>
-          <Toaster />
+          <Toaster/>
         </div>
       )}
     </>
