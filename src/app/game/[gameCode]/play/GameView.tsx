@@ -15,6 +15,7 @@ import useNearbyItems from "@/hooks/useNearbyItems";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
 import { stat } from "fs";
+import Chat from "./Chat";
 
 type Props = {
   game: Game;
@@ -216,6 +217,13 @@ export default function GameView({
             <TaskList tasks={game.tasks} />
           )}
         </div>
+        <Chat
+          gameCode={game.gameCode}
+          onClose={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          players={[]}
+        />
         <div className="flex-grow flex justify-center">
           {map ? (
             <MapDisplay
