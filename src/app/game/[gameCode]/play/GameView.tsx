@@ -12,6 +12,7 @@ import MiniMap from "./MiniMap";
 import TaskGateway from "./TaskGateway";
 import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
+import useNearbyItemsForKill from "@/hooks/useNearbyItemsForKill";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
 
@@ -21,7 +22,7 @@ type Props = {
     currentPlayer: Player;
     getSabotagePosition: (sabotageId: number) => void;
     handleCancelSabotage: () => void;
-    killPlayer: (gameCode: string, playerId: number) => void;
+    killPlayer: (gameCode: string, playerId: number, nearbyTask: number) => void;
     reportBody: (gameCode: string, playerId: number) => void;
     handleTaskCompleted: (taskId: number) => void;
     showTaskPopup: boolean;
@@ -49,24 +50,29 @@ export default function GameView ({
         currentPlayer.position
     ) as Task[];
 
+    const nearbyTasksForKill = useNearbyItemsForKill(
+        game.tasks,
+        currentPlayer.position
+    ) as Task[];
+
     const nearbySabotages = useNearbyItems(
         game.sabotages,
         currentPlayer.position
     ) as Sabotage[];
 
-   const nearbyPlayers = useNearbyEntities(game?.players || [], currentPlayer as Player, [
-       Role.CREWMATE,
-       Role.IMPOSTOR,
-   ]);
+    const nearbyPlayers = useNearbyEntities(game?.players || [], currentPlayer as Player, [
+        Role.CREWMATE,
+        Role.IMPOSTOR,
+    ]);
 
-   const nearbyGhosts = useNearbyEntities(game?.players || [], currentPlayer as Player, [
-       Role.CREWMATE_GHOST,
-       Role.IMPOSTOR_GHOST,
-   ]);
+    const nearbyGhosts = useNearbyEntities(game?.players || [], currentPlayer as Player, [
+        Role.CREWMATE_GHOST,
+        Role.IMPOSTOR_GHOST,
+    ]);
 
     const handleToggleTaskPopup = useCallback(async () => {
         if (nearbyTasks.length > 0) {
-            const setActiveStatusAndLog = async () => {
+            const setActiveStatus = async () => {
                 await TaskService.setActiveStatus(
                     nearbyTasks[0].taskId,
                     game.gameCode
@@ -75,10 +81,10 @@ export default function GameView ({
 
             if (showTaskPopup) {
                 handleShowTaskPopup(false);
-                await setActiveStatusAndLog();
+                await setActiveStatus();
             } else {
                 handleShowTaskPopup(true);
-                await setActiveStatusAndLog();
+                await setActiveStatus();
             }
         }
     }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
@@ -159,28 +165,28 @@ export default function GameView ({
     }, [nearbySabotages]);
 
 
-    function handleKill() {
-       if (!isTimer && nearbyPlayers.length > 0) {
-           const playerToKillId = nearbyPlayers[0].id;
-           killPlayer(game?.gameCode as string, playerToKillId);
+    async function handleKill() {
+        if (!isTimer && nearbyPlayers.length > 0) {
+            const playerToKillId = nearbyPlayers[0].id;
+            killPlayer(game?.gameCode as string, playerToKillId, nearbyTasksForKill[0]?.taskId);
 
-           toast("You killed a crewmate!", {
-               position: "bottom-right",
-               style: {
-                   border: "2px solid black",
-                   padding: "16px",
-                   color: "black",
-                   backgroundColor: "#eF4444",
-               },
-               icon: "🔪",
-           });
+            toast("You killed a crewmate!", {
+                position: "bottom-right",
+                style: {
+                    border: "2px solid black",
+                    padding: "16px",
+                    color: "black",
+                    backgroundColor: "#eF4444",
+                },
+                icon: "🔪",
+            });
 
-           setIsTimer(true);
-           setTimeout(() => {
-               setIsTimer(false);
-           }, 20000);
-       }
-   }
+            setIsTimer(true);
+            setTimeout(() => {
+                setIsTimer(false);
+            }, 20000);
+        }
+    }
 
    function handleReportBody() {
        if (nearbyGhosts.length > 0) {

@@ -229,10 +229,11 @@ export default function PlayGame() {
     }
   }
 
-  async function killPlayer(gameCode: string, playerToKillId: number) {
+  async function killPlayer(gameCode: string, playerToKillId: number, nearbyTask: number) {
     const killMessage = {
       gameCode: gameCode,
       playerToKillId: playerToKillId,
+      nearbyTask: nearbyTask,
     };
     if (stompClient) {
       stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
