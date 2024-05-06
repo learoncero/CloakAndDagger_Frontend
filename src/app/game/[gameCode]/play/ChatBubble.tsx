@@ -3,10 +3,15 @@ import React from "react";
 type Props = {
   message: string;
   sender: string;
+  currentPlayerName: string;
 };
 
-export default function ChatBubble({ message, sender }: Props) {
-  const isCurrentUser = sender === "me"; // Assuming "me" indicates the current user
+export default function ChatBubble({
+  message,
+  sender,
+  currentPlayerName,
+}: Props) {
+  const isCurrentUser = sender === currentPlayerName;
 
   return (
     <div
@@ -19,7 +24,7 @@ export default function ChatBubble({ message, sender }: Props) {
           <span className="text-sm font-semibold text-white">{sender}</span>
         </div>
         <div
-          className={`flex flex-col leading-1.5 p-4 border-gray-950 bg-gray-800 rounded-e-xl rounded-es-xl ${
+          className={`flex flex-col leading-1.5 p-4 border-gray-950 rounded-e-xl rounded-es-xl ${
             isCurrentUser ? "bg-cyan-500" : "bg-gray-800"
           }`}
         >
