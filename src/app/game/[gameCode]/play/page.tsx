@@ -10,12 +10,18 @@ import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
-import GameView from "@/app/game/[gameCode]/play/GameView";
+import GameView from "./GameView";
 import { Toaster } from "react-hot-toast";
+import {sendCancelSabotageMessage,
+        sendGameEndMessage,
+        sendKillPlayerMessage,
+        sendMovePlayerMessage,
+        sendReportBodyMessage,
+        sendSabotageMessage } from "./PageSendFunctions"
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
-  const { gameCode } = useParams();
+  const { gameCode } = useParams<{ gameCode: string }>();
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
@@ -28,11 +34,21 @@ export default function PlayGame() {
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
   }
+
   const currentPlayer = game?.players?.find(
-      (player) => player.id.toString() === playerId
-  );
+      (player) => player.id.toString() === playerId);
+
+  const isGhost = (currentPlayer?.role === Role.CREWMATE_GHOST ||
+                           currentPlayer?.role === Role.IMPOSTOR_GHOST);
 
   const playerRole = currentPlayer?.role ?? "";
+
+  const isMovingAllowed =
+    (playerRole !== Role.CREWMATE_GHOST &&
+    playerRole !== Role.IMPOSTOR_GHOST &&
+    game?.gameStatus === GameStatus.IN_GAME &&
+    !showChat &&
+    !showTaskPopup);
 
   useEffect(() => {
     if(stompClient) {
@@ -56,9 +72,7 @@ export default function PlayGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [stompClient, game?.players, handleChatClose]);
-
-
+  }, [stompClient, game?.players]);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
@@ -68,27 +82,15 @@ export default function PlayGame() {
         setImpostorWinTimer((prevTime) => prevTime - 1);
       }, 1000);
     } else if (impostorWinTimer === 0) {
-      const endGameMessage = {
-        gameCode: gameCode,
-      };
-      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
+      sendGameEndMessage({stompClient, gameCode})
     }
-
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    if (
-      playerId &&
-      validKeyCodes.includes(keyCode) &&
-      playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.IN_GAME &&
-      !showChat &&
-      !showTaskPopup
-    ) {
+    if (playerId &&  validKeyCodes.includes(keyCode) && isMovingAllowed) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
         sendMoveMessage().then();
@@ -114,7 +116,6 @@ export default function PlayGame() {
     setShowChat(false);
   }
 
-  //todo needs to be sent to backend
   function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
     if (task) {
@@ -134,62 +135,24 @@ export default function PlayGame() {
         : false;
 
     if (!keyCodeToSend) return;
-
-    const moveMessage = {
-      id: playerId,
-      keyCode: keyCodeToSend,
-      gameCode: gameCode,
-      Mirrored: newMirroring,
-      isMoving: true,
-    };
-
-    if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
-      stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
-    }
+    sendMovePlayerMessage({stompClient, playerId, keyCodeToSend, gameCode, newMirroring, players: game.players});
   }
 
   async function killPlayer(gameCode: string, playerToKillId: number) {
-    const killMessage = {
-      gameCode: gameCode,
-      playerToKillId: playerToKillId,
-    };
-    if (stompClient) {
-      stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
-    }
+    sendKillPlayerMessage({stompClient, gameCode, playerToKillId});
   }
 
   async function reportBody(gameCode: string, bodyToReportId: number) {
-    const reportMessage = {
-      gameCode: gameCode,
-      bodyToReportId: bodyToReportId,
-    };
-    if (stompClient) {
-      stompClient.send(`/app/game/report`, {}, JSON.stringify(reportMessage));
-    }
+    sendReportBodyMessage({stompClient, gameCode, bodyToReportId});
   }
 
   async function getSabotagePosition(sabotageId: number) {
-    const sabotageMessage = {
-      gameCode: gameCode,
-      sabotageId: sabotageId,
-      map: game.map,
-    };
-    if (stompClient) {
-      stompClient.send(`/app/game/startSabotage`, {}, JSON.stringify(sabotageMessage));
-    }
+    sendSabotageMessage({stompClient, gameCode, sabotageId, map: game.map});
   }
 
   function handleCancelSabotage() {
-    if (impostorWinTimer > 0) {
-      stompClient.send(
-          `/app/game/${game.gameCode}/cancelSabotage`,
-          {},
-          JSON.stringify({})
-      );
-    }
+    sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCode});
   }
-
-  console.log("impostorWinTimer", impostorWinTimer);
 
   return (
 
@@ -198,12 +161,11 @@ export default function PlayGame() {
         {showChat && (
           <Chat
             onClose={handleChatClose}
-            gameCode={gameCode as string}
+            gameCode={gameCode}
             players={game.players}
           />
         )}
-        {currentPlayer?.role === Role.CREWMATE_GHOST ||
-         currentPlayer?.role === Role.IMPOSTOR_GHOST
+        {isGhost
         ?
         <Modal modalText={"GAME OVER!"}>
           <BackLink href={"/"}>Return to Landing Page</BackLink>
