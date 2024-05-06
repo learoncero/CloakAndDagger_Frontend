@@ -34,8 +34,6 @@ export default function PlayGame() {
 
   const playerRole = currentPlayer?.role ?? "";
 
-  //useGameSubscriptions(stompClient, updateGame);
-
   useEffect(() => {
     if(stompClient) {
       SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer);
