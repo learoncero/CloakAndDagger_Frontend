@@ -72,7 +72,7 @@ export default function PlayGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [stompClient, game?.players]);
+  }, [stompClient, game?.players, showTaskPopup]);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
