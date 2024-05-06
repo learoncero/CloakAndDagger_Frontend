@@ -77,14 +77,14 @@ const sprites: Sprites = {
         idle: '/Sprites/Black/BlackIdle.png'
     },
     turquoise: {
-        dead: '/Sprites/Türkis/TürkisDead.png',
+        dead: '/Sprites/Turquoise/TurquoiseDead.png',
         mov: [
-            '/Sprites/Türkis/Türkis1.png',
-            '/Sprites/Türkis/Türkis2.png',
-            '/Sprites/Türkis/Türkis3.png',
-            '/Sprites/Türkis/Türkis4.png'
+            '/Sprites/Turquoise/Turquoise1.png',
+            '/Sprites/Turquoise/Turquoise2.png',
+            '/Sprites/Turquoise/Turquoise3.png',
+            '/Sprites/Turquoise/Turquoise4.png'
         ],
-        idle: '/Sprites/Türkis/TürkisIdle.png'
+        idle: '/Sprites/Turquoise/TurquoiseIdle.png'
     }
 };
 
