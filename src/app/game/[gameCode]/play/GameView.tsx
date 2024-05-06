@@ -1,6 +1,6 @@
-import {useCallback, useEffect, useState} from "react";
-import {Game, Player, Role, Task, Sabotage} from "@/app/types";
-import toast, {Toaster} from "react-hot-toast";
+import { useCallback, useEffect, useState } from "react";
+import { Game, Player, Role, Task, Sabotage } from "@/app/types";
+import toast, { Toaster } from "react-hot-toast";
 import RoleInformation from "./RoleInformation";
 import SabotageList from "./SabotageList";
 import TaskList from "./TaskList";
@@ -14,36 +14,40 @@ import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
+import { stat } from "fs";
 
 type Props = {
-    game: Game;
-    map: string[][]
-    currentPlayer: Player;
-    getSabotagePosition: (sabotageId: number) => void;
-    handleCancelSabotage: () => void;
-    killPlayer: (gameCode: string, playerId: number, nearbyTask: number) => void;
-    reportBody: (gameCode: string, playerId: number) => void;
-    handleTaskCompleted: (taskId: number) => void;
-    showTaskPopup: boolean;
-    handleShowTaskPopup: (show: boolean) => void;
-}
+  game: Game;
+  map: string[][];
+  currentPlayer: Player;
+  getSabotagePosition: (sabotageId: number) => void;
+  handleCancelSabotage: () => void;
+  killPlayer: (gameCode: string, playerId: number, nearbyTaskForKill: number) => void;
+  reportBody: (gameCode: string, playerId: number) => void;
+  handleTaskCompleted: (taskId: number) => void;
+  showTaskPopup: boolean;
+  handleShowTaskPopup: (show: boolean) => void;
+};
 
-export default function GameView ({
-    game,
-    map,
-    currentPlayer,
-    getSabotagePosition,
-    handleCancelSabotage,
-    killPlayer,
-    reportBody,
-    handleTaskCompleted,
-    showTaskPopup,
-    handleShowTaskPopup,
+export default function GameView({
+  game,
+  map,
+  currentPlayer,
+  getSabotagePosition,
+  handleCancelSabotage,
+  killPlayer,
+  reportBody,
+  handleTaskCompleted,
+  showTaskPopup,
+  handleShowTaskPopup,
 }: Props) {
     const isImpostor = (currentPlayer?.role == Role.IMPOSTOR || currentPlayer?.role == Role.IMPOSTOR_GHOST);
     const [showMiniMap, setShowMiniMap] = useState(false);
     const [isTimer, setIsTimer] = useState(false);
-    const handleToggleMiniMap = () => { setShowMiniMap(!showMiniMap);};
+    const handleToggleMiniMap = () => {
+        setShowMiniMap(!showMiniMap);
+    };
+
     const nearbyTasks = useNearbyItems(
         game.tasks,
         currentPlayer.position
@@ -55,20 +59,22 @@ export default function GameView ({
         2
     ) as Task[];
 
-    const nearbySabotages = useNearbyItems(
-        game.sabotages,
-        currentPlayer.position
-    ) as Sabotage[];
+  const nearbySabotages = useNearbyItems(
+    game.sabotages,
+    currentPlayer.position
+  ) as Sabotage[];
 
-    const nearbyPlayers = useNearbyEntities(game?.players || [], currentPlayer as Player, [
-        Role.CREWMATE,
-        Role.IMPOSTOR,
-    ]);
+  const nearbyPlayers = useNearbyEntities(
+    game?.players || [],
+    currentPlayer as Player,
+    [Role.CREWMATE, Role.IMPOSTOR]
+  );
 
-    const nearbyGhosts = useNearbyEntities(game?.players || [], currentPlayer as Player, [
-        Role.CREWMATE_GHOST,
-        Role.IMPOSTOR_GHOST,
-    ]);
+  const nearbyGhosts = useNearbyEntities(
+    game?.players || [],
+    currentPlayer as Player,
+    [Role.CREWMATE_GHOST, Role.IMPOSTOR_GHOST]
+  );
 
     const handleToggleTaskPopup = useCallback(async () => {
         if (nearbyTasks.length > 0) {
@@ -79,90 +85,97 @@ export default function GameView ({
                 );
             };
 
-            if (showTaskPopup) {
-                handleShowTaskPopup(false);
-                await setActiveStatus();
-            } else {
-                handleShowTaskPopup(true);
-                await setActiveStatus();
-            }
-        }
-    }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
+      if (showTaskPopup) {
+        handleShowTaskPopup(false);
+        await setActiveStatus();
+        await TaskService.cancelTask(
+          nearbyTasks[0].taskId,
+          nearbyTasks[0].miniGameId,
+          game.gameCode
+        );
+      } else {
+        handleShowTaskPopup(true);
+        await setActiveStatus();
+      }
+    }
+  }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
 
-   useEffect(() => {
-       const handleKeyDown = (event: KeyboardEvent) => {
-           if (isImpostor && event.code === "KeyE") {
-               handleKill();
-           } else if (event.key === "m" || event.key === "M") {
-               setShowMiniMap((prev) => !prev);
-           } else if (event.code === "KeyR") {
-               handleReportBody();
-           }
-       };
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isImpostor && event.code === "KeyE") {
+        handleKill();
+      } else if (event.key === "m" || event.key === "M") {
+        setShowMiniMap((prev) => !prev);
+      } else if (event.code === "KeyR") {
+        handleReportBody();
+      }
+    };
 
-       window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
-       return () => {
-           window.removeEventListener("keydown", handleKeyDown);
-       };
-   }, [handleKill, setShowMiniMap]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKill, setShowMiniMap]);
 
     useEffect(() => {
         const handleKeyPress = async (event: KeyboardEvent) => {
             if (event.key === "e" || event.key === "E") {
                 if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE || nearbyTasks[0]?.completed) return;
 
-                const status = await TaskService.getActiveStatus(
-                    nearbyTasks[0].taskId,
-                    game.gameCode
-                );
+        const status = await TaskService.getActiveStatus(
+          nearbyTasks[0].taskId,
+          game.gameCode
+        );
 
-                if (status.data === true && !showTaskPopup) {
-                    toast("Task already occupied", {
-                        position: "bottom-right",
-                        style: {
-                            border: "2px solid black",
-                            padding: "16px",
-                            color: "white",
-                            backgroundColor: "#eF4444",
-                        },
-                        icon: "✖️",
-                    });
+        if (status.data === true && !showTaskPopup) {
+          toast("Task already occupied", {
+            position: "bottom-right",
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "white",
+              backgroundColor: "#eF4444",
+            },
+            icon: "✖️",
+          });
 
-                    return;
-                }
+          return;
+        } else if (status.data === false && !showTaskPopup) {
+          const response = await TaskService.startTask(
+            nearbyTasks[0].taskId,
+            nearbyTasks[0].miniGameId,
+            game.gameCode
+          );
+          if (response.status === 200) {
+            await handleToggleTaskPopup();
+          }
+        } else if (status.data === true && showTaskPopup) {
+          await handleToggleTaskPopup();
+        }
+      }
+    };
 
-                const response = await TaskService.startTask(
-                    nearbyTasks[0].taskId,
-                    nearbyTasks[0].miniGameId,
-                    game.gameCode
-                );
-                if (response.status === 200) {
-                    await handleToggleTaskPopup();
-                }
-            }
-        };
+    window.addEventListener("keydown", handleKeyPress);
 
-        window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "KeyC" && nearbySabotages.length > 0) {
+        handleCancelSabotage();
+      }
+    };
 
-    useEffect(() => {
-        const handleKeyPress = (event: KeyboardEvent) => {
-            if (event.code === "KeyC" && nearbySabotages.length > 0) {
-                handleCancelSabotage();
-            }
-        };
+    window.addEventListener("keydown", handleKeyPress);
 
-        window.addEventListener("keydown", handleKeyPress);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [nearbySabotages]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [nearbySabotages]);
 
 
     async function handleKill() {
@@ -188,114 +201,120 @@ export default function GameView ({
         }
     }
 
-   function handleReportBody() {
-       if (nearbyGhosts.length > 0) {
-           const bodyToReportId = nearbyGhosts[0].id;
-           if (!game.reportedBodies.includes(bodyToReportId)) {
-              reportBody(game.gameCode, bodyToReportId);
-           }
-       }
-   }
+  function handleReportBody() {
+    if (nearbyGhosts.length > 0) {
+      const bodyToReportId = nearbyGhosts[0].id;
+      if (!game.reportedBodies.includes(bodyToReportId)) {
+        reportBody(game.gameCode, bodyToReportId);
+      }
+    }
+  }
 
-   return (
-       <div>
-           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
-               <div className="flex-none w-1/4">
-                   <RoleInformation role={currentPlayer.role}/>`
-                   {isImpostor ?
-                       <SabotageList
-                           sabotages={game.sabotages}
-                           getSabotagePosition={getSabotagePosition}
-                       />
-                       :
-                       <TaskList tasks={game.tasks}/>
-                   }
-               </div>
-               <div className="flex-grow flex justify-center">
-                   {map ?
-                       <MapDisplay
-                            map={map}
-                            playerList={game.players}
-                            currentPlayer={currentPlayer}
-                            tasks={game.tasks}
-                            sabotages={game.sabotages ?? []}
-                            nearbyTask={nearbyTasks[0]}
-                       />
-                       :
-                       <div>Loading map...</div>
-                   }
-               </div>
+  return (
+    <div>
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
+        <div className="flex-none w-1/4">
+          <RoleInformation role={currentPlayer.role} />`
+          {isImpostor ? (
+            <SabotageList
+              sabotages={game.sabotages}
+              getSabotagePosition={getSabotagePosition}
+            />
+          ) : (
+            <TaskList tasks={game.tasks} />
+          )}
+        </div>
+        <div className="flex-grow flex justify-center">
+          {map ? (
+            <MapDisplay
+              map={map}
+              playerList={game.players}
+              currentPlayer={currentPlayer}
+              tasks={game.tasks}
+              sabotages={game.sabotages ?? []}
+              nearbyTask={nearbyTasks[0]}
+            />
+          ) : (
+            <div>Loading map...</div>
+          )}
+        </div>
 
-               <div className="flex-none w-1/4">
-                   <div className="mb-32">
-                       <MapButton handleToggleMiniMap={handleToggleMiniMap} label="Show MiniMap"/>
-                       <PlayerList playerId={currentPlayer.id} playerList={game.players}/>
-                       {isImpostor &&
-                           <CrewmateCounter playerList={game.players}/>
-                       }
-                   </div>
+        <div className="flex-none w-1/4">
+          <div className="mb-32">
+            <MapButton
+              handleToggleMiniMap={handleToggleMiniMap}
+              label="Show MiniMap"
+            />
+            <PlayerList playerId={currentPlayer.id} playerList={game.players} />
+            {isImpostor && <CrewmateCounter playerList={game.players} />}
+          </div>
 
-                   <div className="flex gap-5 justify-center">
-                       {isImpostor &&
-                           <ActionButton
-                               onClick={handleKill}
-                               buttonclickable={nearbyPlayers.length > 0 && !isTimer}
-                               colorActive="bg-red-600"
-                           >
-                               {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
-                           </ActionButton>
-                       }
-                       <ActionButton
-                           onClick={() => handleReportBody()}
-                           buttonclickable={
-                               nearbyGhosts.length > 0 &&
-                               !game.reportedBodies.includes(nearbyGhosts[0].id)
-                           }
-                           colorActive="bg-cyan-600"
-                       >
-                           📢 Report Body
-                       </ActionButton>
-                   </div>
-               </div>
-               <Toaster />
-               {showMiniMap && (
-                   <div className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
-                       onClick={() => setShowMiniMap(false)}>
-                       {isImpostor ?
-                           <SabotageList
-                               sabotages={game.sabotages}
-                               getSabotagePosition={getSabotagePosition}
-                           />
-                           :
-                           <TaskList tasks={game.tasks}/>
-                       }
-                       <div
-                           className="flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
-                           onClick={(e) => e.stopPropagation()}>
-                           <MiniMap
-                               map={map}
-                               playerList={game.players}
-                               currentPlayer={currentPlayer}
-                               closeMiniMap={() => setShowMiniMap(false)}
-                               tasks={game.tasks}
-                               sabotages={game.sabotages}
-                           />
-                       </div>
-                   </div>
-               )}
-               {isImpostor ?
-                   <Toaster/>
-                   :
-                   showTaskPopup ?
-                       <TaskGateway
-                           miniGameId={nearbyTasks[0].miniGameId}
-                           taskId={nearbyTasks[0].taskId}
-                           gameCode={game.gameCode}
-                           handleTaskCompleted={() => handleTaskCompleted(nearbyTasks[0].taskId)}
-                       />
-                   : ""
-               }
-           </div>
-       </div>
-   )
+          <div className="flex gap-5 justify-center">
+            {isImpostor && (
+              <ActionButton
+                onClick={handleKill}
+                buttonclickable={nearbyPlayers.length > 0 && !isTimer}
+                colorActive="bg-red-600"
+              >
+                {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
+              </ActionButton>
+            )}
+            <ActionButton
+              onClick={() => handleReportBody()}
+              buttonclickable={
+                nearbyGhosts.length > 0 &&
+                !game.reportedBodies.includes(nearbyGhosts[0].id)
+              }
+              colorActive="bg-cyan-600"
+            >
+              📢 Report Body
+            </ActionButton>
+          </div>
+        </div>
+        <Toaster />
+        {showMiniMap && (
+          <div
+            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
+            onClick={() => setShowMiniMap(false)}
+          >
+            {isImpostor ? (
+              <SabotageList
+                sabotages={game.sabotages}
+                getSabotagePosition={getSabotagePosition}
+              />
+            ) : (
+              <TaskList tasks={game.tasks} />
+            )}
+            <div
+              className="flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MiniMap
+                map={map}
+                playerList={game.players}
+                currentPlayer={currentPlayer}
+                closeMiniMap={() => setShowMiniMap(false)}
+                tasks={game.tasks}
+                sabotages={game.sabotages}
+              />
+            </div>
+          </div>
+        )}
+        {isImpostor ? (
+          <Toaster />
+        ) : showTaskPopup ? (
+          <TaskGateway
+            miniGameId={nearbyTasks[0].miniGameId}
+            taskId={nearbyTasks[0].taskId}
+            gameCode={game.gameCode}
+            handleTaskCompleted={() =>
+              handleTaskCompleted(nearbyTasks[0].taskId)
+            }
+          />
+        ) : (
+          ""
+        )}
+      </div>
+    </div>
+  );
 }
