@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Player, Role } from "@/app/types";
-import { useAnimation } from '@/app/AnimationContext';
+import React, {useEffect, useState} from 'react';
+import {Player, Role} from "@/app/types";
+import {useAnimation} from '@/app/AnimationContext';
 
 
 interface SpriteConfig {
@@ -76,7 +76,7 @@ const sprites: Sprites = {
         ],
         idle: '/Sprites/Black/BlackIdle.png'
     },
-    türkis: {
+    turquoise: {
         dead: '/Sprites/Türkis/TürkisDead.png',
         mov: [
             '/Sprites/Türkis/Türkis1.png',
@@ -92,17 +92,18 @@ const sprites: Sprites = {
 
 
 const getPlayerColor = (playerId: number): keyof Sprites => {
-    const colors: Array<keyof Sprites> = ['red', 'blue', 'brown' ,'black','pink','türkis','purple'];
+    const colors: Array<keyof Sprites> = ['red', 'blue', 'brown' ,'black','pink','turquoise','purple'];
     return colors[playerId % colors.length];
 };
 
 
 interface PlayerSpritesProps {
     player: Player;
+    currentPlayerRole: Role;
 }
 
 // Sprite Components
-const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player }) => {
+const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player, currentPlayerRole }: PlayerSpritesProps) => {
     const [isGhost, setIsGhost] = useState(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     const { spriteIndex } = useAnimation();
     const playerColor = getPlayerColor(player.id);
@@ -115,10 +116,14 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player }) => {
     // Current Sprite
     const spriteUrl = isGhost ? currentSprites.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
     const transformStyle = player.mirrored ? { transform: 'scaleX(-1)' } : {};
+    const isCurrentPlayerImpostor = (currentPlayerRole === Role.IMPOSTOR_GHOST || currentPlayerRole === Role.IMPOSTOR);
+    const isOtherPlayerImpostor = (player.role === Role.IMPOSTOR_GHOST || player.role === Role.IMPOSTOR);
+
+    const usernameColour = isCurrentPlayerImpostor && isOtherPlayerImpostor ? 'Crimson' : 'Black';
 
     return (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '60%', maxWidth: '90%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'Black' }}>
+            <div style={{ fontWeight: '700',  fontSize: '70%', maxWidth: '90%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: usernameColour}}>
                 {player.username}
             </div>
             <div style={{
