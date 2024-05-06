@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from "react";
 import {GameStatus, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
-//import useGameSubscriptions from "@/hooks/useGameSubscriptions"
+import {SetGameSubscriptions} from "./SetGameSubscriptions"
 import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
@@ -37,93 +37,14 @@ export default function PlayGame() {
   //useGameSubscriptions(stompClient, updateGame);
 
   useEffect(() => {
-    if (stompClient) {
-      stompClient.subscribe(
-          "/topic/positionChange",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-          }
-      );
-
-      stompClient.subscribe(
-          "/topic/IdleChange",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-          }
-      );
-
-      stompClient.subscribe(
-          "/topic/playerKill",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-          }
-      );
-
-      stompClient.subscribe(
-          "/topic/bodyReport",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-            setShowChat(true);
-          }
-      );
-
-      stompClient.subscribe(
-          "/topic/sabotageStart",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-            setImpostorWinTimer(30);
-            toast(
-                "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
-                {
-                  position: "top-center",
-                  style: {
-                    border: "2px solid black",
-                    padding: "16px",
-                    color: "white",
-                    backgroundColor: "#eF4444",
-                  },
-                  icon: "❕",
-                }
-            );
-          }
-      );
-
-      stompClient.subscribe(
-          "/topic/sabotageCancel",
-          (message: { body: string }) => {
-            const receivedMessage = JSON.parse(message.body);
-            updateGame(receivedMessage.body);
-            setImpostorWinTimer(-1);
-            toast("Sabotage cancelled. Crewmates, you're safe for now!", {
-              position: "top-center",
-              style: {
-                border: "2px solid black",
-                padding: "16px",
-                color: "white",
-                backgroundColor: "#eF4444",
-              },
-              icon: "❕",
-            });
-          }
-      );
-
-      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
-        const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage.body);
-      });
+    if(stompClient) {
+      SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer);
     }
-
     return () => {
-      // Unsubscribe from WebSocket events when the component unmounts
       if (stompClient) {
-        stompClient.disconnect(); // Disconnect from WebSocket
+        stompClient.unsubscribe();
       }
-    };
+    }
   }, [stompClient]);
 
   useEffect(() => {
