@@ -22,7 +22,7 @@ type Props = {
   currentPlayer: Player;
   getSabotagePosition: (sabotageId: number) => void;
   handleCancelSabotage: () => void;
-  killPlayer: (gameCode: string, playerId: number) => void;
+  killPlayer: (gameCode: string, playerId: number, nearbyTaskForKill: number) => void;
   reportBody: (gameCode: string, playerId: number) => void;
   handleTaskCompleted: (taskId: number) => void;
   showTaskPopup: boolean;
@@ -41,18 +41,23 @@ export default function GameView({
   showTaskPopup,
   handleShowTaskPopup,
 }: Props) {
-  const isImpostor =
-    currentPlayer?.role == Role.IMPOSTOR ||
-    currentPlayer?.role == Role.IMPOSTOR_GHOST;
-  const [showMiniMap, setShowMiniMap] = useState(false);
-  const [isTimer, setIsTimer] = useState(false);
-  const handleToggleMiniMap = () => {
-    setShowMiniMap(!showMiniMap);
-  };
-  const nearbyTasks = useNearbyItems(
-    game.tasks,
-    currentPlayer.position
-  ) as Task[];
+    const isImpostor = (currentPlayer?.role == Role.IMPOSTOR || currentPlayer?.role == Role.IMPOSTOR_GHOST);
+    const [showMiniMap, setShowMiniMap] = useState(false);
+    const [isTimer, setIsTimer] = useState(false);
+    const handleToggleMiniMap = () => {
+        setShowMiniMap(!showMiniMap);
+    };
+
+    const nearbyTasks = useNearbyItems(
+        game.tasks,
+        currentPlayer.position
+    ) as Task[];
+
+    const nearbyTasksForKill = useNearbyItems(
+        game.tasks,
+        currentPlayer.position,
+        2
+    ) as Task[];
 
   const nearbySabotages = useNearbyItems(
     game.sabotages,
@@ -71,15 +76,18 @@ export default function GameView({
     [Role.CREWMATE_GHOST, Role.IMPOSTOR_GHOST]
   );
 
-  const handleToggleTaskPopup = useCallback(async () => {
-    if (nearbyTasks.length > 0) {
-      const setActiveStatusAndLog = async () => {
-        await TaskService.setActiveStatus(nearbyTasks[0].taskId, game.gameCode);
-      };
+    const handleToggleTaskPopup = useCallback(async () => {
+        if (nearbyTasks.length > 0) {
+            const setActiveStatus = async () => {
+                await TaskService.setActiveStatus(
+                    nearbyTasks[0].taskId,
+                    game.gameCode
+                );
+            };
 
       if (showTaskPopup) {
         handleShowTaskPopup(false);
-        await setActiveStatusAndLog();
+        await setActiveStatus();
         await TaskService.cancelTask(
           nearbyTasks[0].taskId,
           nearbyTasks[0].miniGameId,
@@ -87,7 +95,7 @@ export default function GameView({
         );
       } else {
         handleShowTaskPopup(true);
-        await setActiveStatusAndLog();
+        await setActiveStatus();
       }
     }
   }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
@@ -110,11 +118,10 @@ export default function GameView({
     };
   }, [handleKill, setShowMiniMap]);
 
-  useEffect(() => {
-    const handleKeyPress = async (event: KeyboardEvent) => {
-      if (event.key === "e" || event.key === "E") {
-        if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE)
-          return;
+    useEffect(() => {
+        const handleKeyPress = async (event: KeyboardEvent) => {
+            if (event.key === "e" || event.key === "E") {
+                if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE || nearbyTasks[0]?.completed) return;
 
         const status = await TaskService.getActiveStatus(
           nearbyTasks[0].taskId,
@@ -170,28 +177,29 @@ export default function GameView({
     };
   }, [nearbySabotages]);
 
-  function handleKill() {
-    if (!isTimer && nearbyPlayers.length > 0) {
-      const playerToKillId = nearbyPlayers[0].id;
-      killPlayer(game?.gameCode as string, playerToKillId);
 
-      toast("You killed a crewmate!", {
-        position: "bottom-right",
-        style: {
-          border: "2px solid black",
-          padding: "16px",
-          color: "black",
-          backgroundColor: "#eF4444",
-        },
-        icon: "🔪",
-      });
+    async function handleKill() {
+        if (!isTimer && nearbyPlayers.length > 0) {
+            const playerToKillId = nearbyPlayers[0].id;
+            killPlayer(game?.gameCode as string, playerToKillId, nearbyTasksForKill[0]?.taskId);
 
-      setIsTimer(true);
-      setTimeout(() => {
-        setIsTimer(false);
-      }, 20000);
+            toast("You killed a crewmate!", {
+                position: "bottom-right",
+                style: {
+                    border: "2px solid black",
+                    padding: "16px",
+                    color: "black",
+                    backgroundColor: "#eF4444",
+                },
+                icon: "🔪",
+            });
+
+            setIsTimer(true);
+            setTimeout(() => {
+                setIsTimer(false);
+            }, 20000);
+        }
     }
-  }
 
   function handleReportBody() {
     if (nearbyGhosts.length > 0) {

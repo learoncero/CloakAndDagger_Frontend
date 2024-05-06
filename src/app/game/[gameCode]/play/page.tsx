@@ -12,6 +12,7 @@ import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "@/app/game/[gameCode]/play/GameView";
 import toast, { Toaster } from "react-hot-toast";
+import TaskService from "@/services/TaskService";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
@@ -195,12 +196,17 @@ export default function PlayGame() {
     setShowChat(false);
   }
 
-  //todo needs to be sent to backend
-  function handleTaskCompleted(taskId: number) {
+  async function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
-    if (task) {
+    const isCompleted = await TaskService.getCompletedStatus(
+        taskId,
+        game.gameCode
+    );
+
+    if (isCompleted.data === true && task) {
       task.completed = true;
     }
+
     setShowTaskPopup(false);
   }
 
@@ -229,10 +235,11 @@ export default function PlayGame() {
     }
   }
 
-  async function killPlayer(gameCode: string, playerToKillId: number) {
+  async function killPlayer(gameCode: string, playerToKillId: number, nearbyTask: number) {
     const killMessage = {
       gameCode: gameCode,
       playerToKillId: playerToKillId,
+      nearbyTask: nearbyTask,
     };
     if (stompClient) {
       stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));

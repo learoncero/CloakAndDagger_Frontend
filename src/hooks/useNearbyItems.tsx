@@ -6,7 +6,8 @@ type NearbyItem = TaskType | SabotageType;
 
 export default function useNearbyItems(
     items: NearbyItem[],
-    currentPlayerPosition: Position
+    currentPlayerPosition: Position,
+    range: number = 1
 ) {
   const [nearbyItems, setNearbyItems] = useState<NearbyItem[]>([]);
 
@@ -15,8 +16,8 @@ export default function useNearbyItems(
       const filteredItems = items.filter(
         (item) =>
           item.position &&
-          Math.abs(item.position.x - currentPlayerPosition.x) <= 1 &&
-          Math.abs(item.position.y - currentPlayerPosition.y) <= 1
+          Math.abs(item.position.x - currentPlayerPosition.x) <= range &&
+          Math.abs(item.position.y - currentPlayerPosition.y) <= range
       );
       setNearbyItems(filteredItems);
     };
@@ -24,7 +25,7 @@ export default function useNearbyItems(
     const filterInterval = setInterval(filterNearbyItems, 200);
 
     return () => clearInterval(filterInterval);
-  }, [currentPlayerPosition, items]);
+  }, [currentPlayerPosition, items, range]);
 
   return nearbyItems;
 }

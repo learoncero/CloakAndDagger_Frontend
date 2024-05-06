@@ -51,4 +51,14 @@ export default class TaskService {
 
     return isActive as ApiResponse;
   }
+
+  static async getCompletedStatus(taskId: number, gameCode: string) {
+    const isCompleted = await ApiService.post(
+        "game",
+        `/api/game/task/${gameCode}/done`,
+        taskId
+    );
+
+    return isCompleted as ApiResponse;
+  }
 }
