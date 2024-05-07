@@ -91,28 +91,19 @@ const sprites: Sprites = {
 
 
 
-const getPlayerColor = (playerId: number): keyof Sprites => {
-    const colors: Array<keyof Sprites> = ['red', 'blue', 'brown' ,'black','pink','türkis','purple'];
-    return colors[playerId % colors.length];
-};
-
-
 interface PlayerSpritesProps {
     player: Player;
 }
 
-// Sprite Components
 const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player }) => {
     const [isGhost, setIsGhost] = useState(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     const { spriteIndex } = useAnimation();
-    const playerColor = getPlayerColor(player.id);
-    const currentSprites = sprites[playerColor];
+    const currentSprites = sprites[player.playerColor];
 
     useEffect(() => {
         setIsGhost(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     }, [player.role]);
 
-    // Current Sprite
     const spriteUrl = isGhost ? currentSprites.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
     const transformStyle = player.mirrored ? { transform: 'scaleX(-1)' } : {};
 

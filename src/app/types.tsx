@@ -18,6 +18,7 @@ export type Player = {
   role: Role;
   mirrored: boolean;
   moving: boolean;
+  playerColor: string;
 };
 
 export type Task = {

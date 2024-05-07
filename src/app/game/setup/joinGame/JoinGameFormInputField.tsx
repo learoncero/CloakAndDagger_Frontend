@@ -1,34 +1,59 @@
+import React, {ChangeEvent} from "react";
+
 type Props = {
   name: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => void;
   type: string;
   placeholder: string;
   required: boolean;
   maxLength?: number;
+  options?: string[]; // Updated to string array type
 };
 
 export default function JoinGameFormInputField({
-  name,
-  value,
-  onChange,
-  type,
-  placeholder,
-  required,
-  maxLength,
-}: Props) {
-  return (
-    <div className="mb-4">
-      <input
-        className="w-full bg-transparent border border-white text-white font-bold py-3 rounded-lg text-xl text-center"
-        type={type}
-        placeholder={placeholder}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        maxLength={maxLength}
-      />
-    </div>
-  );
+                                                 name,
+                                                 value,
+                                                 onChange,
+                                                 type,
+                                                 placeholder,
+                                                 required,
+                                                 maxLength,
+                                                 options = [],
+                                               }: Props) {
+  if (type === "select") {
+    return (
+        <div className="mb-4">
+          <select
+              className="w-full bg-transparent border border-white text-white font-bold py-3 rounded-lg text-xl text-center"
+              name={name}
+              value={value}
+              onChange={onChange}
+              required={required}
+          >
+            <option value="">{placeholder}</option>
+            {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+            ))}
+          </select>
+        </div>
+    );
+  } else {
+    return (
+        <div className="mb-4">
+          <input
+              className="w-full bg-transparent border border-white text-white font-bold py-3 rounded-lg text-xl text-center"
+              type={type}
+              placeholder={placeholder}
+              name={name}
+              value={value}
+              onChange={onChange}
+              required={required}
+              maxLength={maxLength}
+          />
+        </div>
+    );
+  }
 }

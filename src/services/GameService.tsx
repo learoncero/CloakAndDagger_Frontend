@@ -9,12 +9,14 @@ export default class GameService {
 
   static async createGame(
     player: Player,
+    playerColor: string,
     numberOfPlayers: number,
     numberOfImpostors: number,
     map: string
   ) {
     const createdGame = await ApiService.post("game", "/api/game", {
       player,
+      playerColor,
       numberOfPlayers,
       numberOfImpostors,
       map,
@@ -23,7 +25,7 @@ export default class GameService {
     return createdGame as ApiResponse<Game>;
   }
 
-  static async joinGame(username: string, gameCode: string) {
+  static async joinGame(username: string, gameCode: string, playerColor: string) {
     const joinedGame = await ApiService.post("game", "/api/game/join", {
       username,
       position: {
@@ -31,6 +33,7 @@ export default class GameService {
         y: 9,
       },
       gameCode,
+      playerColor,
     });
 
     if (joinedGame.status !== 200) {
