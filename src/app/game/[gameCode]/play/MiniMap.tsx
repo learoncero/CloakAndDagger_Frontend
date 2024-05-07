@@ -18,10 +18,10 @@ const MiniMap: React.FC<Props> = ({
   currentPlayer,
   tasks,
   sabotages,
-}) => {
-  if (!map) {
-    return <div>Can not show Minimap right now</div>;
-  }
+  } : Props) => {
+    if (!map) {
+        return <div>Can not show Minimap right now</div>;
+    }
 
   const viewRadius = 4;
   const totalViewSize = 2 * viewRadius + 1;
@@ -80,36 +80,37 @@ const MiniMap: React.FC<Props> = ({
                 sabotage.position.y === rowIndex
             );
 
-            return (
-              <div
-                key={cellIndex}
-                style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
-                className={`border border-white box-border 
-                                ${
-                                  cell != "#"
-                                    ? !isVisible
-                                      ? "bg-gray-200"
-                                      : "bg-gray-400"
-                                    : !isVisible
-                                    ? "bg-red-950 opacity-30"
-                                    : "bg-red-950"
-                                } 
-                                ${
-                                  isPlayerHere && isVisible ? "bg-red-600" : ""
-                                } 
-                                `}
-              >
-                {sabotageInCell != undefined && <SabotageIconDisplay />}
-                {taskInCell && isVisible && (
-                  <TaskIconDisplay completed={taskInCell.completed} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-};
 
+            return (
+                <div key={cellIndex} style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
+                     className={`border border-white box-border 
+                    ${cell!= '#' 
+                      ? !isVisible 
+                        ? 'bg-gray-200' 
+                        : 'bg-gray-400' 
+                      : !isVisible 
+                        ? 'bg-red-950 opacity-30' 
+                        : 'bg-red-950'} 
+                    ${isPlayerHere && isVisible 
+                      ? 'bg-red-600' 
+                      : ''} 
+                    `}>
+                    {sabotageInCell != undefined && (
+                      <SabotageIconDisplay/>
+                    )}
+                    {taskInCell && isVisible && (
+                      <TaskIconDisplay
+                        completed={taskInCell.completed}
+                        isTaskInteractable={false}
+                        role={currentPlayer.role}
+                      />
+                    )}
+                </div>
+              );
+           })}
+      </div>
+    ))}
+  </div>
+   );
+};
 export default MiniMap;

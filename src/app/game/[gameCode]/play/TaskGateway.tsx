@@ -20,17 +20,15 @@ export default function TaskGateway({
       return (
           <div>
             <TaskPasscode
-              // TODO id should be taskId
               taskId={taskId}
               gameCode={gameCode}
               handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
             />
           </div>
       );
-      case 2:
+    case 2:
       return (
           <TaskColorSeq
-              // TODO id should be taskId
               taskId={taskId}
               gameCode={gameCode}
               handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}

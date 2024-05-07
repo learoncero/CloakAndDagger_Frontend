@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import TaskService from "@/services/MiniGameService";
 import TaskCompletedPopup from "@/app/game/[gameCode]/play/TaskCompletedPopup";
-import MiniGameService from "@/services/MiniGameService";
+import MiniGameColorSeqService from "@/services/MiniGameColorSeqService";
 
 type TaskColorSeqProps = {
     taskId: number;
@@ -18,9 +17,9 @@ export default function TaskColorSeq({taskId, gameCode, handleTaskCompleted}: Ta
     useEffect(() => {
         const initializeGame = async () => {
             try {
-                const initialColors = await MiniGameService.getInitialColors(gameCode, taskId);
+                const initialColors = await MiniGameColorSeqService.getInitialColors(gameCode, taskId);
                 setInitialColors(initialColors);
-                const shuffledColors = await MiniGameService.getShuffledColors(gameCode, taskId);
+                const shuffledColors = await MiniGameColorSeqService.getShuffledColors(gameCode, taskId);
                 setShuffledColors(shuffledColors);
             } catch (err) {
                 console.error('Failed to fetch shuffled colors:', err);
@@ -41,7 +40,7 @@ export default function TaskColorSeq({taskId, gameCode, handleTaskCompleted}: Ta
     };
 
     const handleSubmission = async () => {
-        const result = await TaskService.submitColorSequence(selectedColors, shuffledColors, taskId, gameCode);
+        const result = await MiniGameColorSeqService.submitColorSequence(selectedColors, shuffledColors, taskId, gameCode);
         if (result) {
             setIsShowTaskCompletedPopUp(true);
         } else {
@@ -61,7 +60,6 @@ export default function TaskColorSeq({taskId, gameCode, handleTaskCompleted}: Ta
             ) : (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
                     <div className="flex flex-col items-center bg-black rounded-lg p-8 max-w-md">
-                        <button className="self-end text-white text-2xl" onClick={onClose}>×</button>
                         <h2 className="text-2xl font-bold mb-4">Task: Color Code</h2>
                         <p className="text-lg">Select the right order of Colors:</p>
                         <div className="flex gap-2 mt-2">

@@ -1,6 +1,7 @@
-import { Player, Task, Sabotage, Role } from "@/app/types";
-import PlayerSprites from "./PlayerSprites";
-import TaskIconDisplay from "./TaskIconDisplay";
+
+import {Player, Task, Sabotage} from "@/app/types";
+import PlayerSprites from './PlayerSprites';
+import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
 
 type Props = {
@@ -11,7 +12,6 @@ type Props = {
   sabotages: Sabotage[];
   nearbyTask?: Task;
 };
-
 export default function MapDisplay({
   map,
   playerList,
@@ -47,58 +47,42 @@ export default function MapDisplay({
   startY = Math.max(0, startY);
 
   return (
-    <div className="relative border-3 border-black">
-      {map.slice(startY, endY).map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
-          {row.slice(startX, endX).map((cell, cellIndex) => {
-            const cellPosX = cellIndex + startX;
-            const cellPosY = rowIndex + startY;
-            const isPlayerHere = playerList.some(
-              (player) =>
-                player.position.x === cellPosX && player.position.y === cellPosY
-            );
-            const taskInCell = tasks.find(
-              (task) =>
-                task.position.x === cellPosX && task.position.y === cellPosY
-            );
-            const sabotageInCell = sabotages.find(
-              (sabotage) =>
-                sabotage.position &&
-                sabotage.position.x === cellPosX &&
-                sabotage.position.y === cellPosY
-            );
-            return (
-              <div
-                key={cellIndex}
-                className={`w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border border-1 border-gray-300 box-border 
-                                  ${
-                                    cell != "#" ? "bg-gray-400" : "bg-red-950"
-                                  }`}
-              >
-                {isPlayerHere &&
-                  playerList
-                    .filter(
-                      (player) =>
-                        player.position.x === cellPosX &&
-                        player.position.y === cellPosY
-                    )
-                    .map((player) => (
-                      <PlayerSprites key={player.id} player={player} />
-                      // eslint-disable-next-line react/jsx-no-comment-textnodes
-                    ))}
+      <div className="relative border-3 border-black">
+        {map.slice(startY, endY).map((row, rowIndex) => (
+            <div key={rowIndex} className="flex">
+              {row.slice(startX, endX).map((cell, cellIndex) => {
+                const cellPosX = cellIndex + startX;
+                const cellPosY = rowIndex + startY;
+                const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
+                const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
+                const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
+                return (
+                    <div
+                        key={cellIndex}
+                        className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
+                                  ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
+                    >
+                    {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
+                          .map(player => (
+                              <PlayerSprites key={player.id} player={player} />
+                              // eslint-disable-next-line react/jsx-no-comment-textnodes
+                          ))}
 
-                {taskInCell !== undefined && (
-                  <TaskIconDisplay
-                    completed={taskInCell.completed}
-                    isTaskInteractable={!!nearbyTask}
-                  />
-                )}
-                {sabotageInCell !== undefined && <SabotageIconDisplay />}
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
+                      {taskInCell !== undefined && (
+                          <TaskIconDisplay
+                              completed={taskInCell.completed}
+                              isTaskInteractable={!!nearbyTask}
+                              role={currentPlayer.role}
+                          />
+                      )}
+                      {sabotageInCell !== undefined && (
+                          <SabotageIconDisplay/>
+                      )}
+                    </div>
+                );
+              })}
+            </div>
+        ))}
+      </div>
   );
 }

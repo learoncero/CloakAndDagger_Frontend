@@ -1,3 +1,4 @@
+/*
 import { useCallback, useEffect, useState } from "react";
 import RoleInformation from "./RoleInformation";
 import MapButton from "@/app/game/[gameCode]/play/MapButton";
@@ -9,7 +10,7 @@ import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
 import TaskGateway from "@/app/game/[gameCode]/play/TaskGateway";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
-import MiniGameService from "@/services/MiniGameService";
+import TaskService from "@/services/TaskService";
 import useNearbyItems from "@/hooks/useNearbyItems";
 
 type Props = {
@@ -70,7 +71,7 @@ export default function CrewmateView({
     const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.key === "e" || event.key === "E") {
         if (nearbyTasks.length === 0) return;
-        const response = await MiniGameService.startTask(
+        const response = await TaskService.startTask(
           nearbyTasks[0].taskId,
           nearbyTasks[0].miniGameId,
           game.gameCode
@@ -221,3 +222,4 @@ export default function CrewmateView({
     </div>
   );
 }
+*/

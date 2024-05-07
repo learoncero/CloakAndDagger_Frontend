@@ -6,7 +6,6 @@ interface TaskCompletedPopupProps {
 
 export default function TaskCompletedPopup({ onClose }: TaskCompletedPopupProps){
     useEffect(() => {
-        console.log("TaskGateway completed");
         const timer = setTimeout(() => {
             onClose();
         }, 1500);

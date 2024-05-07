@@ -42,11 +42,10 @@ export default class ApiService {
   }
 
   static getBackendUrl(microservice: string) {
-    // Define backend URLs based on microservice
     const backendUrls: { [key: string]: string } = {
       game: "http://localhost:5010",
       chat: "http://localhost:5011",
-      task: "http://localhost:5022",
+      minigame: "http://localhost:5022",
     };
 
     return backendUrls[microservice];
