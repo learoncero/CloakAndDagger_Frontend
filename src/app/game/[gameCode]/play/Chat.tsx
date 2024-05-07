@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Chat as ChatType, Player } from "@/app/types";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import ChatBubble from "./ChatBubble";
-import { startChat } from "./actions";
+import { endChat } from "./actions";
 import ChatMessageInputField from "./ChatMessageInputField";
 import ChatSendButton from "./ChatSendButton";
 
@@ -17,7 +17,8 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
   const [stompClient, setStompClient] = useState<any>(null);
   const [chat, setChat] = useState<ChatType>({} as ChatType);
   const [message, setMessage] = useState("");
-  const [remainingTime, setRemainingTime] = useState<number>(60);
+  const [remainingTime, setRemainingTime] = useState<number>(30);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!stompClient) {
@@ -33,8 +34,6 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
         }
       };
     }
-
-    handleStartChat();
   }, [stompClient]);
 
   useEffect(() => {
@@ -68,14 +67,19 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
   useEffect(() => {
     if (remainingTime === 0) {
       onClose();
+      handleEndChat();
     }
   }, [remainingTime, onClose]);
 
-  async function handleStartChat() {
-    const response = await startChat(gameCode as string);
-    if (response.status === 200) {
-      setChat(response.data as ChatType);
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
+  }, [chat]);
+
+  async function handleEndChat() {
+    await endChat(gameCode as string);
   }
 
   function updateMessage(message: string) {
@@ -106,7 +110,10 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
         <h2 className="text-3xl font-bold mb-4 text-white border-b pt-10 pb-5">
           Chat - Remaining Time: {remainingTime} seconds
         </h2>
-        <div className="h-96 rounded-lg overflow-y-auto pb-5 scrollbar-hide scroll-auto">
+        <div
+          ref={chatContainerRef}
+          className="h-96 rounded-lg overflow-y-scroll pb-5 scrollbar-hide scroll-smooth"
+        >
           {chat?.chatMessages?.map((chatMessage, index) => (
             <ChatBubble
               key={index}
@@ -120,6 +127,7 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
           <ChatMessageInputField
             updateMessage={updateMessage}
             message={message}
+            onMessageSend={onMessageSend}
           />
           <ChatSendButton onMessageSend={onMessageSend} />
         </div>
