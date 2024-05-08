@@ -86,7 +86,7 @@ export default function JoinGameForm() {
               type={"select"}
               placeholder={"Choose your Color"}
               required={true}
-              options={["red", "green", "blue"]}
+              options={["red", "black", "blue","pink","purple","brown","türkis"]}
           />
           <JoinGameFormSubmitButton isJoinDisabled={isJoinDisabled} />
         </form>

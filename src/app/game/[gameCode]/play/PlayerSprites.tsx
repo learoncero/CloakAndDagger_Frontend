@@ -98,7 +98,7 @@ interface PlayerSpritesProps {
 const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player }) => {
     const [isGhost, setIsGhost] = useState(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     const { spriteIndex } = useAnimation();
-    const currentSprites = sprites[player.playerColor];
+    const currentSprites = sprites[player.playerColor]; // Use playerColor directly
 
     useEffect(() => {
         setIsGhost(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);

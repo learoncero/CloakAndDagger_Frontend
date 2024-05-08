@@ -53,7 +53,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
             onChange={(e) => setPlayerColor(e.target.value)}
             type={"select"}
             required={true}
-            options={["red", "green", "blue"]}
+            options={["red", "black", "blue","pink","purple","brown","türkis"]}
         />
       <CreateGameFormInputField
         label="Number of Players"

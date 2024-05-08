@@ -13,6 +13,7 @@ import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "@/app/game/[gameCode]/play/GameView";
 import toast, { Toaster } from "react-hot-toast";
 import TaskService from "@/services/TaskService";
+import {Console} from "inspector";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
@@ -278,7 +279,6 @@ export default function PlayGame() {
   }
 
   console.log("impostorWinTimer", impostorWinTimer);
-
   return (
 
     <AnimationProvider>

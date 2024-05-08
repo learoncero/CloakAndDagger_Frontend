@@ -9,17 +9,18 @@ export default class GameService {
 
   static async createGame(
     player: Player,
-    playerColor: string,
     numberOfPlayers: number,
     numberOfImpostors: number,
-    map: string
+    map: string,
+    playerColor: string,
+
   ) {
     const createdGame = await ApiService.post("game", "/api/game", {
       player,
-      playerColor,
       numberOfPlayers,
       numberOfImpostors,
       map,
+      playerColor
     });
 
     return createdGame as ApiResponse<Game>;
