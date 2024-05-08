@@ -19,6 +19,7 @@ import {sendCancelSabotageMessage,
         sendReportBodyMessage,
         sendSabotageMessage } from "./PageSendFunctions"
 import TaskService from "@/services/TaskService";
+import {Console} from "inspector";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");

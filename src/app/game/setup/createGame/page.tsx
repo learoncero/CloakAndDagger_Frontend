@@ -13,7 +13,7 @@ export default function CreateGamePage() {
 
     if (result.status === 200) {
       router.push("/game/setup/lobby/" + result.data?.gameCode);
-      const playerId = result.data?.players[0]?.id;
+      const playerId = result.data?.players[0]?.id
       if (playerId) {
         window.sessionStorage.setItem("playerId", String(playerId)); //TODO: Change to cookie
       }
