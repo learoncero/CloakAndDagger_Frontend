@@ -15,11 +15,28 @@ export default class TaskService {
     return startedTask as ApiResponse;
   }
 
+  static async cancelTask(
+    taskId: number,
+    miniGameId: number,
+    gameCode: string
+  ) {
+    const cancelledTask = await ApiService.post(
+      "minigame",
+      `/api/minigame/${gameCode}/cancel`,
+      {
+        taskId,
+        miniGameId,
+      }
+    );
+
+    return cancelledTask as ApiResponse;
+  }
+
   static async getActiveStatus(taskId: number, gameCode: string) {
     const status = await ApiService.post(
-        "game",
-        `/api/game/task/${gameCode}/status`,
-          taskId
+      "game",
+      `/api/game/task/${gameCode}/status`,
+      taskId
     );
 
     return status as ApiResponse;
@@ -27,11 +44,21 @@ export default class TaskService {
 
   static async setActiveStatus(taskId: number, gameCode: string) {
     const isActive = await ApiService.post(
-        "game",
-        `/api/game/task/${gameCode}/active`,
-          taskId
+      "game",
+      `/api/game/task/${gameCode}/active`,
+      taskId
     );
 
     return isActive as ApiResponse;
+  }
+
+  static async getCompletedStatus(taskId: number, gameCode: string) {
+    const isCompleted = await ApiService.post(
+        "game",
+        `/api/game/task/${gameCode}/done`,
+        taskId
+    );
+
+    return isCompleted as ApiResponse;
   }
 }

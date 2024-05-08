@@ -1,14 +1,14 @@
 "use client";
 
-import {useEffect, useRef, useState} from "react";
-import {GameStatus, Role} from "@/app/types";
+import { useEffect, useRef, useState } from "react";
+import { GameStatus, Player, Role } from "@/app/types";
 import useGame from "@/hooks/useGame";
 import {SetGameSubscriptions} from "./SetGameSubscriptions"
 import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
-import {AnimationProvider} from "@/app/AnimationContext";
+import { AnimationProvider } from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "./GameView";
 import { Toaster } from "react-hot-toast";
@@ -18,6 +18,7 @@ import {sendCancelSabotageMessage,
         sendMovePlayerMessage,
         sendReportBodyMessage,
         sendSabotageMessage } from "./PageSendFunctions"
+import TaskService from "@/services/TaskService";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
@@ -118,9 +119,15 @@ export default function PlayGame() {
 
   function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
-    if (task) {
+    const isCompleted = await TaskService.getCompletedStatus(
+        taskId,
+        game.gameCode
+    );
+
+    if (isCompleted.data === true && task) {
       task.completed = true;
     }
+
     setShowTaskPopup(false);
   }
 
@@ -138,8 +145,16 @@ export default function PlayGame() {
     sendMovePlayerMessage({stompClient, playerId, keyCodeToSend, gameCode, newMirroring, players: game.players});
   }
 
-  async function killPlayer(gameCode: string, playerToKillId: number) {
-    sendKillPlayerMessage({stompClient, gameCode, playerToKillId});
+  async function killPlayer(gameCode: string, playerToKillId: number, nearbyTask: number) {
+    sendKillPlayerMessage({stompClient, gameCode, playerToKillId}); // todo update sendKillPlayerMessage
+  const killMessage = {
+      gameCode: gameCode,
+      playerToKillId: playerToKillId,
+      nearbyTask: nearbyTask,
+    };
+    if (stompClient) {
+      stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
+    }
   }
 
   async function reportBody(gameCode: string, bodyToReportId: number) {
@@ -155,14 +170,13 @@ export default function PlayGame() {
   }
 
   return (
-
     <AnimationProvider>
       <div className="min-h-screen min-w-screen bg-black text-white">
         {showChat && (
           <Chat
             onClose={handleChatClose}
             gameCode={gameCode}
-            players={game.players}
+            currentPlayer={currentPlayer as Player}
           />
         )}
         {isGhost
