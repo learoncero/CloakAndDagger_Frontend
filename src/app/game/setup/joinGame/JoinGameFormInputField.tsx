@@ -23,16 +23,16 @@ export default function JoinGameFormInputField({
                                                }: Props) {
   if (type === "select") {
     return (
-        <div className="mb-4">
+        <div className="mb-4" >
           <select
-              className="w-full bg-transparent border border-white text-white font-bold py-3 rounded-lg text-xl text-center focus:bg-black"
+              className="font-sans w-full bg-transparent border border-white text-white font-bold py-3 rounded-lg text-xl text-center focus:bg-black"
               name={name}
               value={value}
               onChange={onChange}
               required={required}
           >
             {options.map((option) => (
-                <option key={option} value={option}>
+                <option key={option} value={option} className={"text-lg"}>
                   {option}
                 </option>
             ))}
