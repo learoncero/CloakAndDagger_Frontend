@@ -3,19 +3,26 @@
 import { useEffect, useRef, useState } from "react";
 import { GameStatus, Player, Role } from "@/app/types";
 import useGame from "@/hooks/useGame";
-//import useGameSubscriptions from "@/hooks/useGameSubscriptions"
-import { useParams } from "next/navigation";
+import {SetGameSubscriptions} from "./SetGameSubscriptions"
+import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
 import { AnimationProvider } from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
-import GameView from "@/app/game/[gameCode]/play/GameView";
-import toast, { Toaster } from "react-hot-toast";
+import GameView from "./GameView";
+import { Toaster } from "react-hot-toast";
+import {sendCancelSabotageMessage,
+        sendGameEndMessage,
+        sendKillPlayerMessage,
+        sendMovePlayerMessage,
+        sendReportBodyMessage,
+        sendSabotageMessage } from "./PageSendFunctions"
 import TaskService from "@/services/TaskService";
 
 export default function PlayGame() {
-  const { gameCode } = useParams();
+  console.log("PAGE RENDERED");
+  const { gameCode } = useParams<{ gameCode: string }>();
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
@@ -28,104 +35,31 @@ export default function PlayGame() {
   if (typeof window !== "undefined") {
     playerId = sessionStorage.getItem("playerId");
   }
+
   const currentPlayer = game?.players?.find(
-    (player) => player.id.toString() === playerId
-  );
+      (player) => player.id.toString() === playerId);
+
+  const isGhost = (currentPlayer?.role === Role.CREWMATE_GHOST ||
+                           currentPlayer?.role === Role.IMPOSTOR_GHOST);
 
   const playerRole = currentPlayer?.role ?? "";
 
-  //useGameSubscriptions(stompClient, updateGame);
+  const isMovingAllowed =
+    (playerRole !== Role.CREWMATE_GHOST &&
+    playerRole !== Role.IMPOSTOR_GHOST &&
+    game?.gameStatus === GameStatus.IN_GAME &&
+    !showChat &&
+    !showTaskPopup);
 
   useEffect(() => {
-    if (stompClient) {
-      stompClient.subscribe(
-        "/topic/positionChange",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/IdleChange",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/playerKill",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/bodyReport",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setShowChat(true);
-          console.log("BODY REPORTED SUBSCRIPTION");
-          console.log("showChat", showChat);
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/sabotageStart",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setImpostorWinTimer(30);
-          toast(
-            "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
-            {
-              position: "top-center",
-              style: {
-                border: "2px solid black",
-                padding: "16px",
-                color: "white",
-                backgroundColor: "#eF4444",
-              },
-              icon: "❕",
-            }
-          );
-        }
-      );
-
-      stompClient.subscribe(
-        "/topic/sabotageCancel",
-        (message: { body: string }) => {
-          const receivedMessage = JSON.parse(message.body);
-          updateGame(receivedMessage.body);
-          setImpostorWinTimer(-1);
-          toast("Sabotage cancelled. Crewmates, you're safe for now!", {
-            position: "top-center",
-            style: {
-              border: "2px solid black",
-              padding: "16px",
-              color: "white",
-              backgroundColor: "#eF4444",
-            },
-            icon: "❕",
-          });
-        }
-      );
-
-      stompClient.subscribe("/topic/gameEnd", (message: { body: string }) => {
-        const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage.body);
-      });
+    if(stompClient) {
+      SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer, handleChatView);
     }
-
     return () => {
-      // Unsubscribe from WebSocket events when the component unmounts
       if (stompClient) {
-        stompClient.disconnect(); // Disconnect from WebSocket
+        stompClient.unsubscribe();
       }
-    };
+    }
   }, [stompClient]);
 
   useEffect(() => {
@@ -139,7 +73,7 @@ export default function PlayGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [stompClient, game?.players, handleChatClose]);
+  }, [stompClient, game?.players, showTaskPopup, handleChatView]);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
@@ -149,27 +83,15 @@ export default function PlayGame() {
         setImpostorWinTimer((prevTime) => prevTime - 1);
       }, 1000);
     } else if (impostorWinTimer === 0) {
-      const endGameMessage = {
-        gameCode: gameCode,
-      };
-      stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
+      sendGameEndMessage({stompClient, gameCode})
     }
-
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
 
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    if (
-      playerId &&
-      validKeyCodes.includes(keyCode) &&
-      playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST &&
-      game?.gameStatus === GameStatus.IN_GAME &&
-      !showChat &&
-      !showTaskPopup
-    ) {
+    if (playerId &&  validKeyCodes.includes(keyCode) && isMovingAllowed) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
         sendMoveMessage().then();
@@ -191,8 +113,8 @@ export default function PlayGame() {
       }
     }
   }
-  function handleChatClose() {
-    setShowChat(false);
+  function handleChatView(value: boolean) {
+    setShowChat(value);
   }
 
   async function handleTaskCompleted(taskId: number) {
@@ -220,64 +142,23 @@ export default function PlayGame() {
         : false;
 
     if (!keyCodeToSend) return;
-
-    const moveMessage = {
-      id: playerId,
-      keyCode: keyCodeToSend,
-      gameCode: gameCode,
-      Mirrored: newMirroring,
-      isMoving: true,
-    };
-
-    if (stompClient && (game?.players?.length ?? 0) > 0 && playerId) {
-      stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
-    }
+    sendMovePlayerMessage({stompClient, playerId, keyCodeToSend, gameCode, newMirroring, players: game.players});
   }
 
   async function killPlayer(gameCode: string, playerToKillId: number, nearbyTask: number) {
-    const killMessage = {
-      gameCode: gameCode,
-      playerToKillId: playerToKillId,
-      nearbyTask: nearbyTask,
-    };
-    if (stompClient) {
-      stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
-    }
+    sendKillPlayerMessage({stompClient, gameCode, playerToKillId, nearbyTask});
   }
 
   async function reportBody(gameCode: string, bodyToReportId: number) {
-    const reportMessage = {
-      gameCode: gameCode,
-      bodyToReportId: bodyToReportId,
-    };
-    if (stompClient) {
-      stompClient.send(`/app/game/report`, {}, JSON.stringify(reportMessage));
-    }
+    sendReportBodyMessage({stompClient, gameCode, bodyToReportId});
   }
 
   async function getSabotagePosition(sabotageId: number) {
-    const sabotageMessage = {
-      gameCode: gameCode,
-      sabotageId: sabotageId,
-      map: game.map,
-    };
-    if (stompClient) {
-      stompClient.send(
-        `/app/game/startSabotage`,
-        {},
-        JSON.stringify(sabotageMessage)
-      );
-    }
+    sendSabotageMessage({stompClient, gameCode, sabotageId, map: game.map});
   }
 
   function handleCancelSabotage() {
-    if (impostorWinTimer > 0) {
-      stompClient.send(
-        `/app/game/${game.gameCode}/cancelSabotage`,
-        {},
-        JSON.stringify({})
-      );
-    }
+    sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCode});
   }
 
   return (
@@ -285,40 +166,45 @@ export default function PlayGame() {
       <div className="min-h-screen min-w-screen bg-black text-white">
         {showChat && (
           <Chat
-            onClose={handleChatClose}
-            gameCode={gameCode as string}
+            onClose={handleChatView}
+            gameCode={gameCode}
             currentPlayer={currentPlayer as Player}
           />
         )}
-        {currentPlayer?.role === Role.CREWMATE_GHOST ||
-        currentPlayer?.role === Role.IMPOSTOR_GHOST ? (
-          <Modal modalText={"GAME OVER!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-          <Modal modalText={"CREWMATES WIN!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
-          <Modal modalText={"IMPOSTORS WIN!"}>
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : currentPlayer ? (
-          <GameView
-            game={game}
-            map={map.map}
-            currentPlayer={currentPlayer}
-            showTaskPopup={showTaskPopup}
-            getSabotagePosition={getSabotagePosition}
-            handleCancelSabotage={handleCancelSabotage}
-            killPlayer={killPlayer}
-            reportBody={reportBody}
-            handleTaskCompleted={handleTaskCompleted}
-            handleShowTaskPopup={setShowTaskPopup}
-          />
-        ) : (
-          <div>No Player Data Found</div>
-        )}
+        {isGhost
+        ?
+        <Modal modalText={"GAME OVER!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        game?.gameStatus === GameStatus.CREWMATES_WIN
+        ?
+        <Modal modalText={"CREWMATES WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        game?.gameStatus === GameStatus.IMPOSTORS_WIN
+        ?
+        <Modal modalText={"IMPOSTORS WIN!"}>
+          <BackLink href={"/"}>Return to Landing Page</BackLink>
+        </Modal>
+        :
+        currentPlayer
+        ?
+        <GameView
+          game={game}
+          map={map.map}
+          currentPlayer={currentPlayer}
+          showTaskPopup={showTaskPopup}
+          getSabotagePosition={getSabotagePosition}
+          handleCancelSabotage={handleCancelSabotage}
+          killPlayer={killPlayer}
+          reportBody={reportBody}
+          handleTaskCompleted={handleTaskCompleted}
+          handleShowTaskPopup={setShowTaskPopup}
+        />
+        :
+        <div>No Player Data Found</div>}
       </div>
       <Toaster />
     </AnimationProvider>
