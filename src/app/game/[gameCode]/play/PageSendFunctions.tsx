@@ -1,4 +1,4 @@
-import {Player} from "@/app/types";
+import {Player, Task} from "@/app/types";
 
 type SabotageProps = {
     stompClient: any,
@@ -36,11 +36,13 @@ type KillPlayerProps ={
     stompClient: any,
     gameCode: string,
     playerToKillId: number,
+    nearbyTask: number,
 }
-export function sendKillPlayerMessage({stompClient, gameCode, playerToKillId}: KillPlayerProps) {
+export function sendKillPlayerMessage({stompClient, gameCode, playerToKillId, nearbyTask}: KillPlayerProps) {
     const killMessage = {
         gameCode: gameCode,
         playerToKillId: playerToKillId,
+        nearbyTask: nearbyTask,
     };
     if (stompClient) {
         stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));

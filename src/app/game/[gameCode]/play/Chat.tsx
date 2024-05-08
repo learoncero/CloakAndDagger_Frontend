@@ -8,7 +8,7 @@ import ChatMessageInputField from "./ChatMessageInputField";
 import ChatSendButton from "./ChatSendButton";
 
 type Props = {
-  onClose: () => void;
+  onClose: (value: boolean) => void;
   gameCode: string;
   currentPlayer: Player;
 };
@@ -66,7 +66,7 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
 
   useEffect(() => {
     if (remainingTime === 0) {
-      onClose();
+      onClose(false);
       handleEndChat();
     }
   }, [remainingTime, onClose]);

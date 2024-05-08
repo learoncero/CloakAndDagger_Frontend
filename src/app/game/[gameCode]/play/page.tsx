@@ -53,7 +53,7 @@ export default function PlayGame() {
 
   useEffect(() => {
     if(stompClient) {
-      SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer);
+      SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer, handleChatView);
     }
     return () => {
       if (stompClient) {
@@ -73,7 +73,7 @@ export default function PlayGame() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [stompClient, game?.players, showTaskPopup]);
+  }, [stompClient, game?.players, showTaskPopup, handleChatView]);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
@@ -113,11 +113,11 @@ export default function PlayGame() {
       }
     }
   }
-  function handleChatClose() {
-    setShowChat(false);
+  function handleChatView(value: boolean) {
+    setShowChat(value);
   }
 
-  function handleTaskCompleted(taskId: number) {
+  async function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
     const isCompleted = await TaskService.getCompletedStatus(
         taskId,
@@ -146,15 +146,7 @@ export default function PlayGame() {
   }
 
   async function killPlayer(gameCode: string, playerToKillId: number, nearbyTask: number) {
-    sendKillPlayerMessage({stompClient, gameCode, playerToKillId}); // todo update sendKillPlayerMessage
-  const killMessage = {
-      gameCode: gameCode,
-      playerToKillId: playerToKillId,
-      nearbyTask: nearbyTask,
-    };
-    if (stompClient) {
-      stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
-    }
+    sendKillPlayerMessage({stompClient, gameCode, playerToKillId, nearbyTask});
   }
 
   async function reportBody(gameCode: string, bodyToReportId: number) {
@@ -174,7 +166,7 @@ export default function PlayGame() {
       <div className="min-h-screen min-w-screen bg-black text-white">
         {showChat && (
           <Chat
-            onClose={handleChatClose}
+            onClose={handleChatView}
             gameCode={gameCode}
             currentPlayer={currentPlayer as Player}
           />

@@ -5,7 +5,7 @@ interface Handlers {
 }
 let subscriptionsSet = false;
 
-export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function)  {
+export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function)  {
   if (!subscriptionsSet) {
     const subscriptions = [
       "/topic/positionChange",
@@ -33,6 +33,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
       "/topic/bodyReport": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
+        handleChatView(true);
       },
       "/topic/gameEnd": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
