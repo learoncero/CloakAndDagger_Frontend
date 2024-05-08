@@ -14,7 +14,6 @@ import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
-import { stat } from "fs";
 
 type Props = {
   game: Game;
@@ -214,7 +213,7 @@ export default function GameView({
     <div>
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
         <div className="flex-none w-1/4">
-          <RoleInformation role={currentPlayer.role} />`
+          <RoleInformation role={currentPlayer.role} />
           {isImpostor ? (
             <SabotageList
               sabotages={game.sabotages}
