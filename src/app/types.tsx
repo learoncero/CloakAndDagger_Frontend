@@ -65,4 +65,11 @@ export type Map = {
 
 export type Chat = {
   id: string;
+  chatMessages: ChatMessage[];
+};
+
+export type ChatMessage = {
+  id: number;
+  message: string;
+  sender: string;
 };

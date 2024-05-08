@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Player, Role } from "@/app/types";
-import { useAnimation } from '@/app/AnimationContext';
+import React, {useEffect, useState} from 'react';
+import {Player, Role} from "@/app/types";
+import {useAnimation} from '@/app/AnimationContext';
 
 
 interface SpriteConfig {
@@ -76,15 +76,15 @@ const sprites: Sprites = {
         ],
         idle: '/Sprites/Black/BlackIdle.png'
     },
-    türkis: {
-        dead: '/Sprites/Türkis/TürkisDead.png',
+    turquoise: {
+        dead: '/Sprites/Turquoise/TurquoiseDead.png',
         mov: [
-            '/Sprites/Türkis/Türkis1.png',
-            '/Sprites/Türkis/Türkis2.png',
-            '/Sprites/Türkis/Türkis3.png',
-            '/Sprites/Türkis/Türkis4.png'
+            '/Sprites/Turquoise/Turquoise1.png',
+            '/Sprites/Turquoise/Turquoise2.png',
+            '/Sprites/Turquoise/Turquoise3.png',
+            '/Sprites/Turquoise/Turquoise4.png'
         ],
-        idle: '/Sprites/Türkis/TürkisIdle.png'
+        idle: '/Sprites/Turquoise/TurquoiseIdle.png'
     }
 };
 
@@ -93,9 +93,14 @@ const sprites: Sprites = {
 
 interface PlayerSpritesProps {
     player: Player;
+    currentPlayerRole: Role;
 }
 
-const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player }) => {
+
+
+// Sprite Components
+const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player, currentPlayerRole }: PlayerSpritesProps) => {
+
     const [isGhost, setIsGhost] = useState(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     const { spriteIndex } = useAnimation();
     const currentSprites = sprites[player.playerColor]; // Use playerColor directly
@@ -106,10 +111,14 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player }) => {
 
     const spriteUrl = isGhost ? currentSprites.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
     const transformStyle = player.mirrored ? { transform: 'scaleX(-1)' } : {};
+    const isCurrentPlayerImpostor = (currentPlayerRole === Role.IMPOSTOR_GHOST || currentPlayerRole === Role.IMPOSTOR);
+    const isOtherPlayerImpostor = (player.role === Role.IMPOSTOR_GHOST || player.role === Role.IMPOSTOR);
+
+    const usernameColour = isCurrentPlayerImpostor && isOtherPlayerImpostor ? 'Crimson' : 'Black';
 
     return (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '60%', maxWidth: '90%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'Black' }}>
+            <div style={{ fontWeight: '700',  fontSize: '70%', maxWidth: '90%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: usernameColour}}>
                 {player.username}
             </div>
             <div style={{

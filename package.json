@@ -19,7 +19,8 @@
     "react-hot-toast": "^2.4.1",
     "sockjs": "^0.3.24",
     "sockjs-client": "^1.6.1",
-    "stompjs": "^2.3.3"
+    "stompjs": "^2.3.3",
+    "tailwind-scrollbar-hide": "^1.1.7"
   },
   "devDependencies": {
     "@testing-library/react": "^15.0.2",

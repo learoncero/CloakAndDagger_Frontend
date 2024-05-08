@@ -64,7 +64,7 @@ export default function MapDisplay({
                     >
                     {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
                           .map(player => (
-                              <PlayerSprites key={player.id} player={player} />
+                              <PlayerSprites key={player.id} player={player} currentPlayerRole={currentPlayer.role}/>
                               // eslint-disable-next-line react/jsx-no-comment-textnodes
                           ))}
 

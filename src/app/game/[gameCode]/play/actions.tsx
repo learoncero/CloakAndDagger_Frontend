@@ -24,6 +24,6 @@ export async function fetchMap(mapName: string) {
   }
 }
 
-export async function startChat(gameCode: string) {
-  return await ChatService.startChat(gameCode);
+export async function endChat(gameCode: string) {
+  await ChatService.endChat(gameCode);
 }
