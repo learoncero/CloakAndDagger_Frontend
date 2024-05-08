@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import TaskCompletedPopup from "./TaskCompletedPopup";
+import MiniGameDecipherSymbolsService from "@/services/MiniGameDecipherSymbolsService";
 
 type TaskDecipherSymbolsProps = {
     taskId: number;
@@ -15,22 +16,29 @@ export default function TaskDecipherSymbols({
                                                 gameCode,
                                                 handleTaskCompleted,
                                             }: TaskDecipherSymbolsProps) {
+    const [initialSymbols, setInitialSymbols] = useState<string[]>([]);
+    const [shuffledSymbols, setShuffledSymbols] = useState<string[]>([]);
     const [correctSymbol, setCorrectSymbol] = useState<string>("");
     const [isShowTaskCompletedPopUp, setIsShowTaskCompletedPopUp] = useState<boolean>(false);
     const [currentRound, setCurrentRound] = useState<number>(1);
 
-    const startRound = useCallback(() => {
-        const roundSize = currentRound + 2;
-        const randomIndex = Math.floor(Math.random() * roundSize * roundSize);
-        setCorrectSymbol(symbols[randomIndex]);
-    }, [currentRound]);
+    const startRound = useCallback(async () => {
+        const initialSymbolsData = await MiniGameDecipherSymbolsService.getInitialSymbols(gameCode, taskId);
+        setInitialSymbols(initialSymbolsData.data as string[]);
+        const shuffledSymbolsData = await MiniGameDecipherSymbolsService.getShuffledSymbols(gameCode, taskId);
+        setShuffledSymbols(shuffledSymbolsData.data as string[]);
+        const randomSymbolData = await MiniGameDecipherSymbolsService.getCorrectSymbol(gameCode, taskId);
+        setCorrectSymbol(randomSymbolData.data as string);
+    }, [gameCode, taskId]);
 
     useEffect(() => {
         startRound();
     }, [startRound]);
 
-    const handleSymbolClick = (symbol: string) => {
-        if (symbol === correctSymbol) {
+    const handleSymbolClick = async (symbol: string) => {
+        const submitData = await MiniGameDecipherSymbolsService.submitDecipherSymbol(symbol, taskId, gameCode);
+
+        if (submitData.data) {
             if (currentRound < 3) {
                 setCurrentRound(currentRound + 1);
             } else {
@@ -58,21 +66,56 @@ export default function TaskDecipherSymbols({
 
     const renderSymbolButtons = () => {
         const roundSize = currentRound + 2;
-        const symbolsPool = symbols.slice(0, roundSize * roundSize);
-        return (
-            <div className={`grid grid-cols-${roundSize} gap-4 mb-4`}>
-                {symbolsPool.map((symbol, index) => (
-                    <button
-                        key={index}
-                        className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
-                        onClick={() => handleSymbolClick(symbol)}
-                        style={{ fontSize: "1.3rem" }}
-                    >
-                        {symbol}
-                    </button>
-                ))}
-            </div>
-        );
+        const symbolsPool = initialSymbols.slice(0, roundSize * roundSize);
+        switch (roundSize) {
+            case 3:
+                return (
+                    <div className={`grid grid-cols-3 gap-4 mb-4`}>
+                        {symbolsPool.map((symbol, index) => (
+                            <button
+                                key={index}
+                                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
+                                onClick={() => handleSymbolClick(symbol)}
+                                style={{ fontSize: "1.3rem" }}
+                            >
+                                {symbol}
+                            </button>
+                        ))}
+                    </div>
+                );
+            case 4:
+                return (
+                    <div className={`grid grid-cols-4 gap-4 mb-4`}>
+                        {symbolsPool.map((symbol, index) => (
+                            <button
+                                key={index}
+                                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
+                                onClick={() => handleSymbolClick(symbol)}
+                                style={{ fontSize: "1.3rem" }}
+                            >
+                                {symbol}
+                            </button>
+                        ))}
+                    </div>
+                );
+            case 5:
+                return (
+                    <div className={`grid grid-cols-5 gap-4 mb-4`}>
+                        {symbolsPool.map((symbol, index) => (
+                            <button
+                                key={index}
+                                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded"
+                                onClick={() => handleSymbolClick(symbol)}
+                                style={{ fontSize: "1.3rem" }}
+                            >
+                                {symbol}
+                            </button>
+                        ))}
+                    </div>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
