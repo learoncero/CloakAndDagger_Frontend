@@ -9,20 +9,24 @@ export default async function onSubmit(state: any, data: FormData) {
   const numberOfPlayers = parseInt(data.get("numPlayers") as string);
   const numberOfImpostors = parseInt(data.get("numImpostors") as string);
   const map = data.get("map") as string;
+  const playerColor = data.get("playerColor") as string;
 
   const player = {
     username: username,
     position: {
       x: 9,
       y: 9,
-    },
+    }
   } as Player;
 
   const result = await GameService.createGame(
     player,
     numberOfPlayers,
     numberOfImpostors,
-    map
+    map,
+    playerColor
+
+
   );
 
   if (result.status === 200) {

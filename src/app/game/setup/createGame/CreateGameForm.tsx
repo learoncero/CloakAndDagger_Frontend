@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import CreateGameFormInputField from "./CreateGameFormInputField";
 import CreateGameFormSubmitButton from "./CreateGameFormSubmitButton";
+import JoinGameFormInputField from "@/app/game/setup/joinGame/JoinGameFormInputField";
 
 type Props = {
   onSubmit: (state: any, data: FormData) => Promise<any>;
@@ -14,6 +15,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
   const [map, setMap] = useState("DevMap1");
   const [state, formAction] = useFormState(onSubmit, undefined);
   const [buttonDisabled, setButtonDisabled] = useState(true);
+    const [playerColor, setPlayerColor] = useState("");
 
   // Check if the form has a response and if the response status is not 200
   // Todo: should we handle error?
@@ -44,6 +46,15 @@ export default function CreateGameForm({ onSubmit }: Props) {
         type="text"
         required={true}
       />
+        <CreateGameFormInputField
+            label="Player Color"
+            name={"playerColor"}
+            value={playerColor}
+            onChange={(e) => setPlayerColor(e.target.value)}
+            type={"select"}
+            required={true}
+            options={["red", "black", "blue","pink","purple","brown","turquoise"]}
+        />
       <CreateGameFormInputField
         label="Number of Players"
         name="numPlayers"
