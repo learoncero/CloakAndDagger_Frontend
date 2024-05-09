@@ -101,7 +101,7 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player, currentPlayerRole
         setIsGhost(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     }, [player.role]);
 
-    const spriteUrl = isGhost ? currentSprites?.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
+    const spriteUrl = isGhost ? currentSprites.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
     const transformStyle = player.mirrored ? { transform: 'scaleX(-1)' } : {};
     const isCurrentPlayerImpostor = (currentPlayerRole === Role.IMPOSTOR_GHOST || currentPlayerRole === Role.IMPOSTOR);
     const isOtherPlayerImpostor = (player.role === Role.IMPOSTOR_GHOST || player.role === Role.IMPOSTOR);
