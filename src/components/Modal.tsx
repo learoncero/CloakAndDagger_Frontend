@@ -3,7 +3,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function GameOver({ modalText, children }: Props) {
+export default function Modal({ modalText, children }: Props) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black z-20">
       <div className="w-96 h-72 rounded-lg p-8 text-white border border-white content-center text-center">
