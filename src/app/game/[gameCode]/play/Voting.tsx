@@ -6,10 +6,10 @@ import {number} from "prop-types";
 
 type VotingProps = {
     activePlayers: Player[];
-    handleVoting: (selectedPlayerId: number) => void;
+    handleVotes: (selectedPlayerId: string) => void;
 }
 
-export default function Voting ({activePlayers, handleVoting}: VotingProps) {
+export default function Voting ({activePlayers, handleVotes}: VotingProps) {
     const [selectedPlayerId, setSelectedPlayerId] = useState('');
 
     const handlePlayerSelection = (e: any) => {
@@ -38,7 +38,7 @@ export default function Voting ({activePlayers, handleVoting}: VotingProps) {
                         </div>
                     </div>)}
                 <div className={"flex justify-center mt-5"}>
-                    <VotingButton handleVoting={handleVoting} />
+                    <VotingButton handleVotes={handleVotes} selectedPlayerId={selectedPlayerId}/>
                 </div>
             </div>
         </div>
