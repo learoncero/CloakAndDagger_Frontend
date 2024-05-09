@@ -1,25 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { GameStatus, Player, Role } from "@/app/types";
+import {useEffect, useRef, useState} from "react";
+import {GameStatus, Player, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
 import {SetGameSubscriptions} from "./SetGameSubscriptions"
 import {useParams} from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
-import { AnimationProvider } from "@/app/AnimationContext";
+import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "./GameView";
-import { Toaster } from "react-hot-toast";
-import {sendCancelSabotageMessage,
-        sendGameEndMessage,
-        sendKillPlayerMessage,
-        sendMovePlayerMessage,
-        sendReportBodyMessage,
-        sendSabotageMessage } from "./PageSendFunctions"
+import {Toaster} from "react-hot-toast";
+import {
+  sendCancelSabotageMessage,
+  sendGameEndMessage,
+  sendKillPlayerMessage,
+  sendMovePlayerMessage,
+  sendReportBodyMessage,
+  sendSabotageMessage
+} from "./PageSendFunctions"
 import TaskService from "@/services/TaskService";
-import {Console} from "inspector";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
@@ -44,6 +45,8 @@ export default function PlayGame() {
                            currentPlayer?.role === Role.IMPOSTOR_GHOST);
 
   const playerRole = currentPlayer?.role ?? "";
+  const activePlayers = game?.players?.filter(player => player.role === Role.IMPOSTOR ||
+                                                                     player.role === Role.CREWMATE);
 
   const isMovingAllowed =
     (playerRole !== Role.CREWMATE_GHOST &&
@@ -170,6 +173,7 @@ export default function PlayGame() {
             onClose={handleChatView}
             gameCode={gameCode}
             currentPlayer={currentPlayer as Player}
+            activePlayers={activePlayers}
           />
         )}
         {isGhost
