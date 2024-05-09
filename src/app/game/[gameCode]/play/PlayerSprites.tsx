@@ -2,18 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {Player, Role} from "@/app/types";
 import {useAnimation} from '@/app/AnimationContext';
 
-
 interface SpriteConfig {
     dead: string;
     mov: string[];
     idle: string;
 }
 
-
 interface Sprites {
     [key: string]: SpriteConfig;
 }
-
 
 const sprites: Sprites = {
     red: {
@@ -88,15 +85,10 @@ const sprites: Sprites = {
     }
 };
 
-
-
-
 interface PlayerSpritesProps {
     player: Player;
     currentPlayerRole: Role;
 }
-
-
 
 // Sprite Components
 const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player, currentPlayerRole }: PlayerSpritesProps) => {
@@ -109,7 +101,7 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player, currentPlayerRole
         setIsGhost(player.role === Role.IMPOSTOR_GHOST || player.role === Role.CREWMATE_GHOST);
     }, [player.role]);
 
-    const spriteUrl = isGhost ? currentSprites.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
+    const spriteUrl = isGhost ? currentSprites?.dead : (player.moving ? currentSprites.mov[spriteIndex] : currentSprites.idle);
     const transformStyle = player.mirrored ? { transform: 'scaleX(-1)' } : {};
     const isCurrentPlayerImpostor = (currentPlayerRole === Role.IMPOSTOR_GHOST || currentPlayerRole === Role.IMPOSTOR);
     const isOtherPlayerImpostor = (player.role === Role.IMPOSTOR_GHOST || player.role === Role.IMPOSTOR);
