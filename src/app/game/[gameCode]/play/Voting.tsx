@@ -7,6 +7,7 @@ import {number} from "prop-types";
 type VotingProps = {
     activePlayers: Player[];
     handleVotes: (selectedPlayerId: string) => void;
+    voteGiven: boolean;
 }
 
 export default function Voting ({activePlayers, handleVotes}: VotingProps) {
@@ -17,14 +18,21 @@ export default function Voting ({activePlayers, handleVotes}: VotingProps) {
     }
 
     return (
-        <div className={"w-60 ml-5 p-4 border-2 border-white rounded-lg relative"}>
-            <h2 className={"border-b pb-2 text-lg font-bold"}>
-                Who is the Impostor?
-            </h2>
-            <div className={"pt-2"}>
-                {activePlayers.map((Player, index) =>
-                    <div key={index}>
-                        <div key={index}>
+        <div className={"relative"}>
+            {voteGiven && (
+                <div className="absolute inset-0 bg-gray-500 opacity-50 flex justify-center items-center z-10">
+                    <div className={"text-white text-lg font-semibold"}>
+                        Vote Sent!
+                    </div>
+                </div>
+            )}
+            <div className={"w-60 ml-5 p-4 border-2 border-white rounded-lg relative"}>
+                <h2 className={"border-b pb-2 text-lg font-bold"}>
+                    Who is the Impostor?
+                </h2>
+                <div className={"pt-2"}>
+                    {activePlayers.map((player) =>
+                        <div key={player.id}>
                             <input
                                 type="radio"
                                 id={Player.username}
