@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {GameStatus, Player, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
 import {SetGameSubscriptions} from "./SetGameSubscriptions"
@@ -21,6 +21,7 @@ import {
   sendSabotageMessage
 } from "./PageSendFunctions"
 import TaskService from "@/services/TaskService";
+import VotingResultsPopup from "@/app/game/[gameCode]/play/VotingResultsPopup";
 
 export default function PlayGame() {
   console.log("PAGE RENDERED");
@@ -28,10 +29,14 @@ export default function PlayGame() {
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
+  const [showVotingResults, setShowVotingResults] = useState(false);
   const [impostorWinTimer, setImpostorWinTimer] = useState(-1);
   const [showTaskPopup, setShowTaskPopup] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
+  const [votedPlayer, setVotedPlayer] = useState<Player | undefined>(undefined);
+  let isVoteTied= false;
+
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -53,7 +58,8 @@ export default function PlayGame() {
     playerRole !== Role.IMPOSTOR_GHOST &&
     game?.gameStatus === GameStatus.IN_GAME &&
     !showChat &&
-    !showTaskPopup);
+    !showTaskPopup &&
+    !showVotingResults);
 
   useEffect(() => {
     if(stompClient) {
@@ -121,6 +127,10 @@ export default function PlayGame() {
     setShowChat(value);
   }
 
+  function onCloseResultsPopup() {
+    setShowVotingResults(false)
+  }
+
   async function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
     const isCompleted = await TaskService.getCompletedStatus(
@@ -174,8 +184,14 @@ export default function PlayGame() {
             gameCode={gameCode}
             currentPlayer={currentPlayer as Player}
             activePlayers={activePlayers}
+            setShowVotingResults={setShowVotingResults}
+            setVotedPlayer={setVotedPlayer}
+            isVoteTied={isVoteTied}
           />
         )}
+        {showVotingResults &&
+            <VotingResultsPopup onCloseResultsPopup={onCloseResultsPopup} isVoteTied={isVoteTied} votedPlayer={votedPlayer}/>
+        }
         {isGhost
         ?
         <Modal modalText={"GAME OVER!"}>
