@@ -296,7 +296,7 @@ export default function GameView({
           <Toaster />
         ) : showTaskPopup ? (
           <TaskGateway
-            miniGameId={3}
+            miniGameId={nearbyTasks[0].miniGameId}
             taskId={nearbyTasks[0].taskId}
             gameCode={game.gameCode}
             handleTaskCompleted={() =>

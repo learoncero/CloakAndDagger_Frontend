@@ -2,22 +2,17 @@ import ApiService from "@/services/ApiService";
 import {ApiResponse} from "@/app/types";
 
 export default class MiniGameDecipherSymbolsService {
-    static async getInitialSymbols(gameCode: string, taskId: number) {
-        const response = await ApiService.post(
-            "minigame",
-            `/api/decipher/${gameCode}/getInitialSymbols`,
-            taskId
-        );
-
-        return response as ApiResponse;
-    }
-
-    static async getShuffledSymbols(gameCode: string, taskId: number) {
+    static async getShuffledSymbols(gameCode: string, taskId: number, currentRound: number) {
         const response = await ApiService.post(
             "minigame",
             `/api/decipher/${gameCode}/getShuffledSymbols`,
-            taskId
+            {
+                taskId,
+                currentRound
+            }
         );
+
+        console.log("response", response as ApiResponse);
 
         return response as ApiResponse;
     }
@@ -29,19 +24,22 @@ export default class MiniGameDecipherSymbolsService {
             taskId
         );
 
-        return response as ApiResponse;
+        console.log("response", response as ApiResponse<string>);
+
+        return response as ApiResponse<string>;
     }
 
-    static async submitDecipherSymbol(symbol: string, taskId: number, gameCode: string) {
+    static async submitDecipherSymbol(gameCode: string, taskId: number, symbol: string, currentRound: number) {
         const response = await ApiService.post(
             "minigame",
             `/api/decipher/${gameCode}/submit`,
             {
+                taskId,
                 symbol,
-                taskId
+                currentRound
             }
         );
 
-        return response as ApiResponse;
+        return response as ApiResponse<boolean>;
     }
 }

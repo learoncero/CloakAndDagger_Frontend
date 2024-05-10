@@ -9,34 +9,32 @@ type TaskDecipherSymbolsProps = {
     handleTaskCompleted: (taskId: number) => void;
 };
 
-const symbols = ["⥊", "⥋", "⥌", "⥍", "⥎", "⥏", "⥐", "⥑", "⥒", "⥓", "⥔", "⥕", "⥖", "⥗", "⥘", "⥙", "⥚", "⥛", "⥜", "⥝", "⥞", "⥟", "⥠", "⥡", "⥦"];
-
 export default function TaskDecipherSymbols({
                                                 taskId,
                                                 gameCode,
                                                 handleTaskCompleted,
                                             }: TaskDecipherSymbolsProps) {
-    const [initialSymbols, setInitialSymbols] = useState<string[]>([]);
     const [shuffledSymbols, setShuffledSymbols] = useState<string[]>([]);
     const [correctSymbol, setCorrectSymbol] = useState<string>("");
     const [isShowTaskCompletedPopUp, setIsShowTaskCompletedPopUp] = useState<boolean>(false);
     const [currentRound, setCurrentRound] = useState<number>(1);
 
     const startRound = useCallback(async () => {
-        const initialSymbolsData = await MiniGameDecipherSymbolsService.getInitialSymbols(gameCode, taskId);
-        setInitialSymbols(initialSymbolsData.data as string[]);
-        const shuffledSymbolsData = await MiniGameDecipherSymbolsService.getShuffledSymbols(gameCode, taskId);
+        const shuffledSymbolsData = await MiniGameDecipherSymbolsService.getShuffledSymbols(gameCode, taskId, currentRound);
+        console.log("shuffledSymbolsData", shuffledSymbolsData.data);
         setShuffledSymbols(shuffledSymbolsData.data as string[]);
         const randomSymbolData = await MiniGameDecipherSymbolsService.getCorrectSymbol(gameCode, taskId);
+        console.log("randomSymbolData", randomSymbolData.data);
         setCorrectSymbol(randomSymbolData.data as string);
-    }, [gameCode, taskId]);
+    }, [currentRound, gameCode, taskId]);
 
     useEffect(() => {
         startRound();
     }, [startRound]);
 
     const handleSymbolClick = async (symbol: string) => {
-        const submitData = await MiniGameDecipherSymbolsService.submitDecipherSymbol(symbol, taskId, gameCode);
+        const submitData = await MiniGameDecipherSymbolsService.submitDecipherSymbol(gameCode, taskId, symbol, currentRound);
+        console.log("submitData", submitData.data);
 
         if (submitData.data) {
             if (currentRound < 3) {
@@ -46,7 +44,7 @@ export default function TaskDecipherSymbols({
             }
         } else {
             toast.error("Incorrect symbol chosen!", {
-                position: "bottom-right",
+                position: "top-center",
                 style: {
                     border: "2px solid black",
                     padding: "16px",
@@ -55,6 +53,8 @@ export default function TaskDecipherSymbols({
                 },
                 icon: "❌",
             });
+
+            setCurrentRound(1);
         }
     };
 
@@ -66,7 +66,7 @@ export default function TaskDecipherSymbols({
 
     const renderSymbolButtons = () => {
         const roundSize = currentRound + 2;
-        const symbolsPool = initialSymbols.slice(0, roundSize * roundSize);
+        const symbolsPool = shuffledSymbols.slice(0, roundSize * roundSize);
         switch (roundSize) {
             case 3:
                 return (
@@ -125,7 +125,8 @@ export default function TaskDecipherSymbols({
             ) : (
                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
                     <div className="bg-black rounded-lg p-8 max-w-md">
-                        <h2 className="text-2xl font-bold mb-4">Round {currentRound}</h2>
+                        <h2 className="text-2xl font-bold mb-4">Decipher Symbols</h2>
+                        <h3 className="text-2xl font-bold mb-4">Round {currentRound}</h3>
                         <div className="mb-4">
                             <p className="text-lg">Find: {correctSymbol}</p>
                         </div>
