@@ -16,8 +16,7 @@ export default function TaskPasscode({
 }: TaskPasscodeProps) {
   const [currentSum, setCurrentSum] = useState<number>(0);
   const [randomSum, setRandomSum] = useState<number>(0);
-  const [isShowTaskCompletedPopUp, setIsShowTaskCompletedPopUp] =
-    useState<boolean>(false);
+  const [isShowTaskCompletedPopUp, setIsShowTaskCompletedPopUp] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchRandomSum() {
@@ -40,7 +39,7 @@ export default function TaskPasscode({
       if (newCurrentSum > randomSum) {
         setCurrentSum(0);
         toast("Passcode value exceeded", {
-          position: "bottom-right",
+          position: "top-center",
           style: {
             border: "2px solid black",
             padding: "16px",

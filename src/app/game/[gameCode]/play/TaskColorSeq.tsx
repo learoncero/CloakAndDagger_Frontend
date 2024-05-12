@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TaskCompletedPopup from "@/app/game/[gameCode]/play/TaskCompletedPopup";
 import MiniGameColorSeqService from "@/services/MiniGameColorSeqService";
+import toast, {Toaster} from "react-hot-toast";
 
 type TaskColorSeqProps = {
     taskId: number;
@@ -44,7 +45,16 @@ export default function TaskColorSeq({taskId, gameCode, handleTaskCompleted}: Ta
         if (result) {
             setIsShowTaskCompletedPopUp(true);
         } else {
-            alert('Task not completed');
+            toast("Wrong color sequence", {
+                position: "top-center",
+                style: {
+                    border: "2px solid black",
+                    padding: "16px",
+                    color: "white",
+                    backgroundColor: "#eF4444",
+                },
+                icon: "✖️",
+            });
         }
     };
 
@@ -83,6 +93,7 @@ export default function TaskColorSeq({taskId, gameCode, handleTaskCompleted}: Ta
                             <button className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-lg" onClick={handleSubmission}>Submit</button>
                         </div>
                     </div>
+                    <Toaster/>
                 </div>
             )}
         </>
