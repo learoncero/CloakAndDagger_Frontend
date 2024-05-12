@@ -58,7 +58,6 @@ export default function TaskDecipherSymbols({
           setClickedButtonIndex(-1);
         }, 250);
       } else {
-        console.log("Task completed");
         setIsShowTaskCompletedPopUp(true);
       }
     } else {
