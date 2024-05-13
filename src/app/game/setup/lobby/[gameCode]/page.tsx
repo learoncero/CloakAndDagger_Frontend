@@ -11,6 +11,7 @@ import LobbyHeader from "./LobbyHeader";
 import { fetchGame } from "./actions";
 import { Game } from "@/app/types";
 import useWebSocket from "@/hooks/useWebSocket";
+import LobbyLeaveButton from "@/app/game/setup/lobby/[gameCode]/LobbyLeaveButton";
 
 export default function Lobby() {
   const stompClient = useWebSocket("http://localhost:5010/ws");
@@ -80,6 +81,7 @@ export default function Lobby() {
           handleStartGame={handleStartGame}
           isGameReadyToStart={isGameReadyToStart}
         />
+        <LobbyLeaveButton/>
       </div>
     </div>
   );
