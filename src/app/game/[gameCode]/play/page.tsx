@@ -187,18 +187,18 @@ export default function PlayGame() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
 
-  let modalTextColor = "text-red-600"; // Default color for game over modal
+  let modalTextColor = "text-red-600";
 
   if (
       game?.gameStatus === GameStatus.CREWMATES_WIN &&
       (playerRole === Role.CREWMATE || playerRole === Role.CREWMATE_GHOST)
   ) {
-    modalTextColor = "text-green-600"; // Green text for crewmates win
+    modalTextColor = "text-green-600";
   } else if (
       game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
       (playerRole === Role.IMPOSTOR || playerRole === Role.IMPOSTOR_GHOST)
   ) {
-    modalTextColor = "text-green-600"; // Green text for impostors win
+    modalTextColor = "text-green-600";
   }
 
   return (
