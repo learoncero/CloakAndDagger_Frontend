@@ -34,9 +34,7 @@ export default function PlayGame() {
   const [showTaskPopup, setShowTaskPopup] = useState(false);
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [votedPlayer, setVotedPlayer] = useState<Player | undefined>(undefined);
-  let isVoteTied= false;
-
+  const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -45,6 +43,8 @@ export default function PlayGame() {
 
   const currentPlayer = game?.players?.find(
       (player) => player.id.toString() === playerId);
+
+  const currentPlayerVotedOut = currentPlayer?.id == latestVote;
 
   const isGhost = (currentPlayer?.role === Role.CREWMATE_GHOST ||
                            currentPlayer?.role === Role.IMPOSTOR_GHOST);
@@ -63,7 +63,7 @@ export default function PlayGame() {
 
   useEffect(() => {
     if(stompClient) {
-      SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer, handleChatView);
+      SetGameSubscriptions(stompClient, updateGame, setImpostorWinTimer, handleChatView, setLatestVote);
     }
     return () => {
       if (stompClient) {
@@ -182,19 +182,23 @@ export default function PlayGame() {
           <Chat
             onClose={handleChatView}
             gameCode={gameCode}
+            players={game?.players}
             currentPlayer={currentPlayer as Player}
-            activePlayers={activePlayers}
+           /* activePlayers={activePlayers}*/
             setShowVotingResults={setShowVotingResults}
-            setVotedPlayer={setVotedPlayer}
-            isVoteTied={isVoteTied}
           />
         )}
-        {showVotingResults &&
-            <VotingResultsPopup onCloseResultsPopup={onCloseResultsPopup} isVoteTied={isVoteTied} votedPlayer={votedPlayer}/>
-        }
+        {!isGhost && showVotingResults && (
+            <VotingResultsPopup onCloseResultsPopup={onCloseResultsPopup} voteResult={latestVote} players={game?.players}/>
+        )}
         {isGhost
         ?
         <Modal modalText={"GAME OVER!"}>
+          {currentPlayerVotedOut
+          ? (
+            <p>You got voted out!</p>)
+          : (
+            <p>You just got killed</p>)}
           <BackLink href={"/"}>Return to Landing Page</BackLink>
         </Modal>
         :
