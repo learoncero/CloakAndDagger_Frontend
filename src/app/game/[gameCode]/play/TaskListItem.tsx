@@ -1,18 +1,34 @@
-import { Task } from "@/app/types";
+import React from "react";
 
 type Props = {
-  task: Task;
+  title: string;
+  description: string;
+  completedInstances: number;
+  totalInstances: number;
 };
 
-export default function TaskListItem({ task }: Props) {
+export default function TaskListItem({
+  title,
+  description,
+  completedInstances,
+  totalInstances,
+}: Props) {
+  const isAllCompleted = completedInstances === totalInstances;
+
   return (
     <li className="bg-gray-700 bg-opacity-70 rounded-md p-2 mb-2">
-      {task.completed ? (
-        <span className="block font-semibold">✅{task.title}</span>
+      {isAllCompleted ? (
+        <span className="block font-semibold text-green-500">
+          {" "}
+          {title} ({completedInstances}/{totalInstances}) ✅{" "}
+          <p className="text-xs">{description}</p>
+        </span>
       ) : (
-        <span className="block font-semibold">{task.title}</span>
+        <span className="block font-semibold">
+          {title} ({completedInstances}/{totalInstances})
+          <p className="text-xs">{description}</p>
+        </span>
       )}
-      <p className="text-xs">{task.description}</p>
     </li>
   );
 }

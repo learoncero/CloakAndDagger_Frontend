@@ -12,8 +12,6 @@ export default class MiniGameDecipherSymbolsService {
             }
         );
 
-        console.log("response", response as ApiResponse);
-
         return response as ApiResponse;
     }
 
@@ -23,8 +21,6 @@ export default class MiniGameDecipherSymbolsService {
             `/api/decipher/${gameCode}/getCorrectSymbol`,
             taskId
         );
-
-        console.log("response", response as ApiResponse<string>);
 
         return response as ApiResponse<string>;
     }

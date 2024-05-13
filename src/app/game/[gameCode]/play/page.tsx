@@ -187,6 +187,20 @@ export default function PlayGame() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
 
+  let modalTextColor = "text-red-600";
+
+  if (
+      game?.gameStatus === GameStatus.CREWMATES_WIN &&
+      (playerRole === Role.CREWMATE || playerRole === Role.CREWMATE_GHOST)
+  ) {
+    modalTextColor = "text-green-600";
+  } else if (
+      game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
+      (playerRole === Role.IMPOSTOR || playerRole === Role.IMPOSTOR_GHOST)
+  ) {
+    modalTextColor = "text-green-600";
+  }
+
   return (
     <AnimationProvider>
       <div className="min-h-screen min-w-screen bg-black text-white">
@@ -198,15 +212,15 @@ export default function PlayGame() {
           />
         )}
         {isGhost ? (
-          <Modal modalText={"GAME OVER!"}>
+          <Modal modalText={"GAME OVER!"} textColor={"text-red-600"}>
             <BackLink href={"/game/setup"}>Return to Landing Page</BackLink>
           </Modal>
         ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-          <Modal modalText={"CREWMATES WIN!"}>
+          <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
             <BackLink href={"/game/setup"}>Return to Landing Page</BackLink>
           </Modal>
         ) : game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
-          <Modal modalText={"IMPOSTORS WIN!"}>
+          <Modal modalText={"IMPOSTORS WIN!"} textColor={modalTextColor}>
             <BackLink href={"/game/setup"}>Return to Landing Page</BackLink>
           </Modal>
         ) : currentPlayer ? (
