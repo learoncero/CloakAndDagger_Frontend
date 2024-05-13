@@ -5,7 +5,7 @@ interface Handlers {
 }
 let subscriptionsSet = false;
 
-export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function)  {
+export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function, setLatestVote: Function)  {
   if (!subscriptionsSet) {
     const subscriptions = [
       "/topic/positionChange",
@@ -15,6 +15,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
       "/topic/gameEnd",
       "/topic/sabotageStart",
       "/topic/sabotageCancel",
+      "/topic/voteResults",
     ];
 
     const handlers: Handlers = {
@@ -69,6 +70,11 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
           },
           icon: "❕",
         });
+      },
+      "/topic/voteResults": (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage);
+        setLatestVote(receivedMessage.votingResults.at(-1));
       }
     };
 
