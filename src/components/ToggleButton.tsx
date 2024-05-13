@@ -1,15 +1,15 @@
 import React from "react";
 
 type Props = {
-  handleToggleMiniMap: () => void;
+  onClick: () => void;
   label: string;
 };
 
-export default function MapButton({ handleToggleMiniMap, label }: Props) {
+export default function ToggleButton({ onClick, label }: Props) {
   return (
     <button
       className="bg-transparent border border-white hover:border-black hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg mb-8"
-      onClick={handleToggleMiniMap}
+      onClick={onClick}
     >
       {label}
     </button>

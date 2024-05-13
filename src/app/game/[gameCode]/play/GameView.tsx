@@ -5,7 +5,6 @@ import RoleInformation from "./RoleInformation";
 import SabotageList from "./SabotageList";
 import TaskList from "./TaskList";
 import MapDisplay from "./MapDisplay";
-import MapButton from "./MapButton";
 import PlayerList from "./PlayerList";
 import CrewmateCounter from "./CrewmateCounter";
 import MiniMap from "./MiniMap";
@@ -14,6 +13,8 @@ import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
 import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
+import Manual from "./Manual";
+import ToggleButton from "@/components/ToggleButton";
 
 type Props = {
   game: Game;
@@ -21,7 +22,11 @@ type Props = {
   currentPlayer: Player;
   getSabotagePosition: (sabotageId: number) => void;
   handleCancelSabotage: () => void;
-  killPlayer: (gameCode: string, playerId: number, nearbyTaskForKill: number) => void;
+  killPlayer: (
+    gameCode: string,
+    playerId: number,
+    nearbyTaskForKill: number
+  ) => void;
   reportBody: (gameCode: string, playerId: number) => void;
   handleTaskCompleted: (taskId: number) => void;
   showTaskPopup: boolean;
@@ -40,23 +45,31 @@ export default function GameView({
   showTaskPopup,
   handleShowTaskPopup,
 }: Props) {
-    const isImpostor = (currentPlayer?.role == Role.IMPOSTOR || currentPlayer?.role == Role.IMPOSTOR_GHOST);
-    const [showMiniMap, setShowMiniMap] = useState(false);
-    const [isTimer, setIsTimer] = useState(false);
-    const handleToggleMiniMap = () => {
-        setShowMiniMap(!showMiniMap);
-    };
+  const isImpostor =
+    currentPlayer?.role == Role.IMPOSTOR ||
+    currentPlayer?.role == Role.IMPOSTOR_GHOST;
+  const [showMiniMap, setShowMiniMap] = useState(false);
+  const [isTimer, setIsTimer] = useState(false);
+  const [showManual, setShowManual] = useState(false);
 
-    const nearbyTasks = useNearbyItems(
-        game.tasks,
-        currentPlayer.position
-    ) as Task[];
+  const handleToggleMiniMap = () => {
+    setShowMiniMap(!showMiniMap);
+  };
 
-    const nearbyTasksForKill = useNearbyItems(
-        game.tasks,
-        currentPlayer.position,
-        2
-    ) as Task[];
+  const toggleManualVisibility = useCallback(() => {
+    setShowManual(!showManual);
+  }, [showManual]);
+
+  const nearbyTasks = useNearbyItems(
+    game.tasks,
+    currentPlayer.position
+  ) as Task[];
+
+  const nearbyTasksForKill = useNearbyItems(
+    game.tasks,
+    currentPlayer.position,
+    2
+  ) as Task[];
 
   const nearbySabotages = useNearbyItems(
     game.sabotages,
@@ -75,14 +88,11 @@ export default function GameView({
     [Role.CREWMATE_GHOST, Role.IMPOSTOR_GHOST]
   );
 
-    const handleToggleTaskPopup = useCallback(async () => {
-        if (nearbyTasks.length > 0) {
-            const setActiveStatus = async () => {
-                await TaskService.setActiveStatus(
-                    nearbyTasks[0].taskId,
-                    game.gameCode
-                );
-            };
+  const handleToggleTaskPopup = useCallback(async () => {
+    if (nearbyTasks.length > 0) {
+      const setActiveStatus = async () => {
+        await TaskService.setActiveStatus(nearbyTasks[0].taskId, game.gameCode);
+      };
 
       if (showTaskPopup) {
         handleShowTaskPopup(false);
@@ -117,10 +127,15 @@ export default function GameView({
     };
   }, [handleKill, setShowMiniMap]);
 
-    useEffect(() => {
-        const handleKeyPress = async (event: KeyboardEvent) => {
-            if (event.key === "e" || event.key === "E") {
-                if (nearbyTasks.length === 0 || currentPlayer?.role != Role.CREWMATE || nearbyTasks[0]?.completed) return;
+  useEffect(() => {
+    const handleKeyPress = async (event: KeyboardEvent) => {
+      if (event.key === "e" || event.key === "E") {
+        if (
+          nearbyTasks.length === 0 ||
+          currentPlayer?.role != Role.CREWMATE ||
+          nearbyTasks[0]?.completed
+        )
+          return;
 
         const status = await TaskService.getActiveStatus(
           nearbyTasks[0].taskId,
@@ -176,29 +191,46 @@ export default function GameView({
     };
   }, [nearbySabotages]);
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "h" || event.key === "H") {
+        toggleManualVisibility();
+      }
+    };
 
-    async function handleKill() {
-        if (!isTimer && nearbyPlayers.length > 0) {
-            const playerToKillId = nearbyPlayers[0].id;
-            killPlayer(game?.gameCode as string, playerToKillId, nearbyTasksForKill[0]?.taskId);
+    window.addEventListener("keydown", handleKeyPress);
 
-            toast("You killed a crewmate!", {
-                position: "bottom-right",
-                style: {
-                    border: "2px solid black",
-                    padding: "16px",
-                    color: "black",
-                    backgroundColor: "#eF4444",
-                },
-                icon: "🔪",
-            });
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [toggleManualVisibility]);
 
-            setIsTimer(true);
-            setTimeout(() => {
-                setIsTimer(false);
-            }, 20000);
-        }
+  async function handleKill() {
+    if (!isTimer && nearbyPlayers.length > 0) {
+      const playerToKillId = nearbyPlayers[0].id;
+      killPlayer(
+        game?.gameCode as string,
+        playerToKillId,
+        nearbyTasksForKill[0]?.taskId
+      );
+
+      toast("You killed a crewmate!", {
+        position: "bottom-right",
+        style: {
+          border: "2px solid black",
+          padding: "16px",
+          color: "black",
+          backgroundColor: "#eF4444",
+        },
+        icon: "🔪",
+      });
+
+      setIsTimer(true);
+      setTimeout(() => {
+        setIsTimer(false);
+      }, 20000);
     }
+  }
 
   function handleReportBody() {
     if (nearbyGhosts.length > 0) {
@@ -211,6 +243,9 @@ export default function GameView({
 
   return (
     <div>
+      {showManual && (
+        <Manual role={currentPlayer.role} onClose={toggleManualVisibility} />
+      )}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
         <div className="flex-none w-1/4">
           <RoleInformation role={currentPlayer.role} />
@@ -240,10 +275,16 @@ export default function GameView({
 
         <div className="flex-none w-1/4">
           <div className="mb-32">
-            <MapButton
-              handleToggleMiniMap={handleToggleMiniMap}
-              label="Show MiniMap"
-            />
+            <div className="flex gap-10">
+              <ToggleButton
+                onClick={handleToggleMiniMap}
+                label="Show MiniMap"
+              />
+              <ToggleButton
+                onClick={toggleManualVisibility}
+                label="Show Manual"
+              />
+            </div>
             <PlayerList playerId={currentPlayer.id} playerList={game.players} />
             {isImpostor && <CrewmateCounter playerList={game.players} />}
           </div>
