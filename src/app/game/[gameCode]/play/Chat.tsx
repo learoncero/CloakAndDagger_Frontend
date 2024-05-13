@@ -7,25 +7,28 @@ import { endChat } from "./actions";
 import ChatMessageInputField from "./ChatMessageInputField";
 import ChatSendButton from "./ChatSendButton";
 import Voting from "./Voting";
-import VotingResultsPopup from "./VotingResultsPopup";
 
 type Props = {
   onClose: (value: boolean) => void;
   gameCode: string;
+  players: Player[];
   currentPlayer: Player;
-  activePlayers: Player[];
+  setShowVotingResults: (value: boolean) => void;
 };
 
-export default function Chat({ onClose, gameCode, currentPlayer, activePlayers }: Props) {
+export default function Chat({
+                               onClose,
+                               gameCode,
+                               currentPlayer,
+                               players,
+                               setShowVotingResults }: Props) {
   const [stompClient, setStompClient] = useState<any>(null);
   const [chat, setChat] = useState<ChatType>({} as ChatType);
   const [message, setMessage] = useState("");
-  const [remainingTime, setRemainingTime] = useState<number>(5);
+  const [remainingTime, setRemainingTime] = useState<number>(60);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [showVotingResults, setShowVotingResults] = useState(false);
-  const [votedPlayer, setVotedPlayer] = useState<Player | undefined>(undefined);
-  const [selectedPlayersIds, setSelectedPlayersIds] = useState<number[]>([]);
-  let isVoteTied= false;
+  const [playerVotes, setPlayerVotes] = useState<number[]>([]);
+  const activePlayers = players ? players.filter(player => player.role === "IMPOSTOR" || player.role === "CREWMATE") : [];
 
   useEffect(() => {
     if (!stompClient) {
@@ -55,6 +58,13 @@ export default function Chat({ onClose, gameCode, currentPlayer, activePlayers }
           console.error("Error subscribing to /topic/messages:", error);
         }
       );
+      stompClient.subscribe(
+          "/topic/vote",
+            (message: { body: string }) => {
+                const receivedMessage = JSON.parse(message.body);
+                setPlayerVotes(receivedMessage.body);
+            },
+      )
     }
     return () => {
       if (stompClient) {
@@ -74,7 +84,6 @@ export default function Chat({ onClose, gameCode, currentPlayer, activePlayers }
   useEffect(() => {
     if (remainingTime === 0) {
       onClose(false);
-      handleVotingResults();
       setShowVotingResults(true); //todo test this
       handleEndChat();
     }
@@ -87,6 +96,10 @@ export default function Chat({ onClose, gameCode, currentPlayer, activePlayers }
     }
   }, [chat]);
 
+  /*useEffect(() => {
+    console.log("Players Vote List: ", playerVotes);
+  }, [playerVotes]);*/
+
   async function handleEndChat() {
     await endChat(gameCode as string);
   }
@@ -95,55 +108,20 @@ export default function Chat({ onClose, gameCode, currentPlayer, activePlayers }
     setMessage(message);
   }
 
-  function onCloseResultsPopup() {
-      setShowVotingResults(false)
-  }
-
-  function handleVotes (playerId: string) {
-    const updatedPlayerIdList = [... selectedPlayersIds];
-    updatedPlayerIdList.push(playerId as unknown as number)
-    setSelectedPlayersIds(updatedPlayerIdList);
-  }
-
-  function handleVotingResults() {
-    //counting votes for each player
-    const PlayerIdAndVoteCount = selectedPlayersIds.reduce((acc, playerId) => {
-      acc[playerId] = (acc[playerId] || 0) + 1;
-      return acc;
-    }, {} as Record<number, number>);
-    const votedPlayerIdArray = Object.entries(PlayerIdAndVoteCount); // [playerId, voteCount] array
-    const votedPlayerIdArraySorted = votedPlayerIdArray.sort((a, b) => b[1] - a[1]);
-    const votedPlayerIds = votedPlayerIdArraySorted.map((player) => parseInt(player[0])); //extracts playerIds from sorted array
-    const filteredPlayerIds = votedPlayerIds.filter((player) => player !== 0);
-    const topTwoPlayerIds = filteredPlayerIds.slice(0,2);
-    const topVoteCount = PlayerIdAndVoteCount[topTwoPlayerIds[0]];
-
-    //check if 2nd player has the same vote count as the 1st player
-    if(topVoteCount === PlayerIdAndVoteCount[topTwoPlayerIds[1]]) {
-      isVoteTied = true;
-    } else {
-      isVoteTied = false;
-      const eliminatedPlayer = activePlayers.find((player) => player.id === topTwoPlayerIds[0]);
-      setVotedPlayer(eliminatedPlayer);
-      eliminateVotedPlayer(eliminatedPlayer);
-    }
-  }
-
-  async function eliminateVotedPlayer(votedPlayer: Player | undefined) {
-    if (votedPlayer) {
-      const eliminatePlayerMessage = {
-        gameCode: gameCode,
-        playerId: votedPlayer.id,
-      };
-      if (stompClient) {
-          stompClient.send(
-          "/app/chat/eliminatePlayer",
+  async function handleVotes(playerId: number) {
+    const votingMessage ={
+      gameCode: gameCode,
+      playerId: playerId,
+    };
+    if (stompClient) {
+      stompClient.send(
+          "/app/chat/vote",
           {},
-          JSON.stringify(eliminatePlayerMessage)
-          );
-      }
+          JSON.stringify(votingMessage)
+      );
     }
   }
+
   async function onMessageSend() {
     const chatMessage = {
       gameCode: gameCode,
@@ -191,10 +169,7 @@ export default function Chat({ onClose, gameCode, currentPlayer, activePlayers }
             <ChatSendButton onMessageSend={onMessageSend} />
           </div>
         </div>
-        {showVotingResults &&
-            <VotingResultsPopup onCloseResultsPopup={onCloseResultsPopup} isVoteTied={isVoteTied} votedPlayer={votedPlayer}/>
-        }
-        <Voting activePlayers={activePlayers} handleVotes={handleVotes}/>
+        <Voting currentPlayer={currentPlayer} activePlayers={activePlayers} handleVotes={handleVotes}/>
       </div>
     </div>
   );
