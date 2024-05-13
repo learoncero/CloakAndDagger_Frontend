@@ -9,6 +9,7 @@ export type Game = {
   sabotages: Sabotage[];
   gameStatus: GameStatus;
   reportedBodies: number[];
+  votingResults: number[];
 };
 
 export type Player = {
