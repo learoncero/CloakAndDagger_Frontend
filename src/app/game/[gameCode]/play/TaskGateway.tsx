@@ -1,6 +1,7 @@
 import React from "react";
 import TaskPasscode from "./TaskPasscode";
 import TaskColorSeq from "./TaskColorSeq";
+import TaskDecipherSymbols from "@/app/game/[gameCode]/play/TaskDecipherSymbols";
 
 type TaskProps = {
   miniGameId: number;
@@ -33,7 +34,15 @@ export default function TaskGateway({
               gameCode={gameCode}
               handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
           />
-      )
+      );
+    case 3:
+        return (
+            <TaskDecipherSymbols
+                taskId={taskId}
+                gameCode={gameCode}
+                handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
+            />
+        );
     default:
       return null;
   }

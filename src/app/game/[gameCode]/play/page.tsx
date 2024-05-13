@@ -3,8 +3,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import {GameStatus, Player, Role} from "@/app/types";
 import useGame from "@/hooks/useGame";
-import {SetGameSubscriptions} from "./SetGameSubscriptions"
-import {useParams} from "next/navigation";
+import { SetGameSubscriptions } from "./SetGameSubscriptions";
+import { useParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import BackLink from "@/components/BackLink";
 import Chat from "./Chat";
@@ -12,14 +12,16 @@ import {AnimationProvider} from "@/app/AnimationContext";
 import useWebSocket from "@/hooks/useWebSocket";
 import GameView from "./GameView";
 import {Toaster} from "react-hot-toast";
+
 import {
   sendCancelSabotageMessage,
   sendGameEndMessage,
   sendKillPlayerMessage,
   sendMovePlayerMessage,
   sendReportBodyMessage,
-  sendSabotageMessage
-} from "./PageSendFunctions"
+  sendSabotageMessage,
+} from "./PageSendFunctions";
+
 import TaskService from "@/services/TaskService";
 import VotingResultsPopup from "@/app/game/[gameCode]/play/VotingResultsPopup";
 
@@ -42,19 +44,20 @@ export default function PlayGame() {
   }
 
   const currentPlayer = game?.players?.find(
-      (player) => player.id.toString() === playerId);
+    (player) => player.id.toString() === playerId
+  );
 
   const currentPlayerVotedOut = currentPlayer?.id == latestVote;
 
   const isGhost = (currentPlayer?.role === Role.CREWMATE_GHOST ||
-                           currentPlayer?.role === Role.IMPOSTOR_GHOST);
+                   currentPlayer?.role === Role.IMPOSTOR_GHOST);
 
   const playerRole = currentPlayer?.role ?? "";
   const activePlayers = game?.players?.filter(player => player.role === Role.IMPOSTOR ||
                                                                      player.role === Role.CREWMATE);
 
   const isMovingAllowed =
-    (playerRole !== Role.CREWMATE_GHOST &&
+    playerRole !== Role.CREWMATE_GHOST &&
     playerRole !== Role.IMPOSTOR_GHOST &&
     game?.gameStatus === GameStatus.IN_GAME &&
     !showChat &&
@@ -69,7 +72,7 @@ export default function PlayGame() {
       if (stompClient) {
         stompClient.unsubscribe();
       }
-    }
+    };
   }, [stompClient]);
 
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function PlayGame() {
         setImpostorWinTimer((prevTime) => prevTime - 1);
       }, 1000);
     } else if (impostorWinTimer === 0) {
-      sendGameEndMessage({stompClient, gameCode})
+      sendGameEndMessage({ stompClient, gameCode });
     }
     return () => clearInterval(countdownInterval);
   }, [impostorWinTimer]);
@@ -101,7 +104,7 @@ export default function PlayGame() {
   function handleKeyDown(event: KeyboardEvent) {
     const keyCode = event.code;
     const validKeyCodes = ["KeyA", "KeyW", "KeyD", "KeyS"];
-    if (playerId &&  validKeyCodes.includes(keyCode) && isMovingAllowed) {
+    if (playerId && validKeyCodes.includes(keyCode) && isMovingAllowed) {
       if (!pressedKeys.current.has(keyCode)) {
         pressedKeys.current.add(keyCode);
         sendMoveMessage().then();
@@ -134,8 +137,8 @@ export default function PlayGame() {
   async function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
     const isCompleted = await TaskService.getCompletedStatus(
-        taskId,
-        game.gameCode
+      taskId,
+      game.gameCode
     );
 
     if (isCompleted.data === true && task) {
@@ -156,23 +159,53 @@ export default function PlayGame() {
         : false;
 
     if (!keyCodeToSend) return;
-    sendMovePlayerMessage({stompClient, playerId, keyCodeToSend, gameCode, newMirroring, players: game.players});
+    sendMovePlayerMessage({
+      stompClient,
+      playerId,
+      keyCodeToSend,
+      gameCode,
+      newMirroring,
+      players: game.players,
+    });
   }
 
-  async function killPlayer(gameCode: string, playerToKillId: number, nearbyTask: number) {
-    sendKillPlayerMessage({stompClient, gameCode, playerToKillId, nearbyTask});
+  async function killPlayer(
+    gameCode: string,
+    playerToKillId: number,
+    nearbyTask: number
+  ) {
+    sendKillPlayerMessage({
+      stompClient,
+      gameCode,
+      playerToKillId,
+      nearbyTask,
+    });
   }
 
   async function reportBody(gameCode: string, bodyToReportId: number) {
-    sendReportBodyMessage({stompClient, gameCode, bodyToReportId});
+    sendReportBodyMessage({ stompClient, gameCode, bodyToReportId });
   }
 
   async function getSabotagePosition(sabotageId: number) {
-    sendSabotageMessage({stompClient, gameCode, sabotageId, map: game.map});
+    sendSabotageMessage({ stompClient, gameCode, sabotageId, map: game.map });
   }
 
   function handleCancelSabotage() {
-    sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCode});
+    sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
+  }
+
+  let modalTextColor = "text-red-600";
+
+  if (
+      game?.gameStatus === GameStatus.CREWMATES_WIN &&
+      (playerRole === Role.CREWMATE || playerRole === Role.CREWMATE_GHOST)
+  ) {
+    modalTextColor = "text-green-600";
+  } else if (
+      game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
+      (playerRole === Role.IMPOSTOR || playerRole === Role.IMPOSTOR_GHOST)
+  ) {
+    modalTextColor = "text-green-600";
   }
 
   return (
@@ -203,33 +236,33 @@ export default function PlayGame() {
         </Modal>
         :
         game?.gameStatus === GameStatus.CREWMATES_WIN
-        ?
-        <Modal modalText={"CREWMATES WIN!"}>
-          <BackLink href={"/"}>Return to Landing Page</BackLink>
-        </Modal>
-        :
-        game?.gameStatus === GameStatus.IMPOSTORS_WIN
-        ?
-        <Modal modalText={"IMPOSTORS WIN!"}>
-          <BackLink href={"/"}>Return to Landing Page</BackLink>
-        </Modal>
-        :
-        currentPlayer
-        ?
-        <GameView
-          game={game}
-          map={map.map}
-          currentPlayer={currentPlayer}
-          showTaskPopup={showTaskPopup}
-          getSabotagePosition={getSabotagePosition}
-          handleCancelSabotage={handleCancelSabotage}
-          killPlayer={killPlayer}
-          reportBody={reportBody}
-          handleTaskCompleted={handleTaskCompleted}
-          handleShowTaskPopup={setShowTaskPopup}
-        />
-        :
-        <div>No Player Data Found</div>}
+          ?
+          <Modal modalText={"CREWMATES WIN!"}>
+            <BackLink href={"/"}>Return to Landing Page</BackLink>
+          </Modal>
+          :
+          game?.gameStatus === GameStatus.IMPOSTORS_WIN
+            ?
+            <Modal modalText={"IMPOSTORS WIN!"}>
+              <BackLink href={"/"}>Return to Landing Page</BackLink>
+            </Modal>
+            :
+            currentPlayer
+              ?
+              <GameView
+                game={game}
+                map={map.map}
+                currentPlayer={currentPlayer}
+                showTaskPopup={showTaskPopup}
+                getSabotagePosition={getSabotagePosition}
+                handleCancelSabotage={handleCancelSabotage}
+                killPlayer={killPlayer}
+                reportBody={reportBody}
+                handleTaskCompleted={handleTaskCompleted}
+                handleShowTaskPopup={setShowTaskPopup}
+              />
+              :
+              <div>No Player Data Found</div>}
       </div>
       <Toaster />
     </AnimationProvider>
