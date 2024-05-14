@@ -8,8 +8,8 @@ let subscriptionsSet = false;
 export function SetGameSubscriptions(stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function, gameCode: string) {
   if (!subscriptionsSet && stompClient) {
     const subscriptions = [
-      `/${gameCode}/topic/positionChange`,
-      `/${gameCode}/topic/IdleChange`,
+      `/topic/${gameCode}/positionChange`,
+      `/topic/${gameCode}/IdleChange`,
       "/topic/playerKill",
       "/topic/bodyReport",
       "/topic/gameEnd",
@@ -18,13 +18,13 @@ export function SetGameSubscriptions(stompClient: any, updateGame: Function, set
     ];
 
     const handlers: Handlers = {
-      [`/${gameCode}/topic/positionChange`]: (message: { body: string }) => {
+      [`/topic/${gameCode}/positionChange`]: (message: { body: string }) => {
         console.log('Received positionChange message:', message);
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
         console.log('Received positionChange message:', message);
       },
-      [`/${gameCode}/topic/IdleChange`]: (message: { body: string }) => {
+      [`/topic/${gameCode}/IdleChange`]: (message: { body: string }) => {
         console.log('Received IdleChange message:', message);
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
