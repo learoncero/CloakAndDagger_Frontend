@@ -19,6 +19,15 @@ export default function Lobby() {
   const { gameCode } = useParams();
   const { game, updateGame } = useGame(gameCode as string);
 
+  let playerId: string | null;
+  if (typeof window !== "undefined") {
+    playerId = sessionStorage.getItem("playerId");
+  }
+
+  const currentPlayer = game?.players?.find(
+      (player) => player.id.toString() === playerId
+  );
+
   async function loadGameData() {
     const gameResult = await fetchGame(gameCode as string);
     console.log(gameResult.data);
@@ -81,7 +90,10 @@ export default function Lobby() {
           handleStartGame={handleStartGame}
           isGameReadyToStart={isGameReadyToStart}
         />
-        <LobbyLeaveButton/>
+        <LobbyLeaveButton
+          gameCode={gameCode as string}
+          playerUsername={currentPlayer?.username as string}
+        />
       </div>
     </div>
   );

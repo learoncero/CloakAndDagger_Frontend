@@ -3,7 +3,10 @@ import ApiService from "./ApiService";
 
 export default class GameService {
   static async getGame(gameCode: string) {
-    const game = await ApiService.fetch("game", `/api/game/${gameCode}`);
+    const game = await ApiService.fetch(
+        "game",
+        `/api/game/${gameCode}`
+    );
     return game as ApiResponse<Game>;
   }
 
@@ -15,7 +18,10 @@ export default class GameService {
     playerColor: string,
 
   ) {
-    const createdGame = await ApiService.post("game", "/api/game", {
+    const createdGame = await ApiService.post(
+        "game",
+        "/api/game",
+{
       player,
       numberOfPlayers,
       numberOfImpostors,
@@ -27,7 +33,10 @@ export default class GameService {
   }
 
   static async joinGame(username: string, gameCode: string, playerColor: string) {
-    const joinedGame = await ApiService.post("game", "/api/game/join", {
+    const joinedGame = await ApiService.post(
+        "game",
+        "/api/game/join",
+{
       username,
       position: {
         x: 10,
@@ -42,5 +51,19 @@ export default class GameService {
     }
 
     return joinedGame as ApiResponse<Game>;
+  }
+
+  static async leaveGame(gameCode: string, playerUsername: string) {
+    const leftGame = await ApiService.post(
+        "game",
+        `/api/game/${gameCode}/leave`,
+        playerUsername,
+    );
+
+    if (leftGame.status !== 200) {
+      throw new Error(leftGame.data.message);
+    }
+
+    return leftGame as ApiResponse<boolean>;
   }
 }

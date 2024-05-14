@@ -1,8 +1,18 @@
 import React, { useState } from "react";
 import LeaveLobbyConfirmationPopup from "./LeaveLobbyConfirmationPopup";
+import GameService from "@/services/GameService";
+import {Game} from "@/app/types";
+import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
-export default function LobbyLeaveButton() {
+type Props = {
+    gameCode: string;
+    playerUsername: string;
+};
+
+export default function LobbyLeaveButton({ gameCode, playerUsername }: Props) {
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const router = useRouter();
 
     const handleLeave = () => {
         setShowConfirmation(true);
@@ -12,9 +22,18 @@ export default function LobbyLeaveButton() {
         setShowConfirmation(false);
     };
 
-    const handleConfirm = () => {
-        alert("Not implemented yet!");
-        setShowConfirmation(false);
+    const handleConfirm = async () => {
+        try {
+            const response = await GameService.leaveGame(gameCode, playerUsername);
+
+            if (response.data) {
+                await router.push("/game/setup");
+            }
+        } catch (error: any) {
+            console.error(error.message);
+        } finally {
+            setShowConfirmation(false);
+        }
     };
 
     return (
