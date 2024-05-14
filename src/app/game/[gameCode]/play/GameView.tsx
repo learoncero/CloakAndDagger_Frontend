@@ -239,7 +239,7 @@ export default function GameView({
         </div>
 
         <div className="flex-none w-1/4">
-          <div className="mb-32">
+          <div className="mb-2">
             <MapButton
               handleToggleMiniMap={handleToggleMiniMap}
               label="Show MiniMap"

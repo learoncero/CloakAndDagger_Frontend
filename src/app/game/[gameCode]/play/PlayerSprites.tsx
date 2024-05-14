@@ -2,18 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {Player, Role} from "@/app/types";
 import {useAnimation} from '@/app/AnimationContext';
 
-
 interface SpriteConfig {
     dead: string;
     mov: string[];
     idle: string;
 }
 
-
 interface Sprites {
     [key: string]: SpriteConfig;
 }
-
 
 const sprites: Sprites = {
     red: {
@@ -88,15 +85,10 @@ const sprites: Sprites = {
     }
 };
 
-
-
-
 interface PlayerSpritesProps {
     player: Player;
     currentPlayerRole: Role;
 }
-
-
 
 // Sprite Components
 const PlayerSprites: React.FC<PlayerSpritesProps> = ({ player, currentPlayerRole }: PlayerSpritesProps) => {
