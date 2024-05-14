@@ -1,5 +1,5 @@
 import { Game } from "@/app/types";
-import {useEffect, useRef} from "react";
+import { useEffect, useRef } from "react";
 
 type Props = {
   game: Game;
@@ -15,7 +15,10 @@ export default function LobbyPlayerList({ game }: Props) {
   }, [game.players]);
 
   return (
-    <ul ref={listRef} className="list-none p-0 h-64 overflow-y-auto">
+    <ul
+      ref={listRef}
+      className="list-none p-0 h-64 overflow-y-auto scrollbar-hide"
+    >
       {game?.players?.map((player) => (
         <li key={player.id} className="mb-2 px-4 py-2 bg-gray-800 rounded-lg">
           {player.username}
