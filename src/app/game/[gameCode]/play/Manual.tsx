@@ -43,6 +43,7 @@ export default function Manual({ role, onClose }: Props) {
                 <li>Show Minimap: M | Q</li>
                 <li>Show Manual: H</li>
                 <li>Start/Cancel Task: E</li>
+                <li>Cancel Sabotage: C</li>
                 <li>Report Dead Body: R</li>
               </ul>
             </div>
@@ -65,6 +66,7 @@ export default function Manual({ role, onClose }: Props) {
                 <li>Show Minimap: M | Q</li>
                 <li>Show Manual: H</li>
                 <li>Kill: E</li>
+                <li>Cancel Sabotage: C</li>
                 <li>Report Dead Body: R</li>
               </ul>
             </div>
