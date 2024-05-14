@@ -113,7 +113,7 @@ export default function GameView({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isImpostor && event.code === "KeyE") {
         handleKill();
-      } else if (event.key === "m" || event.key === "M") {
+      } else if (event.key === "m" || event.key === "M" || event.key === "q" || event.key === "Q") {
         setShowMiniMap((prev) => !prev);
       } else if (event.code === "KeyR") {
         handleReportBody();

@@ -32,7 +32,7 @@ export default function CreateGameFormInputField({
       </label>
       {options ? (
         <select
-          className="font-sans bg-gray-800 appearance-none border-2 border-gray-700 rounded-lg w-full py-2 px-4 text-white leading-tight focus:outline-none focus:bg-gray-700"
+          className="font-sans bg-gray-800 border-2 border-gray-700 rounded-lg w-full py-2 px-4 text-white leading-tight focus:outline-none focus:bg-gray-700"
           name={name}
           value={value}
           onChange={onChange}

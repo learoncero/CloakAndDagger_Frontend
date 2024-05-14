@@ -6,19 +6,29 @@ import ChatBubble from "./ChatBubble";
 import { endChat } from "./actions";
 import ChatMessageInputField from "./ChatMessageInputField";
 import ChatSendButton from "./ChatSendButton";
+import Voting from "./Voting";
 
 type Props = {
   onClose: (value: boolean) => void;
   gameCode: string;
+  players: Player[];
   currentPlayer: Player;
+  setShowVotingResults: (value: boolean) => void;
 };
 
-export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
+export default function Chat({
+                               onClose,
+                               gameCode,
+                               currentPlayer,
+                               players,
+                               setShowVotingResults }: Props) {
   const [stompClient, setStompClient] = useState<any>(null);
   const [chat, setChat] = useState<ChatType>({} as ChatType);
   const [message, setMessage] = useState("");
-  const [remainingTime, setRemainingTime] = useState<number>(30);
+  const [remainingTime, setRemainingTime] = useState<number>(60);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [playerVotes, setPlayerVotes] = useState<number[]>([]);
+  const activePlayers = players ? players.filter(player => player.role === "IMPOSTOR" || player.role === "CREWMATE") : [];
 
   useEffect(() => {
     if (!stompClient) {
@@ -34,7 +44,7 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
         }
       };
     }
-  }, [stompClient]);
+  }, []);
 
   useEffect(() => {
     if (stompClient) {
@@ -48,10 +58,17 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
           console.error("Error subscribing to /topic/messages:", error);
         }
       );
+      stompClient.subscribe(
+          "/topic/vote",
+            (message: { body: string }) => {
+                const receivedMessage = JSON.parse(message.body);
+                setPlayerVotes(receivedMessage.body);
+            },
+      )
     }
     return () => {
       if (stompClient) {
-        stompClient.disconnect();
+        stompClient.unsubscribe();
       }
     };
   }, [stompClient]);
@@ -67,6 +84,7 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
   useEffect(() => {
     if (remainingTime === 0) {
       onClose(false);
+      setShowVotingResults(true); //todo test this
       handleEndChat();
     }
   }, [remainingTime, onClose]);
@@ -78,12 +96,30 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
     }
   }, [chat]);
 
+  /*useEffect(() => {
+    console.log("Players Vote List: ", playerVotes);
+  }, [playerVotes]);*/
+
   async function handleEndChat() {
     await endChat(gameCode as string);
   }
 
   function updateMessage(message: string) {
     setMessage(message);
+  }
+
+  async function handleVotes(playerId: number) {
+    const votingMessage ={
+      gameCode: gameCode,
+      playerId: playerId,
+    };
+    if (stompClient) {
+      stompClient.send(
+          "/app/chat/vote",
+          {},
+          JSON.stringify(votingMessage)
+      );
+    }
   }
 
   async function onMessageSend() {
@@ -94,9 +130,9 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
     };
     if (stompClient && message.trim() !== "") {
       stompClient.send(
-        "/app/chat/sendMessage",
-        {},
-        JSON.stringify(chatMessage)
+          "/app/chat/sendMessage",
+          {},
+          JSON.stringify(chatMessage)
       );
     }
     setMessage("");
@@ -105,32 +141,35 @@ export default function Chat({ onClose, gameCode, currentPlayer }: Props) {
   console.log("chat", chat);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-10">
-      <div className="max-w-3xl w-full px-10 text-white border border-white rounded-lg relative min-h-96">
-        <h2 className="text-3xl font-bold mb-4 text-white border-b pt-10 pb-5">
-          Chat - Remaining Time: {remainingTime} seconds
-        </h2>
-        <div
-          ref={chatContainerRef}
-          className="h-96 rounded-lg overflow-y-scroll pb-5 scrollbar-hide scroll-smooth"
-        >
-          {chat?.chatMessages?.map((chatMessage, index) => (
-            <ChatBubble
-              key={index}
-              message={chatMessage.message}
-              sender={chatMessage.sender}
-              currentPlayerName={currentPlayer.username}
+    <div>
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-10">
+        <div className="max-w-3xl w-full px-10 text-white border border-white rounded-lg relative min-h-96">
+          <h2 className="text-3xl font-bold mb-4 text-white border-b pt-10 pb-5">
+            Chat - Remaining Time: {remainingTime} seconds
+          </h2>
+          <div
+            ref={chatContainerRef}
+            className="h-96 rounded-lg overflow-y-scroll pb-5 scrollbar-hide scroll-smooth"
+          >
+            {chat?.chatMessages?.map((chatMessage, index) => (
+              <ChatBubble
+                key={index}
+                message={chatMessage.message}
+                sender={chatMessage.sender}
+                currentPlayerName={currentPlayer.username}
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-between px-5 py-3 border-t border-white gap-5">
+            <ChatMessageInputField
+              updateMessage={updateMessage}
+              message={message}
+              onMessageSend={onMessageSend}
             />
-          ))}
+            <ChatSendButton onMessageSend={onMessageSend} />
+          </div>
         </div>
-        <div className="flex items-center justify-between px-5 py-3 border-t border-white gap-5">
-          <ChatMessageInputField
-            updateMessage={updateMessage}
-            message={message}
-            onMessageSend={onMessageSend}
-          />
-          <ChatSendButton onMessageSend={onMessageSend} />
-        </div>
+        <Voting currentPlayer={currentPlayer} activePlayers={activePlayers} handleVotes={handleVotes}/>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ it('should render the MapButton label',  async () => {
     const onClick = vi.fn()
 
     render(
-        <MapButton onClick={onClick} label="Show MiniMap"/>
+        <MapButton handleToggleMiniMap={onClick} label="Show MiniMap"/>
     )
     screen.getByRole('button', {name: "Show MiniMap"});
 

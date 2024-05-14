@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Player, Role } from "@/app/types";
-import { useAnimation } from "@/app/AnimationContext";
+import React, {useEffect, useState} from 'react';
+import {Player, Role} from "@/app/types";
+import {useAnimation} from '@/app/AnimationContext';
+
 
 interface SpriteConfig {
   dead: string;
