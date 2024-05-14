@@ -62,7 +62,8 @@ export default function PlayGame() {
         stompClient,
         updateGame,
         setImpostorWinTimer,
-        handleChatView
+        handleChatView,
+          gameCode
       );
     }
     return () => {

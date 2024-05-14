@@ -19,6 +19,7 @@ export default function useGame(gameCode: string) {
   }
 
   const updateGame = (newGame: Game) => {
+    console.log("This is the new Game:" + newGame)
     setGame(newGame);
   };
 

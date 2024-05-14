@@ -50,14 +50,14 @@ export function sendKillPlayerMessage({stompClient, gameCode, playerToKillId, ne
 }
 
 type MovePlayerProps = {
-    stompClient: any,
-    playerId: string | null,
-    keyCodeToSend: string,
-    gameCode: string,
-    newMirroring: boolean,
-    players: Player[],
-}
-export function sendMovePlayerMessage({stompClient, playerId, keyCodeToSend, gameCode, newMirroring, players}: MovePlayerProps){
+    stompClient: any;
+    playerId: string | null;
+    keyCodeToSend: string;
+    gameCode: string;
+    newMirroring: boolean;
+    players: Player[];
+};
+export function sendMovePlayerMessage({ stompClient, playerId, keyCodeToSend, gameCode, newMirroring, players }: MovePlayerProps) {
     const moveMessage = {
         id: playerId,
         keyCode: keyCodeToSend,
@@ -67,7 +67,7 @@ export function sendMovePlayerMessage({stompClient, playerId, keyCodeToSend, gam
     };
 
     if (stompClient && (players?.length ?? 0) > 0 && playerId) {
-        stompClient.send("/app/move", {}, JSON.stringify(moveMessage));
+        stompClient.send(`/app/${gameCode}/move`, {}, JSON.stringify(moveMessage));
     }
 }
 

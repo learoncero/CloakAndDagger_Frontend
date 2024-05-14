@@ -5,11 +5,11 @@ interface Handlers {
 }
 let subscriptionsSet = false;
 
-export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function)  {
-  if (!subscriptionsSet) {
+export function SetGameSubscriptions(stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function, gameCode: string) {
+  if (!subscriptionsSet && stompClient) {
     const subscriptions = [
-      "/topic/positionChange",
-      "/topic/IdleChange",
+      `/${gameCode}/topic/positionChange`,
+      `/${gameCode}/topic/IdleChange`,
       "/topic/playerKill",
       "/topic/bodyReport",
       "/topic/gameEnd",
@@ -18,13 +18,16 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
     ];
 
     const handlers: Handlers = {
-      "/topic/positionChange": (message: { body: string }) => {
+      [`/${gameCode}/topic/positionChange`]: (message: { body: string }) => {
+        console.log('Received positionChange message:', message);
         const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage.body);
+        updateGame(receivedMessage);
+        console.log('Received positionChange message:', message);
       },
-      "/topic/IdleChange": (message: { body: string }) => {
+      [`/${gameCode}/topic/IdleChange`]: (message: { body: string }) => {
+        console.log('Received IdleChange message:', message);
         const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage.body);
+        updateGame(receivedMessage);
       },
       "/topic/playerKill": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -52,8 +55,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
             backgroundColor: "#eF4444",
           },
           icon: "❕",
-          }
-        );
+        });
       },
       "/topic/sabotageCancel": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -80,4 +82,3 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
     subscriptionsSet = true;
   }
 }
-
