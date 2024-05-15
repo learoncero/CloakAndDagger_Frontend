@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Cloak & Dagger (CnD)",
+  title: "Cloak & Dagger",
   description: "Play the game of espionage and intrigue.",
 };
 
