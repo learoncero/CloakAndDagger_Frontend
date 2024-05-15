@@ -24,13 +24,13 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
       [`/topic/${gameCode}/positionChange`]: (message: { body: string }) => {
         console.log('Received positionChange message:', message);
         const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage);
+        updateGame(receivedMessage.body);
         console.log('Received positionChange message:', message);
       },
       [`/topic/${gameCode}/IdleChange`]: (message: { body: string }) => {
         console.log('Received IdleChange message:', message);
         const receivedMessage = JSON.parse(message.body);
-        updateGame(receivedMessage);
+        updateGame(receivedMessage.body);
       },
       "/topic/playerKill": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
