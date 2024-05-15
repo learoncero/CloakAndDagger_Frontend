@@ -5,51 +5,53 @@ interface Handlers {
 }
 let subscriptionsSet = false;
 
-
-export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function, setLatestVote: Function, gameCode: string)  {
+export function SetGameSubscriptions(
+    stompClient: any,
+    updateGame: Function,
+    setImpostorWinTimer: Function,
+    handleChatView: Function,
+    setLatestVote: Function,
+    gameCode: string
+) {
   if (!subscriptionsSet) {
-
     const subscriptions = [
       `/topic/${gameCode}/positionChange`,
       `/topic/${gameCode}/IdleChange`,
-      "/topic/playerKill",
-      "/topic/bodyReport",
-      "/topic/gameEnd",
-      "/topic/sabotageStart",
-      "/topic/sabotageCancel",
-      "/topic/voteResults",
+      `/topic/${gameCode}/playerKill`,
+      `/topic/${gameCode}/bodyReport`,
+      `/topic/${gameCode}/gameEnd`,
+      `/topic/${gameCode}/sabotageStart`,
+      `/topic/${gameCode}/sabotageCancel`,
+      `/topic/${gameCode}/voteResults`,
     ];
 
     const handlers: Handlers = {
       [`/topic/${gameCode}/positionChange`]: (message: { body: string }) => {
-        console.log('Received positionChange message:', message);
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
-        console.log('Received positionChange message:', message);
       },
       [`/topic/${gameCode}/IdleChange`]: (message: { body: string }) => {
-        console.log('Received IdleChange message:', message);
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/playerKill": (message: { body: string }) => {
+      [`/topic/${gameCode}/playerKill`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/bodyReport": (message: { body: string }) => {
+      [`/topic/${gameCode}/bodyReport`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         handleChatView(true);
       },
-      "/topic/gameEnd": (message: { body: string }) => {
+      [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/sabotageStart": (message: { body: string }) => {
+      [`/topic/${gameCode}/sabotageStart`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setImpostorWinTimer(30);
-        toast("Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",{
+        toast("Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!", {
           position: "top-center",
           style: {
             border: "2px solid black",
@@ -60,7 +62,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
           icon: "❕",
         });
       },
-      "/topic/sabotageCancel": (message: { body: string }) => {
+      [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setImpostorWinTimer(-1);
@@ -75,7 +77,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
           icon: "❕",
         });
       },
-      "/topic/voteResults": (message: { body: string }) => {
+      [`/topic/${gameCode}/voteResults`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
         setLatestVote(receivedMessage.votingResults.at(-1));
@@ -87,6 +89,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
         handlers[topic](message);
       });
     });
+
     subscriptionsSet = true;
   }
 }
