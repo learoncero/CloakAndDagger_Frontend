@@ -9,7 +9,7 @@ export default function LandingPage() {
             <Link href={"/game/setup"} className="hover:opacity-75">
                 <Image
                     className="transition duration-300 ease-in-out"
-                    src="/logo-no-background.png"
+                    src="/logo-no-background-blue.png"
                     alt="Game Logo"
                     width={500}
                     height={276}
