@@ -65,7 +65,7 @@ export default function Lobby() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center pl-5 items-center gap-10">
-      <div className="max-w-xl text-white p-8 rounded-lg border-white border flex flex-col grow h-96">
+      <div className="max-w-xl text-white p-8 rounded-lg border-white border flex flex-col grow h-100">
         <LobbyHeader game={game} />
         {game && (
           <div>
