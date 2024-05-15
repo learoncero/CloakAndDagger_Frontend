@@ -5,7 +5,7 @@ type Props = {
     onConfirm: () => void;
 };
 
-export default function LeaveLobbyConfirmationPopup({ onCancel, onConfirm }: Props) {
+export default function LobbyLeaveConfirmationPopup({ onCancel, onConfirm }: Props) {
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 border-white">
             <div className="bg-black p-8 rounded-lg">

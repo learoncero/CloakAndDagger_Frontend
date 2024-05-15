@@ -1,8 +1,6 @@
-import React, { useState } from "react";
-import LeaveLobbyConfirmationPopup from "./LeaveLobbyConfirmationPopup";
+import React, {useEffect, useState} from "react";
+import LobbyLeaveConfirmationPopup from "./LobbyLeaveConfirmationPopup";
 import GameService from "@/services/GameService";
-import {Game} from "@/app/types";
-import {router} from "next/client";
 import {useRouter} from "next/navigation";
 
 type Props = {
@@ -10,7 +8,7 @@ type Props = {
     playerUsername: string;
 };
 
-export default function LobbyLeaveButton({ gameCode, playerUsername }: Props) {
+export default function LobbyLeave({ gameCode, playerUsername }: Props) {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const router = useRouter();
 
@@ -36,6 +34,22 @@ export default function LobbyLeaveButton({ gameCode, playerUsername }: Props) {
         }
     };
 
+    useEffect(() => {
+        const handleBeforeUnload = async () => {
+            try {
+                await GameService.leaveGame(gameCode, playerUsername);
+            } catch (error) {
+                console.error("Error leaving lobby:", error);
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [gameCode, playerUsername]);
+
     return (
         <>
             <button
@@ -45,7 +59,7 @@ export default function LobbyLeaveButton({ gameCode, playerUsername }: Props) {
                 Leave Lobby
             </button>
             {showConfirmation && (
-                <LeaveLobbyConfirmationPopup
+                <LobbyLeaveConfirmationPopup
                     onCancel={handleCancel}
                     onConfirm={handleConfirm}
                 />
