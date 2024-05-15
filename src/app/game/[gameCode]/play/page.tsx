@@ -86,6 +86,7 @@ export default function PlayGame() {
   }, [stompClient]);
 
   useEffect(() => {
+    console.log("DID load the Game")
     loadGameData().then();
   }, []);
 
