@@ -17,18 +17,23 @@ type Props = {
 };
 
 export default function Chat({
-                               onClose,
-                               gameCode,
-                               currentPlayer,
-                               players,
-                               setShowVotingResults }: Props) {
+  onClose,
+  gameCode,
+  currentPlayer,
+  players,
+  setShowVotingResults,
+}: Props) {
   const [stompClient, setStompClient] = useState<any>(null);
   const [chat, setChat] = useState<ChatType>({} as ChatType);
   const [message, setMessage] = useState("");
   const [remainingTime, setRemainingTime] = useState<number>(60);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [playerVotes, setPlayerVotes] = useState<number[]>([]);
-  const activePlayers = players ? players.filter(player => player.role === "IMPOSTOR" || player.role === "CREWMATE") : [];
+  const activePlayers = players
+    ? players.filter(
+        (player) => player.role === "IMPOSTOR" || player.role === "CREWMATE"
+      )
+    : [];
 
   useEffect(() => {
     if (!stompClient) {
@@ -58,13 +63,10 @@ export default function Chat({
           console.error("Error subscribing to /topic/messages:", error);
         }
       );
-      stompClient.subscribe(
-          "/topic/vote",
-            (message: { body: string }) => {
-                const receivedMessage = JSON.parse(message.body);
-                setPlayerVotes(receivedMessage.body);
-            },
-      )
+      stompClient.subscribe("/topic/vote", (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        setPlayerVotes(receivedMessage.body);
+      });
     }
     return () => {
       if (stompClient) {
@@ -96,10 +98,6 @@ export default function Chat({
     }
   }, [chat]);
 
-  /*useEffect(() => {
-    console.log("Players Vote List: ", playerVotes);
-  }, [playerVotes]);*/
-
   async function handleEndChat() {
     await endChat(gameCode as string);
   }
@@ -109,16 +107,12 @@ export default function Chat({
   }
 
   async function handleVotes(playerId: number) {
-    const votingMessage ={
+    const votingMessage = {
       gameCode: gameCode,
       playerId: playerId,
     };
     if (stompClient) {
-      stompClient.send(
-          "/app/chat/vote",
-          {},
-          JSON.stringify(votingMessage)
-      );
+      stompClient.send("/app/chat/vote", {}, JSON.stringify(votingMessage));
     }
   }
 
@@ -130,15 +124,13 @@ export default function Chat({
     };
     if (stompClient && message.trim() !== "") {
       stompClient.send(
-          "/app/chat/sendMessage",
-          {},
-          JSON.stringify(chatMessage)
+        "/app/chat/sendMessage",
+        {},
+        JSON.stringify(chatMessage)
       );
     }
     setMessage("");
   }
-
-  console.log("chat", chat);
 
   return (
     <div>
@@ -169,7 +161,11 @@ export default function Chat({
             <ChatSendButton onMessageSend={onMessageSend} />
           </div>
         </div>
-        <Voting currentPlayer={currentPlayer} activePlayers={activePlayers} handleVotes={handleVotes}/>
+        <Voting
+          currentPlayer={currentPlayer}
+          activePlayers={activePlayers}
+          handleVotes={handleVotes}
+        />
       </div>
     </div>
   );
