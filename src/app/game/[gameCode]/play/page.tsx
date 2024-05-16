@@ -265,6 +265,7 @@ export default function PlayGame() {
             reportBody={reportBody}
             handleTaskCompleted={handleTaskCompleted}
             handleShowTaskPopup={setShowTaskPopup}
+            showChat={showChat}
           />
         ) : (
           <div>No Player Data Found</div>

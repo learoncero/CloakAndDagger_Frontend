@@ -31,6 +31,7 @@ type Props = {
   handleTaskCompleted: (taskId: number) => void;
   showTaskPopup: boolean;
   handleShowTaskPopup: (show: boolean) => void;
+  showChat: boolean;
 };
 
 export default function GameView({
@@ -44,6 +45,7 @@ export default function GameView({
   handleTaskCompleted,
   showTaskPopup,
   handleShowTaskPopup,
+  showChat,
 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
@@ -113,7 +115,12 @@ export default function GameView({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isImpostor && event.code === "KeyE") {
         handleKill();
-      } else if (event.key === "m" || event.key === "M" || event.key === "q" || event.key === "Q") {
+      } else if (
+        event.key === "m" ||
+        event.key === "M" ||
+        event.key === "q" ||
+        event.key === "Q"
+      ) {
         setShowMiniMap((prev) => !prev);
       } else if (event.code === "KeyR") {
         handleReportBody();
@@ -193,17 +200,19 @@ export default function GameView({
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "h" || event.key === "H") {
+      if ((event.key === "h" || event.key === "H") && !showChat) {
         toggleManualVisibility();
       }
     };
+
+    console.log("show chat", showChat);
 
     window.addEventListener("keydown", handleKeyPress);
 
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [toggleManualVisibility]);
+  }, [showChat, toggleManualVisibility]);
 
   async function handleKill() {
     if (!isTimer && nearbyPlayers.length > 0) {
