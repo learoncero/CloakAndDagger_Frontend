@@ -34,6 +34,7 @@ type Props = {
   handleShowTaskPopup: (show: boolean) => void;
   showBodyReported: boolean;
   handleShowBodyReported: (show: boolean) => void;
+  showChat: boolean;
 };
 
 export default function GameView({
@@ -49,6 +50,7 @@ export default function GameView({
   handleShowTaskPopup,
   showBodyReported,
   handleShowBodyReported,
+  showChat,
 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
@@ -203,17 +205,19 @@ export default function GameView({
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "h" || event.key === "H") {
+      if ((event.key === "h" || event.key === "H") && !showChat) {
         toggleManualVisibility();
       }
     };
+
+    console.log("show chat", showChat);
 
     window.addEventListener("keydown", handleKeyPress);
 
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [toggleManualVisibility]);
+  }, [showChat, toggleManualVisibility]);
 
   async function handleKill() {
     if (!isTimer && nearbyPlayers.length > 0) {
