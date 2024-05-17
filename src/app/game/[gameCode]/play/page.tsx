@@ -37,6 +37,7 @@ export default function PlayGame() {
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
+  const [showBodyReported, setShowBodyReported] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -73,7 +74,8 @@ export default function PlayGame() {
         updateGame,
         setImpostorWinTimer,
         handleChatView,
-        setLatestVote
+        setLatestVote,
+        setShowBodyReported
       );
     }
     return () => {
@@ -265,6 +267,8 @@ export default function PlayGame() {
             reportBody={reportBody}
             handleTaskCompleted={handleTaskCompleted}
             handleShowTaskPopup={setShowTaskPopup}
+            showBodyReported={showBodyReported}
+            handleShowBodyReported={setShowBodyReported}
             showChat={showChat}
           />
         ) : (

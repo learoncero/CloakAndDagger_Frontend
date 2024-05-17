@@ -5,7 +5,14 @@ interface Handlers {
 }
 let subscriptionsSet = false;
 
-export function SetGameSubscriptions (stompClient: any, updateGame: Function, setImpostorWinTimer: Function, handleChatView: Function, setLatestVote: Function)  {
+export function SetGameSubscriptions(
+  stompClient: any,
+  updateGame: Function,
+  setImpostorWinTimer: Function,
+  handleChatView: Function,
+  setLatestVote: Function,
+  setShowBodyReported: Function
+) {
   if (!subscriptionsSet) {
     const subscriptions = [
       "/topic/positionChange",
@@ -34,7 +41,10 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
       "/topic/bodyReport": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
-        handleChatView(true);
+        setShowBodyReported(true);
+        setTimeout(() => {
+          handleChatView(true);
+        }, 2000);
       },
       "/topic/gameEnd": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -44,15 +54,17 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setImpostorWinTimer(30);
-        toast("Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",{
-          position: "top-center",
-          style: {
-            border: "2px solid black",
-            padding: "16px",
-            color: "white",
-            backgroundColor: "#eF4444",
-          },
-          icon: "❕",
+        toast(
+          "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
+          {
+            position: "top-center",
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "white",
+              backgroundColor: "#eF4444",
+            },
+            icon: "❕",
           }
         );
       },
@@ -75,7 +87,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
         setLatestVote(receivedMessage.votingResults.at(-1));
-      }
+      },
     };
 
     subscriptions.forEach((topic) => {
@@ -86,4 +98,3 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
     subscriptionsSet = true;
   }
 }
-

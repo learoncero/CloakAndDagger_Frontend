@@ -15,6 +15,7 @@ import useNearbyEntities from "@/hooks/useNearbyEntities";
 import TaskService from "@/services/TaskService";
 import Manual from "./Manual";
 import ToggleButton from "@/components/ToggleButton";
+import InformationPopUp from "./InformationPopUp";
 
 type Props = {
   game: Game;
@@ -31,6 +32,8 @@ type Props = {
   handleTaskCompleted: (taskId: number) => void;
   showTaskPopup: boolean;
   handleShowTaskPopup: (show: boolean) => void;
+  showBodyReported: boolean;
+  handleShowBodyReported: (show: boolean) => void;
   showChat: boolean;
 };
 
@@ -45,6 +48,8 @@ export default function GameView({
   handleTaskCompleted,
   showTaskPopup,
   handleShowTaskPopup,
+  showBodyReported,
+  handleShowBodyReported,
   showChat,
 }: Props) {
   const isImpostor =
@@ -254,6 +259,14 @@ export default function GameView({
     <div>
       {showManual && (
         <Manual role={currentPlayer.role} onClose={toggleManualVisibility} />
+      )}
+      {showBodyReported && (
+        <InformationPopUp
+          imageSrc={"/bodyReported.png"}
+          heading={"Body Reported!"}
+          text={"Oh no! Looks like someone is taking a long nap!"}
+          onDismiss={() => handleShowBodyReported(false)}
+        />
       )}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
         <div className="flex-none w-1/4">
