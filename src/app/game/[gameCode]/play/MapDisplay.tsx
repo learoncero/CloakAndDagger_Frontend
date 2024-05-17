@@ -28,7 +28,7 @@ export default function MapDisplay({
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      setIsMapVisible(window.innerWidth > 770);
+      setIsMapVisible(window.innerWidth > 1025);
     };
 
     window.addEventListener('resize', handleResize);
