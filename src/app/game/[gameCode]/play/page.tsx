@@ -238,16 +238,7 @@ export default function PlayGame() {
             players={game?.players}
           />
         )}
-        {isGhost ? (
-          <Modal modalText={"GAME OVER!"} textColor={modalTextColor}>
-            {currentPlayerVotedOut ? (
-              <p>You got voted out!</p>
-            ) : (
-              <p>You just got killed</p>
-            )}
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+        {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
           <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
             <BackLink href={"/"}>Return to Landing Page</BackLink>
           </Modal>
