@@ -3,6 +3,7 @@ import {Player, Task, Sabotage} from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
+import {useEffect, useState} from "react";
 
 type Props = {
   map: string[][];
@@ -20,7 +21,28 @@ export default function MapDisplay({
   sabotages,
   nearbyTask,
 }: Props) {
-  //console.log("MapDisplay tasks: ", tasks);
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isMapVisible, setIsMapVisible] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      setIsMapVisible(window.innerWidth > 770);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  if (!isMapVisible) {
+    return <div className="map-overlay">Map is hidden due to small window size. Please switch to full screen to view the map.</div>; // You can style this overlay as needed
+  }
+
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.position;
