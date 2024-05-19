@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Chat as ChatType, Player } from "@/app/types";
+import { Chat as ChatType, Player, Role } from "@/app/types";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import ChatBubble from "./ChatBubble";
@@ -157,8 +157,18 @@ export default function Chat({
               updateMessage={updateMessage}
               message={message}
               onMessageSend={onMessageSend}
+              disabled={
+                currentPlayer.role === Role.CREWMATE_GHOST ||
+                currentPlayer.role === Role.IMPOSTOR_GHOST
+              }
             />
-            <ChatSendButton onMessageSend={onMessageSend} />
+            <ChatSendButton
+              onMessageSend={onMessageSend}
+              disabled={
+                currentPlayer.role === Role.CREWMATE_GHOST ||
+                currentPlayer.role === Role.IMPOSTOR_GHOST
+              }
+            />
           </div>
         </div>
         <Voting

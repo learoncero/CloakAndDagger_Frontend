@@ -18,15 +18,15 @@ const MiniMap: React.FC<Props> = ({
   currentPlayer,
   tasks,
   sabotages,
-  } : Props) => {
-    if (!map) {
-        return <div>Can not show Minimap right now</div>;
-    }
+}: Props) => {
+  if (!map) {
+    return <div>Can not show Minimap right now</div>;
+  }
 
   const viewRadius = 4;
   const totalViewSize = 2 * viewRadius + 1;
 
-  const { x, y } = currentPlayer.position;
+  const { x, y } = currentPlayer.playerPosition;
 
   // Start & End Coordinate calculation
   let startX = Math.max(0, x - viewRadius);
@@ -64,8 +64,8 @@ const MiniMap: React.FC<Props> = ({
               rowIndex < endY;
             const isPlayerHere = playerList.some(
               (player) =>
-                player.position.x === cellIndex &&
-                player.position.y === rowIndex
+                player.playerPosition.x === cellIndex &&
+                player.playerPosition.y === rowIndex
             );
             const cellWidth = Math.floor(1150 / row.length); //Rundet das Ergebnis ab
             const cellHeight = Math.floor(565 / map.length);
@@ -80,37 +80,37 @@ const MiniMap: React.FC<Props> = ({
                 sabotage.position.y === rowIndex
             );
 
-
             return (
-                <div key={cellIndex} style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
-                     className={`border border-white box-border 
-                    ${cell!= '#' 
-                      ? !isVisible 
-                        ? 'bg-gray-200' 
-                        : 'bg-gray-400' 
-                      : !isVisible 
-                        ? 'bg-red-950 opacity-30' 
-                        : 'bg-red-950'} 
-                    ${isPlayerHere && isVisible 
-                      ? 'bg-red-600' 
-                      : ''} 
-                    `}>
-                    {sabotageInCell != undefined && (
-                      <SabotageIconDisplay/>
-                    )}
-                    {taskInCell && isVisible && (
-                      <TaskIconDisplay
-                        completed={taskInCell.completed}
-                        isTaskInteractable={false}
-                        role={currentPlayer.role}
-                      />
-                    )}
-                </div>
-              );
-           })}
-      </div>
-    ))}
-  </div>
-   );
+              <div
+                key={cellIndex}
+                style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
+                className={`border border-white box-border 
+                    ${
+                      cell != "#"
+                        ? !isVisible
+                          ? "bg-gray-200"
+                          : "bg-gray-400"
+                        : !isVisible
+                        ? "bg-red-950 opacity-30"
+                        : "bg-red-950"
+                    } 
+                    ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
+                    `}
+              >
+                {sabotageInCell != undefined && <SabotageIconDisplay />}
+                {taskInCell && isVisible && (
+                  <TaskIconDisplay
+                    completed={taskInCell.completed}
+                    isTaskInteractable={false}
+                    role={currentPlayer.role}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
 };
 export default MiniMap;

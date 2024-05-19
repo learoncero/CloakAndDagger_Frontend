@@ -55,13 +55,8 @@ export default function PlayGame() {
     currentPlayer?.role === Role.IMPOSTOR_GHOST;
 
   const playerRole = currentPlayer?.role ?? "";
-  const activePlayers = game?.players?.filter(
-    (player) => player.role === Role.IMPOSTOR || player.role === Role.CREWMATE
-  );
 
   const isMovingAllowed =
-    playerRole !== Role.CREWMATE_GHOST &&
-    playerRole !== Role.IMPOSTOR_GHOST &&
     game?.gameStatus === GameStatus.IN_GAME &&
     !showChat &&
     !showTaskPopup &&
@@ -227,11 +222,10 @@ export default function PlayGame() {
             gameCode={gameCode}
             players={game?.players}
             currentPlayer={currentPlayer as Player}
-            /* activePlayers={activePlayers}*/
             setShowVotingResults={setShowVotingResults}
           />
         )}
-        {!isGhost && showVotingResults && (
+        {showVotingResults && (
           <VotingResultsPopup
             onCloseResultsPopup={onCloseResultsPopup}
             voteResult={latestVote}

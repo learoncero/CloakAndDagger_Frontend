@@ -25,7 +25,7 @@ export default function Manual({ role, onClose }: Props) {
         </div>
         <div className="text-white">
           {" "}
-          {role === "CREWMATE" && (
+          {(role === "CREWMATE" || role === "CREWMATE_GHOST") && (
             <div>
               <p className="mb-4">
                 As a Crewmate, your objective is to complete tasks and identify
