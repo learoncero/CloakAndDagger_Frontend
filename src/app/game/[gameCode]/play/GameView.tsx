@@ -366,11 +366,11 @@ export default function GameView({
           <Toaster />
         ) : showTaskPopup ? (
           <TaskGateway
-            miniGameId={nearbyTasks[0].miniGameId}
+            miniGameId={4} //TODO: nearbyTasks[0].miniGameId
             taskId={nearbyTasks[0].taskId}
             gameCode={game.gameCode}
             handleTaskCompleted={() =>
-              handleTaskCompleted(nearbyTasks[0].taskId)
+            handleTaskCompleted(nearbyTasks[0].taskId)
             }
           />
         ) : (
