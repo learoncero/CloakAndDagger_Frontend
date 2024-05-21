@@ -13,7 +13,7 @@ export function  sendSabotageMessage({stompClient, gameCode, sabotageId, map}: S
         map: map,
     };
     if (stompClient) {
-        stompClient.send(`/app/game/startSabotage`, {}, JSON.stringify(sabotageMessage));
+        stompClient.send(`/app/game/${gameCode}/startSabotage`, {}, JSON.stringify(sabotageMessage));
     }
 }
 
@@ -28,7 +28,7 @@ export function sendReportBodyMessage({stompClient, gameCode, bodyToReportId}: R
         bodyToReportId: bodyToReportId,
     };
     if (stompClient) {
-        stompClient.send(`/app/game/report`, {}, JSON.stringify(reportMessage));
+        stompClient.send(`/app/game/${gameCode}/report`, {}, JSON.stringify(reportMessage));
     }
 }
 
@@ -45,7 +45,7 @@ export function sendKillPlayerMessage({stompClient, gameCode, playerToKillId, ne
         nearbyTask: nearbyTask,
     };
     if (stompClient) {
-        stompClient.send(`/app/game/kill`, {}, JSON.stringify(killMessage));
+        stompClient.send(`/app/game/${gameCode}/kill`, {}, JSON.stringify(killMessage));
     }
 }
 
@@ -79,7 +79,7 @@ export function sendGameEndMessage({stompClient, gameCode}: GameEndProps) {
     const endGameMessage = {
         gameCode: gameCode,
     };
-    stompClient.send("/app/game/end", {}, JSON.stringify(endGameMessage));
+    stompClient.send(`/app/game/${gameCode}/end`, {}, JSON.stringify(endGameMessage));
 }
 
 type SabotageCancelProps = {
