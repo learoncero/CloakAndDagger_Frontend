@@ -33,6 +33,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
       },
       "/topic/bodyReport": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+        console.log("receivedMessage BodyReport: ", receivedMessage);
         updateGame(receivedMessage.body);
         handleChatView(true);
       },
@@ -74,7 +75,7 @@ export function SetGameSubscriptions (stompClient: any, updateGame: Function, se
       "/topic/voteResults": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
-        setLatestVote(receivedMessage.votingResults.at(-1));
+        setLatestVote(receivedMessage.votingResult);
       }
     };
 
