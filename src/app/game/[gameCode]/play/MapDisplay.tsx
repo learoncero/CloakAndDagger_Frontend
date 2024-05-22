@@ -25,7 +25,7 @@ export default function MapDisplay({
     };
 
     const isCrewmate = currentPlayer.role === "CREWMATE";
-    const viewportSize = isSabotageActive(2, { x: -1, y: -1 }) && isCrewmate ? 5 : (4 * 2 + 1);
+    const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : (4 * 2 + 1);
     const halfViewport = Math.floor(viewportSize / 2);
 
     const { x, y } = currentPlayer.position;
