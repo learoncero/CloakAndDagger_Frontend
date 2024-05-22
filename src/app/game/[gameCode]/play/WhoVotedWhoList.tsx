@@ -28,7 +28,7 @@ export default function WhoVotedWhoList({ players, voteEvents}: WhoVotedWhoProps
     return (
         <div className={"mt-1"}>
             {Object.keys(votesDict).map((votedForUsername, index) => (
-                <div key={index}>
+                <div className={"mb-1"} key={index}>
                     <strong>{votedForUsername}:</strong> {votesDict[votedForUsername].join(', ')}
                 </div>
             ))}
