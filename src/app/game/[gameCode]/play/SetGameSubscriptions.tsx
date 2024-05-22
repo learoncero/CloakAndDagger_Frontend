@@ -6,12 +6,12 @@ interface Handlers {
 let subscriptionsSet = false;
 
 export function SetGameSubscriptions(
-  stompClient: any,
-  updateGame: Function,
-  setImpostorWinTimer: Function,
-  handleChatView: Function,
-  setLatestVote: Function,
-  setShowBodyReported: Function
+    stompClient: any,
+    updateGame: Function,
+    setImpostorWinTimer: Function,
+    handleChatView: Function,
+    setLatestVote: Function,
+    setShowBodyReported: Function
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
@@ -52,36 +52,44 @@ export function SetGameSubscriptions(
       },
       "/topic/sabotageStart": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+        console.log(receivedMessage.body)
+        console.log(receivedMessage.body.sabotage)
         updateGame(receivedMessage.body);
+        const sabotage = receivedMessage.body.sabotage;
+        console.log(sabotage)
         setImpostorWinTimer(30);
         toast(
-          "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
-          {
-            position: "top-center",
-            style: {
-              border: "2px solid black",
-              padding: "16px",
-              color: "white",
-              backgroundColor: "#eF4444",
-            },
-            icon: "❕",
-          }
+            `Sabotage initiated: ${sabotage.title}. ${sabotage.description}. Crewmates, time is running out! You have 30 seconds to act!`,
+            {
+              position: "top-center",
+              style: {
+                border: "2px solid black",
+                padding: "16px",
+                color: "white",
+                backgroundColor: "#eF4444",
+              },
+              icon: "❕",
+            }
         );
       },
       "/topic/sabotageCancel": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
+        const sabotage = receivedMessage.body.sabotage;
         setImpostorWinTimer(-1);
-        toast("Sabotage cancelled. Crewmates, you're safe for now!", {
-          position: "top-center",
-          style: {
-            border: "2px solid black",
-            padding: "16px",
-            color: "white",
-            backgroundColor: "#eF4444",
-          },
-          icon: "❕",
-        });
+        toast(
+            `Sabotage cancelled. Crewmates, you're safe for now!`,
+            {
+              position: "top-center",
+              style: {
+                border: "2px solid black",
+                padding: "16px",
+                color: "white",
+                backgroundColor: "#eF4444",
+              },
+              icon: "❕",
+            }
+        );
       },
       "/topic/voteResults": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
