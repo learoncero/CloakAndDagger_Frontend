@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 import { Player } from "@/app/types";
 
-export default function useNearbyEntities(
+export default function useNearbyPlayers(
   gamePlayers: Player[],
   currentPlayer: Player,
   roleFilter: string[]
 ) {
-  const [nearbyEntities, setNearbyEntities] = useState<Player[]>([]);
+  const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
     const filterNearbyEntities = () => {
       const filteredEntities = gamePlayers.filter(
         (player) =>
-          Math.abs(player.position.x - currentPlayer.position.x) <= 1 &&
-          Math.abs(player.position.y - currentPlayer.position.y) <= 1 &&
+          Math.abs(player.playerPosition.x - currentPlayer.playerPosition.x) <=
+            1 &&
+          Math.abs(player.playerPosition.y - currentPlayer.playerPosition.y) <=
+            1 &&
           player.id !== currentPlayer.id &&
           roleFilter.includes(player.role)
       );
-      setNearbyEntities(filteredEntities);
+      setNearbyPlayers(filteredEntities);
     };
 
     const filterInterval = setInterval(filterNearbyEntities, 200);
@@ -25,5 +27,5 @@ export default function useNearbyEntities(
     return () => clearInterval(filterInterval);
   }, [currentPlayer, gamePlayers, roleFilter]);
 
-  return nearbyEntities;
+  return nearbyPlayers;
 }

@@ -20,12 +20,15 @@ export default function Manual({ role, onClose }: Props) {
         </button>
         <div className="flex justify-center">
           <h2 className="text-5xl text-cyan-500 font-bold text-center my-10">
-            {role === "CREWMATE" ? "CREWMATE" : "IMPOSTOR"} MANUAL
+            {role === "CREWMATE" || role === "CREWMATE_GHOST"
+              ? "CREWMATE"
+              : "IMPOSTOR"}{" "}
+            MANUAL
           </h2>
         </div>
         <div className="text-white">
           {" "}
-          {role === "CREWMATE" && (
+          {(role === "CREWMATE" || role === "CREWMATE_GHOST") && (
             <div>
               <p className="mb-4">
                 As a Crewmate, your objective is to complete tasks and identify

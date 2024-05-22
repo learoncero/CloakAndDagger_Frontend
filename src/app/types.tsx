@@ -16,7 +16,8 @@ export type Game = {
 export type Player = {
   id: number;
   username: string;
-  position: { x: number; y: number };
+  playerPosition: { x: number; y: number };
+  deadBodyPosition: { x: number; y: number };
   role: Role;
   mirrored: boolean;
   moving: boolean;
