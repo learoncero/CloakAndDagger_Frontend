@@ -56,16 +56,20 @@ export default function TaskMovingSquare({
         if (redSquareIndex === yellowSquareIndex.current) {
             if (currentRound < 3) {
                 setCurrentRound((prevRound) => prevRound + 1);
-                toast.success("Great! Proceed to the next round.", {
-                    position: "bottom-center",
-                });
             } else {
                 setIsTaskCompleted(true);
             }
         } else {
             setCurrentRound(1);
             toast.error("Missed! Back to round one.", {
-                position: "bottom-center",
+                position: "top-center",
+                style: {
+                    border: "2px solid black",
+                    padding: "16px",
+                    color: "white",
+                    backgroundColor: "#eF4444",
+                },
+                icon: "✖️",
             });
         }
     };
@@ -81,24 +85,30 @@ export default function TaskMovingSquare({
                 <TaskCompletedPopup onClose={onClose} />
             ) : (
                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
-                    <div className="bg-black rounded-lg p-8 max-w-md relative">
+                    <div className="bg-black rounded-lg p-8 max-w-md flex flex-col items-center">
                         <h2 className="text-2xl font-bold mb-4 text-center">Catch the Red Square</h2>
-                        <div className="grid grid-cols-3 gap-2" style={{ width: "150px", height: "150px", position: "relative" }}>
+                        <p className="text-lg mb-4 text-center">Round: {currentRound}/3</p>
+                        <div className="relative" style={{width: "150px", height: "150px"}}>
                             {SQUARE_POSITIONS.map((pos, index) => (
                                 <div
                                     key={index}
                                     className={`absolute w-10 h-10 ${index === yellowSquareIndex.current ? 'bg-yellow-500' : ''} ${index === redSquareIndex ? 'bg-red-500' : 'bg-gray-500'}`}
-                                    style={{ top: `${pos.top}px`, left: `${pos.left}px` }}
+                                    style={{top: `${pos.top}px`, left: `${pos.left}px`}}
                                 />
                             ))}
                             <button
                                 onClick={handleButtonClick}
                                 className="w-10 h-10 bg-blue-500 rounded hover:bg-blue-700"
-                                style={{ position: 'absolute', top: '47%', left: '47%', transform: 'translate(-50%, -50%)' }}
+                                style={{
+                                    position: 'absolute',
+                                    top: '47%',
+                                    left: '47%',
+                                    transform: 'translate(-50%, -50%)'
+                                }}
                             />
                         </div>
                     </div>
-                    <Toaster />
+                    <Toaster/>
                 </div>
             )}
         </>
