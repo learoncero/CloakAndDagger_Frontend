@@ -76,10 +76,9 @@ export default function MapDisplay({
     player.role === "CREWMATE_GHOST" || player.role === "IMPOSTOR_GHOST";
 
   const visiblePlayers =
-    currentPlayer.role === "IMPOSTOR_GHOST" || "CREWMATE_GHOST"
-      ? playerList.filter(
-          (player) => !isGhost(player) || player.id === currentPlayer.id
-        )
+    currentPlayer.role === "IMPOSTOR_GHOST" ||
+    currentPlayer.role === "CREWMATE_GHOST"
+      ? playerList
       : playerList.filter((player) => !isGhost(player));
 
   return (
@@ -108,6 +107,10 @@ export default function MapDisplay({
                 sabotage.position.x === cellPosX &&
                 sabotage.position.y === cellPosY
             );
+            const isTaskInteractable =
+              !!nearbyTask &&
+              (currentPlayer.role === "CREWMATE" ||
+                currentPlayer.role === "CREWMATE_GHOST");
             return (
               <div
                 key={cellIndex}
@@ -147,7 +150,7 @@ export default function MapDisplay({
                 {taskInCell !== undefined && (
                   <TaskIconDisplay
                     completed={taskInCell.completed}
-                    isTaskInteractable={!!nearbyTask}
+                    isTaskInteractable={isTaskInteractable}
                     role={currentPlayer.role}
                   />
                 )}

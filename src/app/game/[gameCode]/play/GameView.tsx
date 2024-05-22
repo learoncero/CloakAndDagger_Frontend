@@ -143,15 +143,19 @@ export default function GameView({
       if (event.key === "e" || event.key === "E") {
         if (
           nearbyTasks.length === 0 ||
-          currentPlayer?.role != Role.CREWMATE ||
+          (currentPlayer?.role !== Role.CREWMATE &&
+            currentPlayer?.role !== Role.CREWMATE_GHOST) ||
           nearbyTasks[0]?.completed
-        )
+        ) {
           return;
+        }
 
         const status = await TaskService.getActiveStatus(
           nearbyTasks[0].taskId,
           game.gameCode
         );
+
+        console.log("status", status.data, showTaskPopup);
 
         if (status.data === true && !showTaskPopup) {
           toast("Task already occupied", {
