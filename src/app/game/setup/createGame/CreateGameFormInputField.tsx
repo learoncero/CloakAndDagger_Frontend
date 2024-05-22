@@ -12,6 +12,7 @@ type Props = {
   max?: number;
   required: boolean;
   options?: string[];
+  maxLength?: number;
 };
 
 export default function CreateGameFormInputField({
@@ -24,6 +25,7 @@ export default function CreateGameFormInputField({
   max,
   required,
   options,
+  maxLength,
 }: Props) {
   return (
     <div className="mb-4">
@@ -54,6 +56,7 @@ export default function CreateGameFormInputField({
           min={min}
           max={max}
           required={required}
+          maxLength={maxLength}
         />
       )}
     </div>

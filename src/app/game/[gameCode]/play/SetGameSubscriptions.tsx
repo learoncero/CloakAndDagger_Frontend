@@ -40,6 +40,7 @@ export function SetGameSubscriptions(
       },
       "/topic/bodyReport": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+        console.log("receivedMessage BodyReport: ", receivedMessage);
         updateGame(receivedMessage.body);
         setShowBodyReported(true);
         setTimeout(() => {
@@ -86,8 +87,8 @@ export function SetGameSubscriptions(
       "/topic/voteResults": (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
-        setLatestVote(receivedMessage.votingResults.at(-1));
-      },
+        setLatestVote(receivedMessage.votingResult);
+      }
     };
 
     subscriptions.forEach((topic) => {
