@@ -23,7 +23,12 @@ const MiniMap: React.FC<Props> = ({
         return <div>Can not show Minimap right now</div>;
     }
 
-  const viewRadius = 4;
+  const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
+    return sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
+  };
+
+  const isCrewmate = currentPlayer.role === "CREWMATE";
+  const viewRadius = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 2 : 4; // Set viewRadius to 2 for 5x5 viewport
   const totalViewSize = 2 * viewRadius + 1;
 
   const { x, y } = currentPlayer.position;
