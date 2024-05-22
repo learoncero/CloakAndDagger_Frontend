@@ -67,6 +67,10 @@ export default function PlayGame() {
     !showTaskPopup &&
     !showVotingResults;
 
+/*  useEffect(() => {
+    console.log("latest Player voted out: ", latestVote);
+  }, [latestVote]);*/
+
   useEffect(() => {
     if (stompClient) {
       SetGameSubscriptions(
@@ -231,11 +235,12 @@ export default function PlayGame() {
             setShowVotingResults={setShowVotingResults}
           />
         )}
-        {!isGhost && showVotingResults && (
+        {game && !isGhost && showVotingResults && (
           <VotingResultsPopup
             onCloseResultsPopup={onCloseResultsPopup}
             voteResult={latestVote}
             players={game?.players}
+            voteEvents={game?.voteEvents}
           />
         )}
         {isGhost ? (

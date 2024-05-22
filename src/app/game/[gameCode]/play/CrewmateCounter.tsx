@@ -13,7 +13,7 @@ export default function CrewmateCounter({ playerList }: Props) {
   );
 
   return (
-    <div className="py-4 font-semibold font-sans text-lg">
+    <div className="pt-4 pb-1 font-semibold font-sans text-lg">
       <h2>
         Hunt down the Crewmates: {crewmates.length - impostors.length}{" "}
         remaining!

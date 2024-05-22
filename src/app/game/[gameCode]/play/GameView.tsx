@@ -284,78 +284,76 @@ export default function GameView({
                 text={"Oh no! Looks like someone is taking a long nap!"}
                 onDismiss={() => handleShowBodyReported(false)}
             />
+
         )}
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
           <div className="flex-none w-1/4">
             <RoleInformation role={currentPlayer.role} />
-            {isImpostor ? (
-                <SabotageList
-                    sabotages={game.sabotages}
-                    getSabotagePosition={getSabotagePosition}
-                />
-            ) : (
-                <TaskList tasks={game.tasks} />
-            )}
-          </div>
-          <div className="flex-grow flex justify-center">
-            {map ? (
-                <MapDisplay
-                    map={map}
-                    playerList={game.players}
-                    currentPlayer={currentPlayer}
-                    tasks={game.tasks}
-                    sabotages={game.sabotages ?? []}
-                    nearbyTask={nearbyTasks[0]}
-                />
-            ) : (
-                <div>Loading map...</div>
-            )}
-          </div>
 
-          <div className="flex-none w-1/4">
-            <div className="mb-32">
-              <div className="flex gap-10">
-                <ToggleButton
-                    onClick={handleToggleMiniMap}
-                    label="Show MiniMap"
-                />
-                <ToggleButton
-                    onClick={toggleManualVisibility}
-                    label="Show Manual"
-                />
-              </div>
-              <PlayerList playerId={currentPlayer.id} playerList={game.players} />
-              {isImpostor && <CrewmateCounter playerList={game.players} />}
+          ) : (
+            <TaskList tasks={game.tasks} />
+
+        </div>
+        <div className="flex-grow flex justify-center">
+          {map ? (
+            <MapDisplay
+              map={map}
+              playerList={game.players}
+              currentPlayer={currentPlayer}
+              tasks={game.tasks}
+              sabotages={game.sabotages ?? []}
+              nearbyTask={nearbyTasks[0]}
+            />
+          ) : (
+            <div>Loading map...</div>
+          )}
+        </div>
+
+        <div className="flex-none w-1/4">
+          <div className="mb-7">
+            <div className="flex gap-10">
+              <ToggleButton
+                onClick={handleToggleMiniMap}
+                label="Show Minimap"
+              />
+              <ToggleButton
+                onClick={toggleManualVisibility}
+                label="Show Manual"
+              />
             </div>
+            <PlayerList playerId={currentPlayer.id} playerList={game.players} />
+            {isImpostor && <CrewmateCounter playerList={game.players} />}
+          </div>
 
-            <div className="flex gap-5 justify-center">
-              {isImpostor && (
-                  <ActionButton
-                      onClick={handleKill}
-                      buttonclickable={nearbyPlayers.length > 0 && !isTimer}
-                      colorActive="bg-red-600"
-                  >
-                    {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
-                  </ActionButton>
-              )}
+          <div className="flex gap-5 justify-center">
+            {isImpostor && (
               <ActionButton
-                  onClick={() => handleReportBody()}
-                  buttonclickable={
-                      nearbyGhosts.length > 0 &&
-                      !game.reportedBodies.includes(nearbyGhosts[0].id)
-                  }
-                  colorActive="bg-cyan-600"
+                onClick={handleKill}
+                buttonclickable={nearbyPlayers.length > 0 && !isTimer}
+                colorActive="bg-red-600"
               >
-                📢 Report Body
+                {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
               </ActionButton>
-            </div>
+            )}
+            <ActionButton
+              onClick={() => handleReportBody()}
+              buttonclickable={
+                nearbyGhosts.length > 0 &&
+                !game.reportedBodies.includes(nearbyGhosts[0].id)
+              }
+              colorActive="bg-cyan-600"
+            >
+              📢 Report Body
+            </ActionButton>
           </div>
-          <Toaster />
-          {showMiniMap && (
-              <div
-                  className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
-                  onClick={() => setShowMiniMap(false)}
-              >
+        </div>
+        <Toaster />
+        {showMiniMap && (
+          <div
+            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
+            onClick={() => setShowMiniMap(false)}
+          >
+
                 {isImpostor ? (
                     <SabotageList
                         sabotages={game.sabotages}

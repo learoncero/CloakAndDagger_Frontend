@@ -2,6 +2,7 @@ import { Player, Task, Sabotage } from "@/app/types";
 import PlayerSprites from './PlayerSprites';
 import TaskIconDisplay from './TaskIconDisplay';
 import SabotageIconDisplay from "./SabotageIconDisplay";
+import {useEffect, useState} from "react";
 
 type Props = {
     map: string[][];
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export default function MapDisplay({
+
                                        map,
                                        playerList,
                                        currentPlayer,
@@ -23,6 +25,7 @@ export default function MapDisplay({
     const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
         return sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
     };
+
 
     const isCrewmate = currentPlayer.role === "CREWMATE";
     const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : (4 * 2 + 1);

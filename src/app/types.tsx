@@ -4,12 +4,13 @@ export type Game = {
   numberOfImpostors: number;
   map: string;
   players: Player[];
-  gameID: number;
   tasks: Task[];
   sabotages: Sabotage[];
+  gameID: number;
   gameStatus: GameStatus;
   reportedBodies: number[];
-  votingResults: number[];
+  voteEvents: VoteEvent[];
+  votingResult: number;
 };
 
 export type Player = {
@@ -74,3 +75,8 @@ export type ChatMessage = {
   message: string;
   sender: string;
 };
+
+export type VoteEvent = {
+  votedForPlayer: number;
+  votedBy: number;
+}
