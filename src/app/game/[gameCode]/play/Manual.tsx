@@ -45,6 +45,7 @@ export default function Manual({ role, onClose }: Props) {
                 <li>Start/Cancel Task: E</li>
                 <li>Cancel Sabotage: C</li>
                 <li>Report Dead Body: R</li>
+                <li>Call an emergency meeting: F</li>
               </ul>
             </div>
           )}
@@ -68,6 +69,7 @@ export default function Manual({ role, onClose }: Props) {
                 <li>Kill: E</li>
                 <li>Cancel Sabotage: C</li>
                 <li>Report Dead Body: R</li>
+                <li>Call an emergency meeting: F</li>
               </ul>
             </div>
           )}

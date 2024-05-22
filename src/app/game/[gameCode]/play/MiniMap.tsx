@@ -98,7 +98,9 @@ const MiniMap: React.FC<Props> = ({
                     ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
                     `}
               >
-                {sabotageInCell != undefined && <SabotageIconDisplay />}
+                {sabotageInCell != undefined && (
+                  <SabotageIconDisplay isSabotageInteractable={false} />
+                )}
                 {taskInCell && isVisible && (
                   <TaskIconDisplay
                     completed={taskInCell.completed}
@@ -106,7 +108,9 @@ const MiniMap: React.FC<Props> = ({
                     role={currentPlayer.role}
                   />
                 )}
-                {cell === "E" && isVisible && <EmergencyButtonDisplay />}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay isButtonInteractable={false} />
+                )}
               </div>
             );
           })}

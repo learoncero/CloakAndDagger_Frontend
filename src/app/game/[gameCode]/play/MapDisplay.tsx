@@ -45,6 +45,19 @@ export default function MapDisplay({
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
 
+  const isAdjacent = (
+    posX: number,
+    posY: number,
+    targetX: number,
+    targetY: number
+  ) => {
+    return (
+      (posX === targetX && Math.abs(posY - targetY) === 1) ||
+      (posY === targetY && Math.abs(posX - targetX) === 1) ||
+      (Math.abs(posX - targetX) === 1 && Math.abs(posY - targetY) === 1)
+    );
+  };
+
   return (
     <div className="relative border-3 border-black">
       {map.slice(startY, endY).map((row, rowIndex) => (
@@ -65,13 +78,26 @@ export default function MapDisplay({
                 sabotage.position.x === cellPosX &&
                 sabotage.position.y === cellPosY
             );
+            const isButtonInteractable = isAdjacent(
+              currentPlayer.position.x,
+              currentPlayer.position.y,
+              cellPosX,
+              cellPosY
+            );
+
+            const isSabotageInteractable = isAdjacent(
+              currentPlayer.position.x,
+              currentPlayer.position.y,
+              cellPosX,
+              cellPosY
+            );
             return (
               <div
                 key={cellIndex}
                 className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
                                   ${
                                     cell != "#" ? "bg-gray-400" : "bg-red-950"
-                                  }`}
+                                  } relative`}
               >
                 {isPlayerHere &&
                   playerList
@@ -96,8 +122,16 @@ export default function MapDisplay({
                     role={currentPlayer.role}
                   />
                 )}
-                {sabotageInCell !== undefined && <SabotageIconDisplay />}
-                {cell === "E" && <EmergencyButtonDisplay />}
+                {sabotageInCell !== undefined && (
+                  <SabotageIconDisplay
+                    isSabotageInteractable={isSabotageInteractable}
+                  />
+                )}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay
+                    isButtonInteractable={isButtonInteractable}
+                  />
+                )}
               </div>
             );
           })}
