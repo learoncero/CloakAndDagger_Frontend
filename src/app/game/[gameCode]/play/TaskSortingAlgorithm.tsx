@@ -19,17 +19,34 @@ export default function TaskSortingAlgorithm({
     const [selectedBoxIndex, setSelectedBoxIndex] = useState<number | null>(null);
 
     useEffect(() => {
-        // Fetch shuffled boxes from backend
         const fetchShuffledBoxes = async () => {
             try {
                 const response = await MiniGameSortingAlgorithmService.getShuffledBoxes(gameCode, taskId);
                 if (response.data) {
                     setBoxes(response.data);
                 } else {
-                    toast.error("Failed to fetch shuffled boxes!");
+                    toast.error("Failed to fetch shuffled boxes!", {
+                        position: "bottom-right",
+                        style: {
+                            border: "2px solid black",
+                            padding: "16px",
+                            color: "white",
+                            backgroundColor: "#eF4444",
+                        },
+                        icon: "✖️",
+                    });
                 }
             } catch (error) {
-                toast.error("An error occurred while fetching shuffled boxes!");
+                toast.error("An error occurred while fetching shuffled boxes!", {
+                    position: "bottom-right",
+                    style: {
+                        border: "2px solid black",
+                        padding: "16px",
+                        color: "white",
+                        backgroundColor: "#eF4444",
+                    },
+                    icon: "✖️",
+                });
             }
         };
 
@@ -45,21 +62,37 @@ export default function TaskSortingAlgorithm({
             const newBoxes = [...boxes];
             [newBoxes[selectedBoxIndex], newBoxes[index]] = [newBoxes[index], newBoxes[selectedBoxIndex]];
             setBoxes(newBoxes);
-            setSelectedBoxIndex(null);
+            setSelectedBoxIndex(index);
 
-            // Check if sorted
             if (newBoxes.every((val, i, arr) => !i || arr[i - 1] <= val)) {
-                // Submit sorted boxes to backend
                 const submitSorting = async () => {
                     try {
                         const response = await MiniGameSortingAlgorithmService.submitSortingAlgorithm(gameCode, taskId, newBoxes);
                         if (response.data) {
                             setIsShowTaskCompletedPopUp(true);
                         } else {
-                            toast.error("Sorting verification failed!");
+                            toast.error("Sorting verification failed!", {
+                                position: "bottom-right",
+                                style: {
+                                    border: "2px solid black",
+                                    padding: "16px",
+                                    color: "white",
+                                    backgroundColor: "#eF4444",
+                                },
+                                icon: "✖️",
+                            });
                         }
                     } catch (error) {
-                        toast.error("An error occurred while submitting the sorted boxes!");
+                        toast.error("An error occurred while submitting the sorted boxes!", {
+                            position: "bottom-right",
+                            style: {
+                                border: "2px solid black",
+                                padding: "16px",
+                                color: "white",
+                                backgroundColor: "#eF4444",
+                            },
+                            icon: "✖️",
+                        });
                     }
                 };
 
@@ -111,7 +144,7 @@ export default function TaskSortingAlgorithm({
                 <TaskCompletedPopup onClose={onClose} />
             ) : (
                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
-                    <div className="bg-black rounded-lg p-8 max-w-md">
+                    <div className="bg-black rounded-lg p-8 max-w-xl">
                         <h2 className="text-2xl font-bold mb-4">Sorting Algorithm</h2>
                         <p className="text-lg mb-4">Arrange the boxes from smallest to biggest.</p>
                         {renderBoxes()}
