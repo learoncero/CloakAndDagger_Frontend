@@ -5,11 +5,13 @@ import { Sabotage } from "@/app/types";
 type Props = {
   sabotages: Sabotage[];
   getSabotagePosition: (sabotageId: number) => void;
+  showMiniMap: boolean;
 };
 
 export default function SabotageList({
   sabotages,
   getSabotagePosition,
+  showMiniMap
 }: Props) {
   const [incompleteSabotages, setIncompleteSabotages] =
     useState<Sabotage[]>(sabotages);
@@ -70,6 +72,7 @@ export default function SabotageList({
               key={sabotage.id}
               sabotage={sabotage}
               onComplete={() => handleSabotageComplete(sabotage.id)}
+              showMiniMap={showMiniMap}
             />
           ))}
         </ul>

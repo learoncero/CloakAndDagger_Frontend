@@ -275,6 +275,7 @@ export default function GameView({
             <SabotageList
               sabotages={game.sabotages}
               getSabotagePosition={getSabotagePosition}
+              showMiniMap={showMiniMap}
             />
           ) : (
             <TaskList tasks={game.tasks} />
@@ -343,6 +344,7 @@ export default function GameView({
               <SabotageList
                 sabotages={game.sabotages}
                 getSabotagePosition={getSabotagePosition}
+                showMiniMap={showMiniMap}
               />
             ) : (
               <TaskList tasks={game.tasks} />
