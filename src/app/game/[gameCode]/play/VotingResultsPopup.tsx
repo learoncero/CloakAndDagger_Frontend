@@ -1,21 +1,23 @@
 import React, {useEffect} from "react";
-import {Player, Role} from "@/app/types";
+import {Player, Role, VoteEvent} from "@/app/types";
+import WhoVotedWhoList from "./WhoVotedWhoList";
 
 type VotingResultsProps = {
     onCloseResultsPopup: () => void;
     voteResult: number | undefined;
     players: Player[];
+    voteEvents: VoteEvent[];
 };
 
-export default function VotingResultsPopup ({onCloseResultsPopup, voteResult, players}: VotingResultsProps) {
+export default function VotingResultsPopup ({onCloseResultsPopup, voteResult, players, voteEvents}: VotingResultsProps) {
     const zeroVotes = voteResult === 0;
     const isVoteTied = voteResult === -1;
     const votedPlayer = players.find(player => player.id === voteResult);
-    //currentPlayer voted out, compare ids
+
     useEffect(() => {
         const timer = setTimeout(() => {
             onCloseResultsPopup();
-        }, 3500);
+        }, 5000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -50,6 +52,10 @@ export default function VotingResultsPopup ({onCloseResultsPopup, voteResult, pl
                         <p>You eliminated a fellow Crewmate!!</p>
                     </>
                     )}
+                    <br/>
+                    <hr/>
+                    <p className={"mt-2"}>Who got voted?</p>
+                    <WhoVotedWhoList players={players} voteEvents={voteEvents}/>
                 </>
                 )}
             </div>

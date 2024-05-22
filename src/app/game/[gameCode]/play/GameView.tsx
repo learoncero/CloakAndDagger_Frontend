@@ -295,11 +295,11 @@ export default function GameView({
         </div>
 
         <div className="flex-none w-1/4">
-          <div className="mb-32">
+          <div className="mb-7">
             <div className="flex gap-10">
               <ToggleButton
                 onClick={handleToggleMiniMap}
-                label="Show MiniMap"
+                label="Show Minimap"
               />
               <ToggleButton
                 onClick={toggleManualVisibility}

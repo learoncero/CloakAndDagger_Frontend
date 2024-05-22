@@ -45,6 +45,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         onChange={(e) => setUsername(e.target.value)}
         type="text"
         required={true}
+        maxLength={20}
       />
         <CreateGameFormInputField
             label="Player Color"
