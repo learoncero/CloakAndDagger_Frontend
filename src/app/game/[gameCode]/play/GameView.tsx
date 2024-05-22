@@ -370,7 +370,7 @@ export default function GameView({
             taskId={nearbyTasks[0].taskId}
             gameCode={game.gameCode}
             handleTaskCompleted={() =>
-              handleTaskCompleted(nearbyTasks[0].taskId)
+            handleTaskCompleted(nearbyTasks[0].taskId)
             }
           />
         ) : (
