@@ -45,6 +45,16 @@ export default function MapDisplay({
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
 
+  const isGhost = (player: Player) =>
+    player.role === "CREWMATE_GHOST" || player.role === "IMPOSTOR_GHOST";
+
+  const visiblePlayers =
+    currentPlayer.role === "IMPOSTOR_GHOST" || "CREWMATE_GHOST"
+      ? playerList.filter(
+          (player) => !isGhost(player) || player.id === currentPlayer.id
+        )
+      : playerList.filter((player) => !isGhost(player));
+
   return (
     <div className="relative border-3 border-black">
       {map.slice(startY, endY).map((row, rowIndex) => (
@@ -52,7 +62,7 @@ export default function MapDisplay({
           {row.slice(startX, endX).map((cell, cellIndex) => {
             const cellPosX = cellIndex + startX;
             const cellPosY = rowIndex + startY;
-            const isPlayerHere = playerList.some(
+            const isPlayerHere = visiblePlayers.some(
               (player) =>
                 player.playerPosition.x === cellPosX &&
                 player.playerPosition.y === cellPosY
@@ -75,7 +85,7 @@ export default function MapDisplay({
               <div
                 key={cellIndex}
                 className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border ${
-                  cell != "#" && cell != "+" ? "bg-gray-400" : "bg-red-950"
+                  cell != "#" ? "bg-gray-400" : "bg-red-950"
                 }`}
               >
                 {isPlayerHere &&
