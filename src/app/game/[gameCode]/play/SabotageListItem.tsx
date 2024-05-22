@@ -12,7 +12,7 @@ export default function SabotageListItem({ sabotage, onComplete }: Props) {
       <p className="block font-semibold text-lg">{sabotage.title}</p>
       <p className="text-s mb-3">{sabotage.description}</p>
         <button
-            className={`px-4 py-2 rounded-md text-black font-semibold bg-cyan-500 cursor-default`}
+            className={`px-3 py-1 rounded-md text-black font-semibold bg-cyan-500 cursor-default hover:bg-cyan-600 hover:cursor-pointer`}
             onClick={onComplete}
         >
             Activate
