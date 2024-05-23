@@ -68,7 +68,7 @@ export default function GameView({
   const handleToggleMiniMap = () => {
     if (!isSabotageActive(3, { x: -1, y: -1 })) {
       setShowMiniMap(!showMiniMap);
-    } else {
+    } else if(isSabotageActive(3, { x: -1, y: -1 }) && !isImpostor) {
       toast("Minimap is disabled due to sabotage!", {
         position: "bottom-right",
         style: {
@@ -79,7 +79,7 @@ export default function GameView({
         },
         icon: "⚠️",
       });
-    }
+    } else {setShowMiniMap(!showMiniMap)}
   };
 
   const toggleManualVisibility = useCallback(() => {
@@ -138,16 +138,35 @@ export default function GameView({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isImpostor && event.code === "KeyE") {
         handleKill();
-      } else if (
-        event.key === "m" ||
-        event.key === "M" ||
-        event.key === "q" ||
-        event.key === "Q"
-      ) {
-        setShowMiniMap((prev) => !prev);
-      } else if (event.code === "KeyR") {
-        handleReportBody();
       }
+      if (isSabotageActive(3, {x: -1, y: -1}) &&
+          (event.key === "m" ||
+              event.key === "M" ||
+              event.key === "q" ||
+              event.key === "Q") &&
+          !isImpostor
+      ) {
+        setShowMiniMap(false)
+        toast("Minimap is disabled due to sabotage!", {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#eF4444",
+          },
+          icon: "⚠️",
+        });
+      } else if (
+            event.key === "m" ||
+            event.key === "M" ||
+            event.key === "q" ||
+            event.key === "Q") {
+          setShowMiniMap((prev) => !prev);
+        }
+        if (event.code === "KeyR") {
+          handleReportBody();
+        }
     };
 
 
