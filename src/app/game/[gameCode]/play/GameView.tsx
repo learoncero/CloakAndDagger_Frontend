@@ -278,6 +278,7 @@ export default function GameView({
             <SabotageList
               sabotages={game.sabotages}
               getSabotagePosition={getSabotagePosition}
+              showMiniMap={showMiniMap}
             />
           ) : (
             <TaskList tasks={game.tasks} />
@@ -350,12 +351,13 @@ export default function GameView({
               <SabotageList
                 sabotages={game.sabotages}
                 getSabotagePosition={getSabotagePosition}
+                showMiniMap={showMiniMap}
               />
             ) : (
               <TaskList tasks={game.tasks} />
             )}
             <div
-              className="flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+              className="ml-8 flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
               onClick={(e) => e.stopPropagation()}
             >
               <MiniMap
