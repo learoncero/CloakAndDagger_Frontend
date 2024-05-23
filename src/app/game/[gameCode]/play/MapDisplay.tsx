@@ -46,8 +46,12 @@ export default function MapDisplay({
       </div>
     ); // You can style this overlay as needed
   }
+  const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
+    return sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
+  };
 
-  const viewportSize = 4 * 2 + 1;
+  const isCrewmate = currentPlayer.role === "CREWMATE";
+  const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : (4 * 2 + 1);
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.playerPosition;
   let startX = Math.max(0, x - halfViewport);

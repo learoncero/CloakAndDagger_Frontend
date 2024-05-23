@@ -61,9 +61,25 @@ export default function GameView({
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
 
+  const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
+    return game.sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
+  };
 
   const handleToggleMiniMap = () => {
-    setShowMiniMap(!showMiniMap);
+    if (!isSabotageActive(3, { x: -1, y: -1 })) {
+      setShowMiniMap(!showMiniMap);
+    } else if(isSabotageActive(3, { x: -1, y: -1 }) && !isImpostor) {
+      toast("Minimap is disabled due to sabotage!", {
+        position: "bottom-right",
+        style: {
+          border: "2px solid black",
+          padding: "16px",
+          color: "white",
+          backgroundColor: "#eF4444",
+        },
+        icon: "⚠️",
+      });
+    } else {setShowMiniMap(!showMiniMap)}
   };
 
   const toggleManualVisibility = useCallback(() => {
@@ -122,16 +138,35 @@ export default function GameView({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isImpostor && event.code === "KeyE") {
         handleKill();
-      } else if (
-        event.key === "m" ||
-        event.key === "M" ||
-        event.key === "q" ||
-        event.key === "Q"
-      ) {
-        setShowMiniMap((prev) => !prev);
-      } else if (event.code === "KeyR") {
-        handleReportBody();
       }
+      if (isSabotageActive(3, {x: -1, y: -1}) &&
+          (event.key === "m" ||
+              event.key === "M" ||
+              event.key === "q" ||
+              event.key === "Q") &&
+          !isImpostor
+      ) {
+        setShowMiniMap(false)
+        toast("Minimap is disabled due to sabotage!", {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#eF4444",
+          },
+          icon: "⚠️",
+        });
+      } else if (
+            event.key === "m" ||
+            event.key === "M" ||
+            event.key === "q" ||
+            event.key === "Q") {
+          setShowMiniMap((prev) => !prev);
+        }
+        if (event.code === "KeyR") {
+          handleReportBody();
+        }
     };
 
 

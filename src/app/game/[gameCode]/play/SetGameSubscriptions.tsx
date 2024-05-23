@@ -55,22 +55,30 @@ export function SetGameSubscriptions(
       [`/topic/${gameCode}/sabotageStart`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
-        setImpostorWinTimer(30);
-        toast(
-          "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
-          {
-            position: "top-center",
-            style: {
-              border: "2px solid black",
-              padding: "16px",
-              color: "white",
-              backgroundColor: "#eF4444",
-            },
-            icon: "❕",
-          }
-        );
 
+        const activeSabotage = receivedMessage.body.sabotages.find((sabotage: any) => sabotage.position.x !== -1 && sabotage.position.y !== -1);
+
+        if (activeSabotage) {
+          setImpostorWinTimer(30);
+          toast(
+              `Sabotage initiated: ${activeSabotage.title}. ${activeSabotage.description}. Crewmates, time is running out! You have 30 seconds to act!`,
+              {
+                position: "top-center",
+                duration: 10000, // Duration in milliseconds
+                style: {
+                  border: "2px solid black",
+                  padding: "16px",
+                  color: "white",
+                  backgroundColor: "#eF4444",
+                },
+                icon: "❕",
+              }
+          );
+        } else {
+          console.error("Active sabotage data missing in message: ", receivedMessage);
+        }
       },
+        
       [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
