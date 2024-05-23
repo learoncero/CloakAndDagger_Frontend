@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import SabotageListItem from "./SabotageListItem";
 import { Sabotage } from "@/app/types";
+import SabotageListItem from "./SabotageListItem";
 
 type Props = {
   sabotages: Sabotage[];
@@ -11,9 +11,6 @@ export default function SabotageList({
   sabotages,
   getSabotagePosition,
 }: Props) {
-  const [incompleteSabotages, setIncompleteSabotages] =
-    useState<Sabotage[]>(sabotages);
-  const [completedSabotages, setCompletedSabotages] = useState<Sabotage[]>([]);
   const [isSabotageCooldown, setIsSabotageCooldown] = useState(false);
   const [sabotageCooldownTime, setSabotageCooldownTime] = useState(60);
 
@@ -28,30 +25,16 @@ export default function SabotageList({
     return () => clearInterval(countdownInterval);
   }, [isSabotageCooldown]);
 
-  function handleSabotageComplete(sabotageId: number) {
+  function handleSabotageActivation(sabotageId: number) {
     if (!isSabotageCooldown) {
-      const sabotageIndex = incompleteSabotages.findIndex(
-        (sabotage) => sabotage.id === sabotageId
-      );
-      if (sabotageIndex !== -1) {
-        const completedSabotage = incompleteSabotages[sabotageIndex];
-        setCompletedSabotages([...completedSabotages, completedSabotage]);
-        const updatedSabotages = incompleteSabotages.filter(
-          (sabotage) => sabotage.id !== sabotageId
-        );
-
-        getSabotagePosition(sabotageId); //sends id back to page to make a fetch for random position
-        setIncompleteSabotages(updatedSabotages);
-        setIsSabotageCooldown(true);
-        setTimeout(() => {
-          setIsSabotageCooldown(false);
-          setSabotageCooldownTime(60);
-        }, 60000);
-      }
+      getSabotagePosition(sabotageId); //sends id back to page to make a fetch for random position
+      setIsSabotageCooldown(true);
+      setTimeout(() => {
+        setIsSabotageCooldown(false);
+        setSabotageCooldownTime(60);
+      }, 60000);
     }
   }
-
-  const displayedSabotages = incompleteSabotages.slice(0, 2);
 
   return (
     <div className="relative">
@@ -65,11 +48,11 @@ export default function SabotageList({
       <div className="relative bg-black text-white border border-gray-600 shadow-md rounded-lg p-4 font-sans text-sm w-full max-w-lg min-h-64">
         <h2 className="text-lg font-semibold mb-4">Sabotages</h2>
         <ul className="overflow-x-hidden">
-          {displayedSabotages.map((sabotage) => (
+          {sabotages.map((sabotage) => (
             <SabotageListItem
               key={sabotage.id}
               sabotage={sabotage}
-              onComplete={() => handleSabotageComplete(sabotage.id)}
+              onActivation={() => handleSabotageActivation(sabotage.id)}
             />
           ))}
         </ul>
