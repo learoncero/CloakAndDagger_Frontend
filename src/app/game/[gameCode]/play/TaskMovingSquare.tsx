@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import toast, { Toaster } from "react-hot-toast";
 import TaskCompletedPopup from "@/app/game/[gameCode]/play/TaskCompletedPopup";
+import MiniGameMovingSquareService from "@/services/MiniGameMovingSquareService";
 
 type TaskMovingSquareProps = {
     taskId: number;
@@ -52,12 +53,15 @@ export default function TaskMovingSquare({
         }, speed);
     };
 
-    const handleButtonClick = () => {
+    const handleButtonClick = async () => {
         if (redSquareIndex === yellowSquareIndex.current) {
             if (currentRound < 3) {
                 setCurrentRound((prevRound) => prevRound + 1);
             } else {
-                setIsTaskCompleted(true);
+                const response = await MiniGameMovingSquareService.completeTask(gameCode, taskId);
+                if (response.data) {
+                    setIsTaskCompleted(true);
+                }
             }
         } else {
             setCurrentRound(1);
@@ -86,29 +90,42 @@ export default function TaskMovingSquare({
             ) : (
                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-75 z-50">
                     <div className="bg-black rounded-lg p-8 max-w-md flex flex-col items-center">
-                        <h2 className="text-2xl font-bold mb-4 text-center">Catch the Red Square</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-center">Catch the Red Box</h2>
                         <p className="text-lg mb-4 text-center">Round: {currentRound}/3</p>
-                        <div className="relative" style={{width: "150px", height: "150px"}}>
+                        <div className="relative" style={{ width: "150px", height: "150px" }}>
                             {SQUARE_POSITIONS.map((pos, index) => (
                                 <div
                                     key={index}
-                                    className={`absolute w-10 h-10 ${index === yellowSquareIndex.current ? 'bg-yellow-500' : ''} ${index === redSquareIndex ? 'bg-red-500' : 'bg-gray-500'}`}
-                                    style={{top: `${pos.top}px`, left: `${pos.left}px`}}
+                                    className={`absolute w-10 h-10 ${
+                                        index === redSquareIndex ? 'bg-red-500' : 'bg-gray-500'
+                                    }`}
+                                    style={{ top: `${pos.top}px`, left: `${pos.left}px` }}
                                 />
+                            ))}
+                            {SQUARE_POSITIONS.map((pos, index) => (
+                                index !== redSquareIndex && (
+                                    <div
+                                        key={index}
+                                        className={`absolute w-10 h-10 ${
+                                            index === yellowSquareIndex.current ? 'bg-yellow-500' : ''
+                                        }`}
+                                        style={{ top: `${pos.top}px`, left: `${pos.left}px` }}
+                                    />
+                                )
                             ))}
                             <button
                                 onClick={handleButtonClick}
-                                className="w-10 h-10 bg-blue-500 rounded hover:bg-blue-700"
+                                className="w-10 h-10 bg-blue-500 hover:bg-blue-700"
                                 style={{
                                     position: 'absolute',
-                                    top: '47%',
-                                    left: '47%',
+                                    top: '46.7%',
+                                    left: '46.7%',
                                     transform: 'translate(-50%, -50%)'
                                 }}
                             />
                         </div>
                     </div>
-                    <Toaster/>
+                    <Toaster />
                 </div>
             )}
         </>
