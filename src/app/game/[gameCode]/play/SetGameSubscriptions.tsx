@@ -11,9 +11,8 @@ export function SetGameSubscriptions(
     setImpostorWinTimer: Function,
     handleChatView: Function,
     setLatestVote: Function,
-    gameCode: string
-    setShowBodyReported: Function
-
+    gameCode: string,
+    setShowBodyReported: Function,
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
