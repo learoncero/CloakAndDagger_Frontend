@@ -37,6 +37,7 @@ export default function PlayGame() {
   const pressedKeys = useRef<Set<string>>(new Set());
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
+  const [showBodyReported, setShowBodyReported] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -54,17 +55,16 @@ export default function PlayGame() {
     currentPlayer?.role === Role.IMPOSTOR_GHOST;
 
   const playerRole = currentPlayer?.role ?? "";
-  const activePlayers = game?.players?.filter(
-    (player) => player.role === Role.IMPOSTOR || player.role === Role.CREWMATE
-  );
 
   const isMovingAllowed =
-    playerRole !== Role.CREWMATE_GHOST &&
-    playerRole !== Role.IMPOSTOR_GHOST &&
     game?.gameStatus === GameStatus.IN_GAME &&
     !showChat &&
     !showTaskPopup &&
     !showVotingResults;
+
+  /*  useEffect(() => {
+    console.log("latest Player voted out: ", latestVote);
+  }, [latestVote]);*/
 
   useEffect(() => {
     if (stompClient) {
@@ -74,7 +74,8 @@ export default function PlayGame() {
         setImpostorWinTimer,
         handleChatView,
         setLatestVote,
-          gameCode
+        gameCode
+        setShowBodyReported
       );
     }
     return () => {
@@ -226,27 +227,18 @@ export default function PlayGame() {
             gameCode={gameCode}
             players={game?.players}
             currentPlayer={currentPlayer as Player}
-            /* activePlayers={activePlayers}*/
             setShowVotingResults={setShowVotingResults}
           />
         )}
-        {!isGhost && showVotingResults && (
+        {game && !isGhost && showVotingResults && (
           <VotingResultsPopup
             onCloseResultsPopup={onCloseResultsPopup}
             voteResult={latestVote}
             players={game?.players}
+            voteEvents={game?.voteEvents}
           />
         )}
-        {isGhost ? (
-          <Modal modalText={"GAME OVER!"} textColor={modalTextColor}>
-            {currentPlayerVotedOut ? (
-              <p>You got voted out!</p>
-            ) : (
-              <p>You just got killed</p>
-            )}
-            <BackLink href={"/"}>Return to Landing Page</BackLink>
-          </Modal>
-        ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+        {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
           <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
             <BackLink href={"/"}>Return to Landing Page</BackLink>
           </Modal>
@@ -266,6 +258,9 @@ export default function PlayGame() {
             reportBody={reportBody}
             handleTaskCompleted={handleTaskCompleted}
             handleShowTaskPopup={setShowTaskPopup}
+            showBodyReported={showBodyReported}
+            handleShowBodyReported={setShowBodyReported}
+            showChat={showChat}
           />
         ) : (
           <div>No Player Data Found</div>

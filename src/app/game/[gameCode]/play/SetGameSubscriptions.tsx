@@ -12,6 +12,8 @@ export function SetGameSubscriptions(
     handleChatView: Function,
     setLatestVote: Function,
     gameCode: string
+    setShowBodyReported: Function
+
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
@@ -40,8 +42,12 @@ export function SetGameSubscriptions(
       },
       [`/topic/${gameCode}/bodyReport`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+        console.log("receivedMessage BodyReport: ", receivedMessage);
         updateGame(receivedMessage.body);
-        handleChatView(true);
+        setShowBodyReported(true);
+        setTimeout(() => {
+          handleChatView(true);
+        }, 2000);
       },
       [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -51,16 +57,20 @@ export function SetGameSubscriptions(
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setImpostorWinTimer(30);
-        toast("Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!", {
-          position: "top-center",
-          style: {
-            border: "2px solid black",
-            padding: "16px",
-            color: "white",
-            backgroundColor: "#eF4444",
-          },
-          icon: "❕",
-        });
+        toast(
+          "Sabotage initiated. Crewmates, time is running out! You have 30 seconds to act!",
+          {
+            position: "top-center",
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "white",
+              backgroundColor: "#eF4444",
+            },
+            icon: "❕",
+          }
+        );
+
       },
       [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -80,7 +90,7 @@ export function SetGameSubscriptions(
       [`/topic/${gameCode}/voteResults`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
-        setLatestVote(receivedMessage.votingResults.at(-1));
+        setLatestVote(receivedMessage.votingResult);
       }
     };
 

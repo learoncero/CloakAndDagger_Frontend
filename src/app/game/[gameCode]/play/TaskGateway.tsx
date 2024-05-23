@@ -2,6 +2,7 @@ import React from "react";
 import TaskPasscode from "./TaskPasscode";
 import TaskColorSeq from "./TaskColorSeq";
 import TaskDecipherSymbols from "@/app/game/[gameCode]/play/TaskDecipherSymbols";
+import TaskSortingAlgorithm from "@/app/game/[gameCode]/play/TaskSortingAlgorithm";
 
 type TaskProps = {
   miniGameId: number;
@@ -38,6 +39,14 @@ export default function TaskGateway({
     case 3:
         return (
             <TaskDecipherSymbols
+                taskId={taskId}
+                gameCode={gameCode}
+                handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
+            />
+        );
+    case 4:
+        return (
+            <TaskSortingAlgorithm
                 taskId={taskId}
                 gameCode={gameCode}
                 handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}

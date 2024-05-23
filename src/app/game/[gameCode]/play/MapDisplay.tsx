@@ -1,8 +1,8 @@
-
-import {Player, Task, Sabotage} from "@/app/types";
-import PlayerSprites from './PlayerSprites';
-import TaskIconDisplay from './TaskIconDisplay';
+import { Player, Task, Sabotage } from "@/app/types";
+import TaskIconDisplay from "./TaskIconDisplay";
 import SabotageIconDisplay from "./SabotageIconDisplay";
+import { DeadBody, PlayerSprites } from "./PlayerSprites";
+import { useEffect, useState } from "react";
 
 type Props = {
   map: string[][];
@@ -12,6 +12,7 @@ type Props = {
   sabotages: Sabotage[];
   nearbyTask?: Task;
 };
+
 export default function MapDisplay({
   map,
   playerList,
@@ -20,10 +21,35 @@ export default function MapDisplay({
   sabotages,
   nearbyTask,
 }: Props) {
-  //console.log("MapDisplay tasks: ", tasks);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isMapVisible, setIsMapVisible] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      setIsMapVisible(window.innerWidth > 1025);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  if (!isMapVisible) {
+    return (
+      <div className="map-overlay">
+        Map is hidden due to small window size. Please switch to full screen to
+        view the map.
+      </div>
+    ); // You can style this overlay as needed
+  }
+
   const viewportSize = 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
-  const { x, y } = currentPlayer.position;
+  const { x, y } = currentPlayer.playerPosition;
   let startX = Math.max(0, x - halfViewport);
   let endX = Math.min(map[0].length, x + halfViewport + 1);
   let startY = Math.max(0, y - halfViewport);
@@ -46,43 +72,94 @@ export default function MapDisplay({
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
 
-  return (
-      <div className="relative border-3 border-black">
-        {map.slice(startY, endY).map((row, rowIndex) => (
-            <div key={rowIndex} className="flex">
-              {row.slice(startX, endX).map((cell, cellIndex) => {
-                const cellPosX = cellIndex + startX;
-                const cellPosY = rowIndex + startY;
-                const isPlayerHere = playerList.some(player => player.position.x === cellPosX && player.position.y === cellPosY);
-                const taskInCell = tasks.find(task => task.position.x === cellPosX && task.position.y === cellPosY);
-                const sabotageInCell = sabotages.find(sabotage => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY);
-                return (
-                    <div
-                        key={cellIndex}
-                        className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
-                                  ${cell!= '#' ? 'bg-gray-400' : 'bg-red-950'}`}
-                    >
-                    {isPlayerHere && playerList.filter(player => player.position.x === cellPosX && player.position.y === cellPosY)
-                          .map(player => (
-                              <PlayerSprites key={player.id} player={player} currentPlayerRole={currentPlayer.role}/>
-                              // eslint-disable-next-line react/jsx-no-comment-textnodes
-                          ))}
+  const isGhost = (player: Player) =>
+    player.role === "CREWMATE_GHOST" || player.role === "IMPOSTOR_GHOST";
 
-                      {taskInCell !== undefined && (
-                          <TaskIconDisplay
-                              completed={taskInCell.completed}
-                              isTaskInteractable={!!nearbyTask}
-                              role={currentPlayer.role}
-                          />
-                      )}
-                      {sabotageInCell !== undefined && (
-                          <SabotageIconDisplay/>
-                      )}
-                    </div>
-                );
-              })}
-            </div>
-        ))}
-      </div>
+  const visiblePlayers =
+    currentPlayer.role === "IMPOSTOR_GHOST" ||
+    currentPlayer.role === "CREWMATE_GHOST"
+      ? playerList
+      : playerList.filter((player) => !isGhost(player));
+
+  return (
+    <div className="relative border-3 border-black">
+      {map.slice(startY, endY).map((row, rowIndex) => (
+        <div key={rowIndex} className="flex">
+          {row.slice(startX, endX).map((cell, cellIndex) => {
+            const cellPosX = cellIndex + startX;
+            const cellPosY = rowIndex + startY;
+            const isPlayerHere = visiblePlayers.some(
+              (player) =>
+                player.playerPosition.x === cellPosX &&
+                player.playerPosition.y === cellPosY
+            );
+            const deadBodyHere = playerList.some(
+              (player) =>
+                player.deadBodyPosition.x === cellPosX &&
+                player.deadBodyPosition.y === cellPosY
+            );
+            const taskInCell = tasks.find(
+              (task) =>
+                task.position.x === cellPosX && task.position.y === cellPosY
+            );
+            const sabotageInCell = sabotages.find(
+              (sabotage) =>
+                sabotage.position.x === cellPosX &&
+                sabotage.position.y === cellPosY
+            );
+            const isTaskInteractable =
+              !!nearbyTask &&
+              (currentPlayer.role === "CREWMATE" ||
+                currentPlayer.role === "CREWMATE_GHOST");
+            return (
+              <div
+                key={cellIndex}
+                className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border ${
+                  cell != "#" ? "bg-gray-400" : "bg-red-950"
+                }`}
+              >
+                {isPlayerHere &&
+                  playerList
+                    .filter(
+                      (player) =>
+                        player.playerPosition.x === cellPosX &&
+                        player.playerPosition.y === cellPosY
+                    )
+                    .map((player) => (
+                      <PlayerSprites
+                        key={player.id}
+                        player={player}
+                        currentPlayerRole={currentPlayer.role}
+                      />
+                    ))}
+
+                {deadBodyHere &&
+                  playerList
+                    .filter(
+                      (player) =>
+                        player.deadBodyPosition.x === cellPosX &&
+                        player.deadBodyPosition.y === cellPosY
+                    )
+                    .map((player) => (
+                      <DeadBody
+                        key={player.id}
+                        playerColor={player.playerColor}
+                      />
+                    ))}
+
+                {taskInCell !== undefined && (
+                  <TaskIconDisplay
+                    completed={taskInCell.completed}
+                    isTaskInteractable={isTaskInteractable}
+                    role={currentPlayer.role}
+                  />
+                )}
+                {sabotageInCell !== undefined && <SabotageIconDisplay />}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 }

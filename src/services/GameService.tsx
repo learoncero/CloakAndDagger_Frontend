@@ -8,25 +8,28 @@ export default class GameService {
   }
 
   static async createGame(
-    player: Player,
+    username: String,
     numberOfPlayers: number,
     numberOfImpostors: number,
     map: string,
-    playerColor: string,
-
+    playerColor: string
   ) {
     const createdGame = await ApiService.post("game", "/api/game", {
-      player,
+      username,
       numberOfPlayers,
       numberOfImpostors,
       map,
-      playerColor
+      playerColor,
     });
 
     return createdGame as ApiResponse<Game>;
   }
 
-  static async joinGame(username: string, gameCode: string, playerColor: string) {
+  static async joinGame(
+    username: string,
+    gameCode: string,
+    playerColor: string
+  ) {
     const joinedGame = await ApiService.post("game", "/api/game/join", {
       username,
       position: {
@@ -42,5 +45,19 @@ export default class GameService {
     }
 
     return joinedGame as ApiResponse<Game>;
+  }
+
+  static async leaveGame(gameCode: string, playerUsername: string) {
+    const leftGame = await ApiService.post(
+      "game",
+      `/api/game/${gameCode}/leave`,
+      playerUsername
+    );
+
+    if (leftGame.status !== 200) {
+      throw new Error(leftGame.data.message);
+    }
+
+    return leftGame as ApiResponse<boolean>;
   }
 }

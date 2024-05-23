@@ -11,6 +11,7 @@ import LobbyHeader from "./LobbyHeader";
 import { fetchGame } from "./actions";
 import { Game } from "@/app/types";
 import useWebSocket from "@/hooks/useWebSocket";
+import LobbyLeave from "@/app/game/setup/lobby/[gameCode]/LobbyLeave";
 
 export default function Lobby() {
   const stompClient = useWebSocket("http://localhost:5010/ws");
@@ -18,9 +19,17 @@ export default function Lobby() {
   const { gameCode } = useParams();
   const { game, updateGame } = useGame(gameCode as string);
 
+  let playerId: string | null;
+  if (typeof window !== "undefined") {
+    playerId = sessionStorage.getItem("playerId");
+  }
+
+  const currentPlayer = game?.players?.find(
+      (player) => player.id.toString() === playerId
+  );
+
   async function loadGameData() {
     const gameResult = await fetchGame(gameCode as string);
-    console.log(gameResult.data);
     if (gameResult.status === 200) {
       updateGame(gameResult.data as Game);
     }
@@ -79,6 +88,10 @@ export default function Lobby() {
         <LobbyStartGameButton
           handleStartGame={handleStartGame}
           isGameReadyToStart={isGameReadyToStart}
+        />
+        <LobbyLeave
+          gameCode={gameCode as string}
+          playerUsername={currentPlayer?.username as string}
         />
       </div>
     </div>
