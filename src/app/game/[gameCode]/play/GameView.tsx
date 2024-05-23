@@ -19,6 +19,7 @@ import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 
 type Props = {
+
   game: Game;
   map: string[][];
   currentPlayer: Player;
@@ -60,6 +61,7 @@ export default function GameView({
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
 
+
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
   };
@@ -100,20 +102,21 @@ export default function GameView({
         await TaskService.setActiveStatus(nearbyTasks[0].taskId, game.gameCode);
       };
 
-      if (showTaskPopup) {
-        handleShowTaskPopup(false);
-        await setActiveStatus();
-        await TaskService.cancelTask(
-          nearbyTasks[0].taskId,
-          nearbyTasks[0].miniGameId,
-          game.gameCode
-        );
-      } else {
-        handleShowTaskPopup(true);
-        await setActiveStatus();
-      }
-    }
-  }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
+            if (showTaskPopup) {
+                handleShowTaskPopup(false);
+                await setActiveStatus();
+                await TaskService.cancelTask(
+                    nearbyTasks[0].taskId,
+                    nearbyTasks[0].miniGameId,
+                    game.gameCode
+                );
+            } else {
+                handleShowTaskPopup(true);
+                await setActiveStatus();
+            }
+        }
+    }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
+
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -131,12 +134,13 @@ export default function GameView({
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKill, setShowMiniMap]);
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [handleKill, setShowMiniMap]);
 
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
@@ -185,12 +189,12 @@ export default function GameView({
       }
     };
 
-    window.addEventListener("keydown", handleKeyPress);
+        window.addEventListener("keydown", handleKeyPress);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -199,12 +203,12 @@ export default function GameView({
       }
     };
 
-    window.addEventListener("keydown", handleKeyPress);
+        window.addEventListener("keydown", handleKeyPress);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [nearbySabotages]);
+        return () => {
+            window.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [nearbySabotages]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -371,6 +375,7 @@ export default function GameView({
             </div>
           </div>
         )}
+
         {isImpostor ? (
           <Toaster />
         ) : showTaskPopup ? (

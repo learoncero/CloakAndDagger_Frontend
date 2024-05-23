@@ -74,7 +74,8 @@ export default function PlayGame() {
         setImpostorWinTimer,
         handleChatView,
         setLatestVote,
-        setShowBodyReported
+        gameCode,
+        setShowBodyReported,
       );
     }
     return () => {

@@ -16,6 +16,10 @@ export default function SabotageList({
   const [isSabotageCooldown, setIsSabotageCooldown] = useState(false);
   const [sabotageCooldownTime, setSabotageCooldownTime] = useState(60);
 
+
+    console.log("THOSE ARE MY SABOTAGES:" + sabotages[0].position)
+
+
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
 
