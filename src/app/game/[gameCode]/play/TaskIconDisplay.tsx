@@ -14,7 +14,7 @@ export default function TaskIconDisplay({
 }: Props) {
   const taskComplete = "/taskComplete.png";
   const taskNotComplete = "/taskNotComplete.png";
-  const isCrewmate = role == Role.CREWMATE && Role.CREWMATE_GHOST;
+  const isCrewmate = role == Role.CREWMATE || role == Role.CREWMATE_GHOST;
 
   return (
     <div className={`flex place-content-center w-full h-full relative`}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Chat as ChatType, Player } from "@/app/types";
+import { Chat as ChatType, Player, Role, VoteEvent } from "@/app/types";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import ChatBubble from "./ChatBubble";
@@ -28,7 +28,7 @@ export default function Chat({
   const [message, setMessage] = useState("");
   const [remainingTime, setRemainingTime] = useState<number>(60);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [playerVotes, setPlayerVotes] = useState<number[]>([]);
+  const [playerVotes, setPlayerVotes] = useState<VoteEvent[]>([]);
   const activePlayers = players
     ? players.filter(
         (player) => player.role === "IMPOSTOR" || player.role === "CREWMATE"
@@ -65,14 +65,25 @@ export default function Chat({
       );
       stompClient.subscribe("/topic/vote", (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
-        setPlayerVotes(receivedMessage.body);
+        const bodyMessage = receivedMessage.body;
+        const voteEventsFromMessage = bodyMessage.voteEvents;
+
+        if (voteEventsFromMessage && voteEventsFromMessage.length > 0) {
+          const allVoteEvents = voteEventsFromMessage.map(
+            (event: VoteEvent) => ({
+              votedForPlayer: event.votedForPlayer,
+              votedBy: event.votedBy,
+            })
+          );
+          setPlayerVotes(allVoteEvents);
+        }
       });
+      return () => {
+        if (stompClient) {
+          stompClient.unsubscribe();
+        }
+      };
     }
-    return () => {
-      if (stompClient) {
-        stompClient.unsubscribe();
-      }
-    };
   }, [stompClient]);
 
   useEffect(() => {
@@ -109,7 +120,10 @@ export default function Chat({
   async function handleVotes(playerId: number) {
     const votingMessage = {
       gameCode: gameCode,
-      playerId: playerId,
+      voteEvent: {
+        votedForPlayer: playerId,
+        votedBy: currentPlayer.id,
+      },
     };
     if (stompClient) {
       stompClient.send("/app/chat/vote", {}, JSON.stringify(votingMessage));
@@ -157,8 +171,18 @@ export default function Chat({
               updateMessage={updateMessage}
               message={message}
               onMessageSend={onMessageSend}
+              disabled={
+                currentPlayer.role === Role.CREWMATE_GHOST ||
+                currentPlayer.role === Role.IMPOSTOR_GHOST
+              }
             />
-            <ChatSendButton onMessageSend={onMessageSend} />
+            <ChatSendButton
+              onMessageSend={onMessageSend}
+              disabled={
+                currentPlayer.role === Role.CREWMATE_GHOST ||
+                currentPlayer.role === Role.IMPOSTOR_GHOST
+              }
+            />
           </div>
         </div>
         <Voting

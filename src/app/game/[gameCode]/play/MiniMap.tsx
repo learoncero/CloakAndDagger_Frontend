@@ -27,7 +27,7 @@ const MiniMap: React.FC<Props> = ({
   const viewRadius = 4;
   const totalViewSize = 2 * viewRadius + 1;
 
-  const { x, y } = currentPlayer.position;
+  const { x, y } = currentPlayer.playerPosition;
 
   // Start & End Coordinate calculation
   let startX = Math.max(0, x - viewRadius);
@@ -65,8 +65,8 @@ const MiniMap: React.FC<Props> = ({
               rowIndex < endY;
             const isPlayerHere = playerList.some(
               (player) =>
-                player.position.x === cellIndex &&
-                player.position.y === rowIndex
+                player.playerPosition.x === cellIndex &&
+                player.playerPosition.y === rowIndex
             );
             const cellWidth = Math.floor(1150 / row.length); //Rundet das Ergebnis ab
             const cellHeight = Math.floor(565 / map.length);

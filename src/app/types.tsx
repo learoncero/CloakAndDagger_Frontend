@@ -4,18 +4,20 @@ export type Game = {
   numberOfImpostors: number;
   map: string;
   players: Player[];
-  gameID: number;
   tasks: Task[];
   sabotages: Sabotage[];
+  gameID: number;
   gameStatus: GameStatus;
   reportedBodies: number[];
-  votingResults: number[];
+  voteEvents: VoteEvent[];
+  votingResult: number;
 };
 
 export type Player = {
   id: number;
   username: string;
-  position: { x: number; y: number };
+  playerPosition: { x: number; y: number };
+  deadBodyPosition: { x: number; y: number };
   role: Role;
   mirrored: boolean;
   moving: boolean;
@@ -74,3 +76,8 @@ export type ChatMessage = {
   message: string;
   sender: string;
 };
+
+export type VoteEvent = {
+  votedForPlayer: number;
+  votedBy: number;
+}

@@ -69,6 +69,7 @@ export default function JoinGameForm() {
               type={"text"}
               placeholder={"Enter your name"}
               required={true}
+              maxLength={20}
           />
           <JoinGameFormInputField
               name={"gameCode"}

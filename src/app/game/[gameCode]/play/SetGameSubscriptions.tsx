@@ -6,51 +6,53 @@ interface Handlers {
 let subscriptionsSet = false;
 
 export function SetGameSubscriptions(
-  stompClient: any,
-  updateGame: Function,
-  setImpostorWinTimer: Function,
-  handleChatView: Function,
-  setLatestVote: Function,
-  setShowBodyReported: Function
+    stompClient: any,
+    updateGame: Function,
+    setImpostorWinTimer: Function,
+    handleChatView: Function,
+    setLatestVote: Function,
+    gameCode: string,
+    setShowBodyReported: Function,
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
-      "/topic/positionChange",
-      "/topic/IdleChange",
-      "/topic/playerKill",
-      "/topic/bodyReport",
-      "/topic/gameEnd",
-      "/topic/sabotageStart",
-      "/topic/sabotageCancel",
-      "/topic/voteResults",
+      `/topic/${gameCode}/positionChange`,
+      `/topic/${gameCode}/IdleChange`,
+      `/topic/${gameCode}/playerKill`,
+      `/topic/${gameCode}/bodyReport`,
+      `/topic/${gameCode}/gameEnd`,
+      `/topic/${gameCode}/sabotageStart`,
+      `/topic/${gameCode}/sabotageCancel`,
+      `/topic/${gameCode}/voteResults`,
     ];
 
     const handlers: Handlers = {
-      "/topic/positionChange": (message: { body: string }) => {
+      [`/topic/${gameCode}/positionChange`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/IdleChange": (message: { body: string }) => {
+      [`/topic/${gameCode}/IdleChange`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/playerKill": (message: { body: string }) => {
+      [`/topic/${gameCode}/playerKill`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/bodyReport": (message: { body: string }) => {
+      [`/topic/${gameCode}/bodyReport`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+        console.log("receivedMessage BodyReport: ", receivedMessage);
         updateGame(receivedMessage.body);
         setShowBodyReported(true);
         setTimeout(() => {
           handleChatView(true);
         }, 2000);
       },
-      "/topic/gameEnd": (message: { body: string }) => {
+      [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      "/topic/sabotageStart": (message: { body: string }) => {
+      [`/topic/${gameCode}/sabotageStart`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setImpostorWinTimer(30);
@@ -67,8 +69,9 @@ export function SetGameSubscriptions(
             icon: "❕",
           }
         );
+
       },
-      "/topic/sabotageCancel": (message: { body: string }) => {
+      [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setImpostorWinTimer(-1);
@@ -83,11 +86,11 @@ export function SetGameSubscriptions(
           icon: "❕",
         });
       },
-      "/topic/voteResults": (message: { body: string }) => {
+      [`/topic/${gameCode}/voteResults`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
-        setLatestVote(receivedMessage.votingResults.at(-1));
-      },
+        setLatestVote(receivedMessage.votingResult);
+      }
     };
 
     subscriptions.forEach((topic) => {
@@ -95,6 +98,7 @@ export function SetGameSubscriptions(
         handlers[topic](message);
       });
     });
+
     subscriptionsSet = true;
   }
 }
