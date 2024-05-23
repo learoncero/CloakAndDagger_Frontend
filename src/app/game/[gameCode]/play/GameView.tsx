@@ -194,7 +194,7 @@ export default function GameView({
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === "KeyC" && nearbySabotages.length > 0) {
+      if (event.code === "KeyC" && nearbySabotages.length > 0 && !showMiniMap) {
         handleCancelSabotage();
       }
     };
