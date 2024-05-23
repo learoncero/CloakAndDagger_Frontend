@@ -20,12 +20,15 @@ export default function Manual({ role, onClose }: Props) {
         </button>
         <div className="flex justify-center">
           <h2 className="text-5xl text-cyan-500 font-bold text-center my-10">
-            {role === "CREWMATE" ? "CREWMATE" : "IMPOSTOR"} MANUAL
+            {role === "CREWMATE" || role === "CREWMATE_GHOST"
+              ? "CREWMATE"
+              : "IMPOSTOR"}{" "}
+            MANUAL
           </h2>
         </div>
         <div className="text-white">
           {" "}
-          {role === "CREWMATE" && (
+          {(role === "CREWMATE" || role === "CREWMATE_GHOST") && (
             <div>
               <p className="mb-4">
                 As a Crewmate, your objective is to complete tasks and identify
@@ -40,7 +43,7 @@ export default function Manual({ role, onClose }: Props) {
               <h2 className="font-semibold underline mb-2 mt-4">Shortcuts</h2>
               <ul className="list-disc list-inside">
                 <li>Move: W A S D</li>
-                <li>Show Minimap: M | Q</li>
+                <li>Show Minimap: M / Q</li>
                 <li>Show Manual: H</li>
                 <li>Start/Cancel Task: E</li>
                 <li>Cancel Sabotage: C</li>
@@ -63,7 +66,7 @@ export default function Manual({ role, onClose }: Props) {
               <h2 className="font-semibold underline mb-2 mt-4">Shortcuts</h2>
               <ul className="list-disc list-inside">
                 <li>Move: W A S D</li>
-                <li>Show Minimap: M | Q</li>
+                <li>Show Minimap: M / Q</li>
                 <li>Show Manual: H</li>
                 <li>Kill: E</li>
                 <li>Cancel Sabotage: C</li>

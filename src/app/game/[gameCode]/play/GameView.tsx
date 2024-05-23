@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Game, Player, Role, Task, Sabotage } from "@/app/types";
 import toast, { Toaster } from "react-hot-toast";
-import RoleInformation from "./RoleInformation";
-import SabotageList from "./SabotageList";
 import TaskList from "./TaskList";
 import MapDisplay from "./MapDisplay";
 import PlayerList from "./PlayerList";
@@ -11,11 +9,14 @@ import MiniMap from "./MiniMap";
 import TaskGateway from "./TaskGateway";
 import ActionButton from "@/components/ActionButton";
 import useNearbyItems from "@/hooks/useNearbyItems";
-import useNearbyEntities from "@/hooks/useNearbyEntities";
+import useNearbyPlayers from "@/hooks/useNearbyPlayers";
 import TaskService from "@/services/TaskService";
 import Manual from "./Manual";
 import ToggleButton from "@/components/ToggleButton";
 import InformationPopUp from "./InformationPopUp";
+import useNearbyDeadBodies from "@/hooks/useNearbyDeadBodies";
+import SabotageList from "./SabotageList";
+import RoleInformation from "./RoleInformation";
 
 type Props = {
   game: Game;
@@ -69,30 +70,28 @@ export default function GameView({
 
   const nearbyTasks = useNearbyItems(
     game.tasks,
-    currentPlayer.position
+    currentPlayer.playerPosition
   ) as Task[];
 
   const nearbyTasksForKill = useNearbyItems(
     game.tasks,
-    currentPlayer.position,
-    2
+    currentPlayer.playerPosition
   ) as Task[];
 
   const nearbySabotages = useNearbyItems(
     game.sabotages,
-    currentPlayer.position
+    currentPlayer.playerPosition
   ) as Sabotage[];
 
-  const nearbyPlayers = useNearbyEntities(
+  const nearbyPlayers = useNearbyPlayers(
     game?.players || [],
     currentPlayer as Player,
     [Role.CREWMATE, Role.IMPOSTOR]
   );
 
-  const nearbyGhosts = useNearbyEntities(
+  const nearbyDeadBodies = useNearbyDeadBodies(
     game?.players || [],
-    currentPlayer as Player,
-    [Role.CREWMATE_GHOST, Role.IMPOSTOR_GHOST]
+    currentPlayer as Player
   );
 
   const handleToggleTaskPopup = useCallback(async () => {
@@ -144,15 +143,19 @@ export default function GameView({
       if (event.key === "e" || event.key === "E") {
         if (
           nearbyTasks.length === 0 ||
-          currentPlayer?.role != Role.CREWMATE ||
+          (currentPlayer?.role !== Role.CREWMATE &&
+            currentPlayer?.role !== Role.CREWMATE_GHOST) ||
           nearbyTasks[0]?.completed
-        )
+        ) {
           return;
+        }
 
         const status = await TaskService.getActiveStatus(
           nearbyTasks[0].taskId,
           game.gameCode
         );
+
+        console.log("status", status.data, showTaskPopup);
 
         if (status.data === true && !showTaskPopup) {
           toast("Task already occupied", {
@@ -191,7 +194,7 @@ export default function GameView({
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === "KeyC" && nearbySabotages.length > 0) {
+      if (event.code === "KeyC" && nearbySabotages.length > 0 && !showMiniMap) {
         handleCancelSabotage();
       }
     };
@@ -247,8 +250,8 @@ export default function GameView({
   }
 
   function handleReportBody() {
-    if (nearbyGhosts.length > 0) {
-      const bodyToReportId = nearbyGhosts[0].id;
+    if (nearbyDeadBodies.length > 0) {
+      const bodyToReportId = nearbyDeadBodies[0].id;
       if (!game.reportedBodies.includes(bodyToReportId)) {
         reportBody(game.gameCode, bodyToReportId);
       }
@@ -316,7 +319,11 @@ export default function GameView({
             {isImpostor && (
               <ActionButton
                 onClick={handleKill}
-                buttonclickable={nearbyPlayers.length > 0 && !isTimer}
+                buttonclickable={
+                  nearbyPlayers.length > 0 &&
+                  !isTimer &&
+                  currentPlayer.role === Role.IMPOSTOR
+                }
                 colorActive="bg-red-600"
               >
                 {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
@@ -325,8 +332,8 @@ export default function GameView({
             <ActionButton
               onClick={() => handleReportBody()}
               buttonclickable={
-                nearbyGhosts.length > 0 &&
-                !game.reportedBodies.includes(nearbyGhosts[0].id)
+                nearbyDeadBodies.length > 0 &&
+                !game.reportedBodies.includes(nearbyDeadBodies[0].id)
               }
               colorActive="bg-cyan-600"
             >
@@ -372,7 +379,7 @@ export default function GameView({
             taskId={nearbyTasks[0].taskId}
             gameCode={game.gameCode}
             handleTaskCompleted={() =>
-              handleTaskCompleted(nearbyTasks[0].taskId)
+            handleTaskCompleted(nearbyTasks[0].taskId)
             }
           />
         ) : (
