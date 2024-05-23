@@ -15,7 +15,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
   const [map, setMap] = useState("DevMap1");
   const [state, formAction] = useFormState(onSubmit, undefined);
   const [buttonDisabled, setButtonDisabled] = useState(true);
-    const [playerColor, setPlayerColor] = useState("");
+  const [playerColor, setPlayerColor] = useState("");
 
   // Check if the form has a response and if the response status is not 200
   // Todo: should we handle error?
@@ -28,7 +28,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         setNumImpostors(Math.floor(numPlayers / 2));
       }
       if (numImpostors === numPlayers / 2) {
-          setNumImpostors(Math.floor(numPlayers / 2) - 1);
+        setNumImpostors(Math.floor(numPlayers / 2) - 1);
       }
       setButtonDisabled(false);
     } else {
@@ -47,15 +47,23 @@ export default function CreateGameForm({ onSubmit }: Props) {
         required={true}
         maxLength={20}
       />
-        <CreateGameFormInputField
-            label="Player Color"
-            name={"playerColor"}
-            value={playerColor}
-            onChange={(e) => setPlayerColor(e.target.value)}
-            type={"select"}
-            required={true}
-            options={["red", "black", "blue","pink","purple","brown","turquoise"]}
-        />
+      <CreateGameFormInputField
+        label="Player Color"
+        name={"playerColor"}
+        value={playerColor}
+        onChange={(e) => setPlayerColor(e.target.value)}
+        type={"select"}
+        required={true}
+        options={[
+          "red",
+          "black",
+          "blue",
+          "pink",
+          "purple",
+          "brown",
+          "turquoise",
+        ]}
+      />
       <CreateGameFormInputField
         label="Number of Players"
         name="numPlayers"

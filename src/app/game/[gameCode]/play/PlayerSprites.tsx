@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {Player, Role} from "@/app/types";
-import {useAnimation} from '@/app/AnimationContext';
-
+import React, { useEffect, useState } from "react";
+import { Player, Role } from "@/app/types";
+import { useAnimation } from "@/app/AnimationContext";
 
 interface SpriteConfig {
   dead: string;
@@ -108,9 +107,7 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({
     );
   }, [player.role]);
 
-  const spriteUrl = isGhost
-    ? currentSprites.dead
-    : player.moving
+  const spriteUrl = player.moving
     ? currentSprites.mov[spriteIndex]
     : currentSprites.idle;
   const transformStyle = player.mirrored ? { transform: "scaleX(-1)" } : {};
@@ -132,6 +129,7 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({
         flexDirection: "column",
         justifyContent: "space-between",
         alignItems: "center",
+        opacity: isGhost ? 0.5 : 1,
       }}
     >
       <div
@@ -161,4 +159,33 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({
   );
 };
 
-export default PlayerSprites;
+interface DeadBodyProps {
+  playerColor: string;
+}
+
+const DeadBody: React.FC<DeadBodyProps> = ({ playerColor }) => {
+  const currentSprites = sprites[playerColor];
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          width: "80%",
+          height: "80%",
+          backgroundImage: `url(${currentSprites.dead})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+    </div>
+  );
+};
+
+export { PlayerSprites, DeadBody };
