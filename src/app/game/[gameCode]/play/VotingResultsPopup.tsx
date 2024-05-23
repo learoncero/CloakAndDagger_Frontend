@@ -7,6 +7,7 @@ type VotingResultsProps = {
   voteResult: number | undefined;
   players: Player[];
   voteEvents: VoteEvent[];
+  currentPlayerId: number | undefined;
 };
 
 export default function VotingResultsPopup({
@@ -14,6 +15,7 @@ export default function VotingResultsPopup({
   voteResult,
   players,
   voteEvents,
+  currentPlayerId,
 }: VotingResultsProps) {
   const zeroVotes = voteResult === 0;
   const isVoteTied = voteResult === -1;
@@ -50,10 +52,15 @@ export default function VotingResultsPopup({
                 <h3 className={"mt-4 text-xl font-bold"}>Congratulations!</h3>
                 <p>You eliminated an Impostor!!</p>
               </>
+            ) : votedPlayer.id === currentPlayerId ? (
+              <>
+                <h3 className={"mt-4 text-xl font-bold"}>Bad Luck!</h3>
+                <p>You just got eliminated by popular vote!</p>
+              </>
             ) : (
               <>
                 <h3 className={"mt-4 text-xl font-bold"}>Bad Luck!</h3>
-                <p>You eliminated a fellow Crewmate!!</p>
+                <p>You eliminated a fellow Crewmate!</p>
               </>
             )}
             <br />

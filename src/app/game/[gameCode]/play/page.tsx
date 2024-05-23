@@ -230,12 +230,13 @@ export default function PlayGame() {
             setShowVotingResults={setShowVotingResults}
           />
         )}
-        {game && !isGhost && showVotingResults && (
+        {game && showVotingResults && (
           <VotingResultsPopup
             onCloseResultsPopup={onCloseResultsPopup}
             voteResult={latestVote}
             players={game?.players}
             voteEvents={game?.voteEvents}
+            currentPlayerId={currentPlayer?.id}
           />
         )}
         {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
