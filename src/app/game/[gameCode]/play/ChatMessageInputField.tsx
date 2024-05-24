@@ -2,12 +2,14 @@ type Props = {
   updateMessage: (message: string) => void;
   message: string;
   onMessageSend: () => void;
+  disabled: boolean;
 };
 
 export default function ChatMessageInputField({
   updateMessage,
   message,
   onMessageSend,
+  disabled,
 }: Props) {
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     updateMessage(event.target.value);
@@ -31,6 +33,7 @@ export default function ChatMessageInputField({
         onKeyDown={handleKeyDown}
         value={message}
         className="bg-transparent text-white min-h-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent w-full"
+        disabled={disabled}
       />
     </div>
   );

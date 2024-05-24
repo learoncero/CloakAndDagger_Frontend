@@ -55,21 +55,12 @@ export default function PlayGame() {
       currentPlayer?.role === Role.IMPOSTOR_GHOST;
 
   const playerRole = currentPlayer?.role ?? "";
-  const activePlayers = game?.players?.filter(
-      (player) => player.role === Role.IMPOSTOR || player.role === Role.CREWMATE
-  );
 
   const isMovingAllowed =
-      playerRole !== Role.CREWMATE_GHOST &&
-      playerRole !== Role.IMPOSTOR_GHOST &&
       game?.gameStatus === GameStatus.IN_GAME &&
       !showChat &&
       !showTaskPopup &&
       !showVotingResults;
-
-  /*  useEffect(() => {
-    console.log("latest Player voted out: ", latestVote);
-  }, [latestVote]);*/
 
   useEffect(() => {
     if (stompClient) {
@@ -79,6 +70,7 @@ export default function PlayGame() {
           setImpostorWinTimer,
           handleChatView,
           setLatestVote,
+          gameCode,
           setShowBodyReported
       );
     }
@@ -237,30 +229,19 @@ export default function PlayGame() {
                   gameCode={gameCode}
                   players={game?.players}
                   currentPlayer={currentPlayer as Player}
-                  /* activePlayers={activePlayers}*/
                   setShowVotingResults={setShowVotingResults}
               />
           )}
-          {game && !isGhost && showVotingResults && (
+          {game && showVotingResults && (
               <VotingResultsPopup
                   onCloseResultsPopup={onCloseResultsPopup}
                   voteResult={latestVote}
                   players={game?.players}
                   voteEvents={game?.voteEvents}
+                  currentPlayerId={currentPlayer?.id}
               />
           )}
-          {isGhost ? (
-              <Modal modalText={"GAME OVER!"} textColor={modalTextColor}>
-                {currentPlayerVotedOut ? (
-                    <p>You got voted out!</p>
-                ) : (
-                    <p>You just got killed</p>
-                )}
-                <BackLink href={"/"} onClick={handleBackLinkClick}>
-                  Return to Landing Page
-                </BackLink>
-              </Modal>
-          ) : game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+          {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
               <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
                 <BackLink href={"/"} onClick={handleBackLinkClick}>
                   Return to Landing Page

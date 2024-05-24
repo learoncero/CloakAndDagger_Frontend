@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from "react";
+import React, { ChangeEvent } from "react";
 
 type Props = {
 name: string;
@@ -56,5 +56,6 @@ export default function JoinGameFormInputField({
             />
         </div>
     );
+
 }
 }
