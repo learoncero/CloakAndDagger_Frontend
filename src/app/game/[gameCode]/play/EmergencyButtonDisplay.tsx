@@ -1,22 +1,24 @@
 import Image from "next/image";
 
 type Props = {
-  isSabotageInteractable: boolean;
+  isButtonInteractable: boolean;
 };
 
-export default function SabotageIconDisplay({ isSabotageInteractable }: Props) {
+export default function EmergencyButtonDisplay({
+  isButtonInteractable,
+}: Props) {
   return (
     <div className={`flex place-content-center w-full h-full z-10`}>
       <Image
-        src={"/sabotage.png"}
-        alt={"Sabotage"}
+        src={"/emergencyButton.png"}
+        alt={"Emergency Button"}
         width={100}
         height={100}
         className={`object-contain p-[10%]`}
       />
-      {isSabotageInteractable && (
+      {isButtonInteractable && (
         <div className="absolute top-1 right-2 text-black font-bold bg-white px-1 rounded-full">
-          C
+          F
         </div>
       )}
     </div>

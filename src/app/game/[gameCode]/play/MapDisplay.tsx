@@ -1,4 +1,5 @@
 import { Player, Task, Sabotage } from "@/app/types";
+import EmergencyButtonDisplay from "./EmergencyButtonDisplay";
 import TaskIconDisplay from "./TaskIconDisplay";
 import SabotageIconDisplay from "./SabotageIconDisplay";
 import { DeadBody, PlayerSprites } from "./PlayerSprites";
@@ -76,6 +77,19 @@ export default function MapDisplay({
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
 
+  const isAdjacent = (
+    posX: number,
+    posY: number,
+    targetX: number,
+    targetY: number
+  ) => {
+    return (
+      (posX === targetX && Math.abs(posY - targetY) === 1) ||
+      (posY === targetY && Math.abs(posX - targetX) === 1) ||
+      (Math.abs(posX - targetX) === 1 && Math.abs(posY - targetY) === 1)
+    );
+  };
+
   const isGhost = (player: Player) =>
     player.role === "CREWMATE_GHOST" || player.role === "IMPOSTOR_GHOST";
 
@@ -111,6 +125,19 @@ export default function MapDisplay({
                 sabotage.position.x === cellPosX &&
                 sabotage.position.y === cellPosY
             );
+            const isButtonInteractable = isAdjacent(
+              currentPlayer.playerPosition.x,
+              currentPlayer.playerPosition.y,
+              cellPosX,
+              cellPosY
+            );
+
+            const isSabotageInteractable = isAdjacent(
+              currentPlayer.playerPosition.x,
+              currentPlayer.playerPosition.y,
+              cellPosX,
+              cellPosY
+            );
             const isTaskInteractable =
               !!nearbyTask &&
               (currentPlayer.role === "CREWMATE" ||
@@ -118,9 +145,10 @@ export default function MapDisplay({
             return (
               <div
                 key={cellIndex}
-                className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border ${
-                  cell != "#" ? "bg-gray-400" : "bg-red-950"
-                }`}
+                className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
+                                  ${
+                                    cell != "#" ? "bg-gray-400" : "bg-red-950"
+                                  } relative`}
               >
                 {isPlayerHere &&
                   playerList
@@ -136,7 +164,6 @@ export default function MapDisplay({
                         currentPlayerRole={currentPlayer.role}
                       />
                     ))}
-
                 {deadBodyHere &&
                   playerList
                     .filter(
@@ -158,7 +185,16 @@ export default function MapDisplay({
                     role={currentPlayer.role}
                   />
                 )}
-                {sabotageInCell !== undefined && <SabotageIconDisplay />}
+                {sabotageInCell !== undefined && (
+                  <SabotageIconDisplay
+                    isSabotageInteractable={isSabotageInteractable}
+                  />
+                )}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay
+                    isButtonInteractable={isButtonInteractable}
+                  />
+                )}
               </div>
             );
           })}

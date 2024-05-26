@@ -2,6 +2,7 @@ import React from "react";
 import { Player, Sabotage, Task } from "@/app/types";
 import SabotageIconDisplay from "@/app/game/[gameCode]/play/SabotageIconDisplay";
 import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
+import EmergencyButtonDisplay from "./EmergencyButtonDisplay";
 
 type Props = {
   map: string[][];
@@ -102,13 +103,18 @@ const MiniMap: React.FC<Props> = ({
                     ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
                     `}
               >
-                {sabotageInCell != undefined && <SabotageIconDisplay />}
+                {sabotageInCell != undefined && (
+                  <SabotageIconDisplay isSabotageInteractable={false} />
+                )}
                 {taskInCell && isVisible && (
                   <TaskIconDisplay
                     completed={taskInCell.completed}
                     isTaskInteractable={false}
                     role={currentPlayer.role}
                   />
+                )}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay isButtonInteractable={false} />
                 )}
               </div>
             );
