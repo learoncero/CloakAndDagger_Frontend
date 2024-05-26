@@ -91,7 +91,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         onChange={(e) => setMap(e.target.value)}
         type="select"
         required={true}
-        options={["DevMap1", "DevMap2", "Spaceship"]}
+        options={["Spaceship", "Wormhole", "Jungle", "Basement"]}
       />
       <CreateGameFormSubmitButton buttonDisabled={buttonDisabled} />
     </form>
