@@ -188,11 +188,13 @@ export default function MapDisplay({
                 {sabotageInCell !== undefined && (
                   <SabotageIconDisplay
                     isSabotageInteractable={isSabotageInteractable}
+                    isVisible={true}
                   />
                 )}
                 {cell === "E" && (
                   <EmergencyButtonDisplay
                     isButtonInteractable={isButtonInteractable}
+                    isVisible={true}
                   />
                 )}
               </div>
