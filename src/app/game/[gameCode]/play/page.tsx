@@ -39,6 +39,7 @@ export default function PlayGame() {
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
   const [showBodyReported, setShowBodyReported] = useState(false);
   const [showEmergencyMeeting, setShowEmergencyMeeting] = useState(false);
+  const [isEmergencyMeetingTimeout, setIsEmergencyMeetingTimeout] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -83,7 +84,8 @@ export default function PlayGame() {
         setLatestVote,
         gameCode,
         setShowBodyReported,
-        setShowEmergencyMeeting
+        setShowEmergencyMeeting,
+        setIsEmergencyMeetingTimeout,
       );
     }
     return () => {
@@ -305,6 +307,7 @@ export default function PlayGame() {
             showEmergencyMeeting={showEmergencyMeeting}
             callEmergencyMeeting={callEmergencyMeeting}
             handleEmergencyMeeting={handleEmergencyMeeting}
+            isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
           />
         ) : (
           <div>No Player Data Found</div>

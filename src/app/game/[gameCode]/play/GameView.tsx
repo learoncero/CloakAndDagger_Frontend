@@ -39,6 +39,7 @@ type Props = {
   showEmergencyMeeting: boolean;
   callEmergencyMeeting: (gameCode: string) => void;
   handleEmergencyMeeting: (show: boolean) => void;
+  isEmergencyMeetingTimeout: boolean;
 };
 
 export default function GameView({
@@ -58,6 +59,7 @@ export default function GameView({
   showEmergencyMeeting,
   callEmergencyMeeting,
   handleEmergencyMeeting,
+  isEmergencyMeetingTimeout,
 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
@@ -187,7 +189,8 @@ export default function GameView({
         (event.key === "F" || event.key === "f") &&
         !showChat &&
         !showMiniMap &&
-        !showEmergencyMeeting
+        !showEmergencyMeeting &&
+        !isEmergencyMeetingTimeout
       ) {
           callEmergencyMeeting(game.gameCode);
         }
@@ -202,7 +205,10 @@ export default function GameView({
 
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
-      if (event.key === "e" || event.key === "E") {
+      if ((event.key === "e" || event.key === "E") &&
+          !showChat &&
+          !showMiniMap &&
+          !showEmergencyMeeting) {
         if (
           nearbyTasks.length === 0 ||
           (currentPlayer?.role !== Role.CREWMATE &&
@@ -361,6 +367,7 @@ export default function GameView({
               tasks={game.tasks}
               sabotages={game.sabotages ?? []}
               nearbyTask={nearbyTasks[0]}
+              isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
             />
           ) : (
             <div>Loading map...</div>

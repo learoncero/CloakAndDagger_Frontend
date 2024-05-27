@@ -13,7 +13,8 @@ export function SetGameSubscriptions(
   setLatestVote: Function,
   gameCode: string,
   setShowBodyReported: Function,
-  setShowEmergencyMeeting: Function
+  setShowEmergencyMeeting: Function,
+  setIsEmergencyMeetingTimeout: Function
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
@@ -58,6 +59,10 @@ export function SetGameSubscriptions(
         setTimeout(() => {
           handleChatView(true);
         }, 3000);
+        setIsEmergencyMeetingTimeout(true);
+        setTimeout(() => {
+          setIsEmergencyMeetingTimeout(false);
+        }, 120000);
       },
       [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
