@@ -26,7 +26,7 @@ export default function Chat({
   const [stompClient, setStompClient] = useState<any>(null);
   const [chat, setChat] = useState<ChatType>({} as ChatType);
   const [message, setMessage] = useState("");
-  const [remainingTime, setRemainingTime] = useState<number>(60);
+  const [remainingTime, setRemainingTime] = useState<number>(10);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [playerVotes, setPlayerVotes] = useState<VoteEvent[]>([]);
   const activePlayers = players

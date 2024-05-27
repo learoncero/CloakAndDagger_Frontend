@@ -14,6 +14,7 @@ import GameView from "./GameView";
 import { Toaster } from "react-hot-toast";
 
 import {
+  sendCallEmergencyMeetingMessage,
   sendCancelSabotageMessage,
   sendGameEndMessage,
   sendKillPlayerMessage,
@@ -26,7 +27,6 @@ import TaskService from "@/services/TaskService";
 import VotingResultsPopup from "@/app/game/[gameCode]/play/VotingResultsPopup";
 
 export default function PlayGame() {
-  console.log("PAGE RENDERED");
   const { gameCode } = useParams<{ gameCode: string }>();
   const stompClient = useWebSocket("http://localhost:5010/ws");
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
@@ -38,6 +38,7 @@ export default function PlayGame() {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
   const [showBodyReported, setShowBodyReported] = useState(false);
+  const [showEmergencyMeeting, setShowEmergencyMeeting] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -48,12 +49,6 @@ export default function PlayGame() {
     (player) => player.id.toString() === playerId
   );
 
-  const currentPlayerVotedOut = currentPlayer?.id == latestVote;
-
-  const isGhost =
-    currentPlayer?.role === Role.CREWMATE_GHOST ||
-    currentPlayer?.role === Role.IMPOSTOR_GHOST;
-
   const playerRole = currentPlayer?.role ?? "";
 
   const isMovingAllowed =
@@ -61,10 +56,6 @@ export default function PlayGame() {
     !showChat &&
     !showTaskPopup &&
     !showVotingResults;
-
-  /*  useEffect(() => {
-    console.log("latest Player voted out: ", latestVote);
-  }, [latestVote]);*/
 
   useEffect(() => {
     if (stompClient) {
@@ -76,6 +67,7 @@ export default function PlayGame() {
         setLatestVote,
         gameCode,
         setShowBodyReported,
+        setShowEmergencyMeeting
       );
     }
     return () => {
@@ -104,6 +96,7 @@ export default function PlayGame() {
     if (impostorWinTimer > 0) {
       countdownInterval = setInterval(() => {
         setImpostorWinTimer((prevTime) => prevTime - 1);
+        console.log("impostorWinTimer", impostorWinTimer);
       }, 1000);
     } else if (impostorWinTimer === 0) {
       sendGameEndMessage({ stompClient, gameCode });
@@ -200,6 +193,10 @@ export default function PlayGame() {
     sendSabotageMessage({ stompClient, gameCode, sabotageId, map: game.map });
   }
 
+  async function callEmergencyMeeting(gameCode: string) {
+    sendCallEmergencyMeetingMessage({ stompClient, gameCode });
+  }
+
   function handleCancelSabotage() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
@@ -262,6 +259,9 @@ export default function PlayGame() {
             showBodyReported={showBodyReported}
             handleShowBodyReported={setShowBodyReported}
             showChat={showChat}
+            showEmergencyMeeting={showEmergencyMeeting}
+            handleEmergencyMeeting={setShowEmergencyMeeting}
+            callEmergencyMeeting={callEmergencyMeeting}
           />
         ) : (
           <div>No Player Data Found</div>

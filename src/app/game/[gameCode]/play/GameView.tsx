@@ -19,7 +19,6 @@ import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 
 type Props = {
-
   game: Game;
   map: string[][];
   currentPlayer: Player;
@@ -37,6 +36,9 @@ type Props = {
   showBodyReported: boolean;
   handleShowBodyReported: (show: boolean) => void;
   showChat: boolean;
+  showEmergencyMeeting: boolean;
+  handleEmergencyMeeting: (show: boolean) => void;
+  callEmergencyMeeting: (gameCode: string) => void;
 };
 
 export default function GameView({
@@ -53,6 +55,9 @@ export default function GameView({
   showBodyReported,
   handleShowBodyReported,
   showChat,
+  showEmergencyMeeting,
+  handleEmergencyMeeting,
+  callEmergencyMeeting,
 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
@@ -60,7 +65,8 @@ export default function GameView({
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
-
+  const [emergencyButtonInteractable, setEmergencyButtonInteractable] =
+    useState(false);
 
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
@@ -102,21 +108,20 @@ export default function GameView({
         await TaskService.setActiveStatus(nearbyTasks[0].taskId, game.gameCode);
       };
 
-            if (showTaskPopup) {
-                handleShowTaskPopup(false);
-                await setActiveStatus();
-                await TaskService.cancelTask(
-                    nearbyTasks[0].taskId,
-                    nearbyTasks[0].miniGameId,
-                    game.gameCode
-                );
-            } else {
-                handleShowTaskPopup(true);
-                await setActiveStatus();
-            }
-        }
-    }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
-
+      if (showTaskPopup) {
+        handleShowTaskPopup(false);
+        await setActiveStatus();
+        await TaskService.cancelTask(
+          nearbyTasks[0].taskId,
+          nearbyTasks[0].miniGameId,
+          game.gameCode
+        );
+      } else {
+        handleShowTaskPopup(true);
+        await setActiveStatus();
+      }
+    }
+  }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -131,16 +136,26 @@ export default function GameView({
         setShowMiniMap((prev) => !prev);
       } else if (event.code === "KeyR") {
         handleReportBody();
+      } else if (
+        (event.key === "F" || event.key === "f") &&
+        !showChat &&
+        !showMiniMap &&
+        !showEmergencyMeeting
+      ) {
+        if (emergencyButtonInteractable) {
+          {
+            callEmergencyMeeting(game.gameCode);
+          }
+        }
       }
     };
 
+    window.addEventListener("keydown", handleKeyDown);
 
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [handleKill, setShowMiniMap]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKill, setShowMiniMap]);
 
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
@@ -158,8 +173,6 @@ export default function GameView({
           nearbyTasks[0].taskId,
           game.gameCode
         );
-
-        console.log("status", status.data, showTaskPopup);
 
         if (status.data === true && !showTaskPopup) {
           toast("Task already occupied", {
@@ -189,12 +202,12 @@ export default function GameView({
       }
     };
 
-        window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -203,12 +216,12 @@ export default function GameView({
       }
     };
 
-        window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [nearbySabotages]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [nearbySabotages]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -216,8 +229,6 @@ export default function GameView({
         toggleManualVisibility();
       }
     };
-
-    console.log("show chat", showChat);
 
     window.addEventListener("keydown", handleKeyPress);
 
@@ -262,6 +273,13 @@ export default function GameView({
     }
   }
 
+  const handleButtonInteractableChange = useCallback(
+    (interactable: boolean) => {
+      setEmergencyButtonInteractable(interactable);
+    },
+    [setEmergencyButtonInteractable]
+  );
+
   return (
     <div>
       {showManual && (
@@ -273,6 +291,16 @@ export default function GameView({
           heading={"Body Reported!"}
           text={"Oh no! Looks like someone is taking a long nap!"}
           onDismiss={() => handleShowBodyReported(false)}
+        />
+      )}
+      {showEmergencyMeeting && (
+        <InformationPopUp
+          imageSrc={"/emergencyMeeting.png"}
+          heading={"Emergency Meeting!"}
+          text={
+            "Attention crew! An emergency meeting has been initiated. Share your suspicions and vote to find the impostor!"
+          }
+          onDismiss={() => handleEmergencyMeeting(false)}
         />
       )}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
@@ -297,6 +325,7 @@ export default function GameView({
               tasks={game.tasks}
               sabotages={game.sabotages ?? []}
               nearbyTask={nearbyTasks[0]}
+              handleButtonInteractableChange={handleButtonInteractableChange}
             />
           ) : (
             <div>Loading map...</div>
@@ -384,7 +413,7 @@ export default function GameView({
             taskId={nearbyTasks[0].taskId}
             gameCode={game.gameCode}
             handleTaskCompleted={() =>
-            handleTaskCompleted(nearbyTasks[0].taskId)
+              handleTaskCompleted(nearbyTasks[0].taskId)
             }
           />
         ) : (

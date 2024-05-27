@@ -6,24 +6,26 @@ interface Handlers {
 let subscriptionsSet = false;
 
 export function SetGameSubscriptions(
-    stompClient: any,
-    updateGame: Function,
-    setImpostorWinTimer: Function,
-    handleChatView: Function,
-    setLatestVote: Function,
-    gameCode: string,
-    setShowBodyReported: Function,
+  stompClient: any,
+  updateGame: Function,
+  setImpostorWinTimer: Function,
+  handleChatView: Function,
+  setLatestVote: Function,
+  gameCode: string,
+  setShowBodyReported: Function,
+  setShowEmergencyMeeting: Function
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
       `/topic/${gameCode}/positionChange`,
-      `/topic/${gameCode}/IdleChange`,
+      `/topic/${gameCode}/idleChange`,
       `/topic/${gameCode}/playerKill`,
       `/topic/${gameCode}/bodyReport`,
       `/topic/${gameCode}/gameEnd`,
       `/topic/${gameCode}/sabotageStart`,
       `/topic/${gameCode}/sabotageCancel`,
       `/topic/${gameCode}/voteResults`,
+      `/topic/${gameCode}/emergencyMeetingStart`,
     ];
 
     const handlers: Handlers = {
@@ -31,7 +33,7 @@ export function SetGameSubscriptions(
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      [`/topic/${gameCode}/IdleChange`]: (message: { body: string }) => {
+      [`/topic/${gameCode}/idleChange`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
@@ -41,12 +43,21 @@ export function SetGameSubscriptions(
       },
       [`/topic/${gameCode}/bodyReport`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
-        console.log("receivedMessage BodyReport: ", receivedMessage);
         updateGame(receivedMessage.body);
         setShowBodyReported(true);
         setTimeout(() => {
           handleChatView(true);
-        }, 2000);
+        }, 3000);
+      },
+      [`/topic/${gameCode}/emergencyMeetingStart`]: (message: {
+        body: string;
+      }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+        setShowEmergencyMeeting(true);
+        setTimeout(() => {
+          handleChatView(true);
+        }, 3000);
       },
       [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -69,7 +80,6 @@ export function SetGameSubscriptions(
             icon: "❕",
           }
         );
-
       },
       [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -90,7 +100,7 @@ export function SetGameSubscriptions(
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage);
         setLatestVote(receivedMessage.votingResult);
-      }
+      },
     };
 
     subscriptions.forEach((topic) => {
