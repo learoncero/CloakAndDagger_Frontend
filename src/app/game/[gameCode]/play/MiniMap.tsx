@@ -104,7 +104,10 @@ const MiniMap: React.FC<Props> = ({
                     `}
               >
                 {sabotageInCell != undefined && (
-                  <SabotageIconDisplay isSabotageInteractable={false} />
+                  <SabotageIconDisplay
+                      isSabotageInteractable={false}
+                        isVisible={isVisible}
+                  />
                 )}
                 {taskInCell && isVisible && (
                   <TaskIconDisplay
@@ -114,7 +117,10 @@ const MiniMap: React.FC<Props> = ({
                   />
                 )}
                 {cell === "E" && (
-                  <EmergencyButtonDisplay isButtonInteractable={false} />
+                  <EmergencyButtonDisplay
+                      isButtonInteractable={false}
+                        isVisible={isVisible}
+                  />
                 )}
               </div>
             );
