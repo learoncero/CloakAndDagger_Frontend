@@ -19,7 +19,6 @@ import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 
 type Props = {
-
   game: Game;
   map: string[][];
   currentPlayer: Player;
@@ -61,14 +60,22 @@ export default function GameView({
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
 
-  const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
-    return game.sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
+  const isSabotageActive = (
+    sabotageId: number,
+    position: { x: number; y: number }
+  ) => {
+    return game.sabotages.some(
+      (sabotage) =>
+        sabotage.id === sabotageId &&
+        (sabotage.position.x !== position.x ||
+          sabotage.position.y !== position.y)
+    );
   };
 
   const handleToggleMiniMap = () => {
     if (!isSabotageActive(3, { x: -1, y: -1 })) {
       setShowMiniMap(!showMiniMap);
-    } else if(isSabotageActive(3, { x: -1, y: -1 }) && !isImpostor) {
+    } else if (isSabotageActive(3, { x: -1, y: -1 }) && !isImpostor) {
       toast("Minimap is disabled due to sabotage!", {
         position: "bottom-right",
         style: {
@@ -79,7 +86,9 @@ export default function GameView({
         },
         icon: "⚠️",
       });
-    } else {setShowMiniMap(!showMiniMap)}
+    } else {
+      setShowMiniMap(!showMiniMap);
+    }
   };
 
   const toggleManualVisibility = useCallback(() => {
@@ -118,35 +127,35 @@ export default function GameView({
         await TaskService.setActiveStatus(nearbyTasks[0].taskId, game.gameCode);
       };
 
-            if (showTaskPopup) {
-                handleShowTaskPopup(false);
-                await setActiveStatus();
-                await TaskService.cancelTask(
-                    nearbyTasks[0].taskId,
-                    nearbyTasks[0].miniGameId,
-                    game.gameCode
-                );
-            } else {
-                handleShowTaskPopup(true);
-                await setActiveStatus();
-            }
-        }
-    }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
-
+      if (showTaskPopup) {
+        handleShowTaskPopup(false);
+        await setActiveStatus();
+        await TaskService.cancelTask(
+          nearbyTasks[0].taskId,
+          nearbyTasks[0].miniGameId,
+          game.gameCode
+        );
+      } else {
+        handleShowTaskPopup(true);
+        await setActiveStatus();
+      }
+    }
+  }, [game.gameCode, handleShowTaskPopup, nearbyTasks, showTaskPopup]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isImpostor && event.code === "KeyE") {
         handleKill();
       }
-      if (isSabotageActive(3, {x: -1, y: -1}) &&
-          (event.key === "m" ||
-              event.key === "M" ||
-              event.key === "q" ||
-              event.key === "Q") &&
-          !isImpostor
+      if (
+        isSabotageActive(3, { x: -1, y: -1 }) &&
+        (event.key === "m" ||
+          event.key === "M" ||
+          event.key === "q" ||
+          event.key === "Q") &&
+        !isImpostor
       ) {
-        setShowMiniMap(false)
+        setShowMiniMap(false);
         toast("Minimap is disabled due to sabotage!", {
           position: "bottom-right",
           style: {
@@ -158,24 +167,25 @@ export default function GameView({
           icon: "⚠️",
         });
       } else if (
-            event.key === "m" ||
-            event.key === "M" ||
-            event.key === "q" ||
-            event.key === "Q") {
-          setShowMiniMap((prev) => !prev);
-        }
-        if (event.code === "KeyR") {
-          handleReportBody();
-        }
+        (event.key === "m" ||
+          event.key === "M" ||
+          event.key === "q" ||
+          event.key === "Q") &&
+        !showChat
+      ) {
+        setShowMiniMap((prev) => !prev);
+      }
+      if (event.code === "KeyR") {
+        handleReportBody();
+      }
     };
 
+    window.addEventListener("keydown", handleKeyDown);
 
-        window.addEventListener("keydown", handleKeyDown);
-
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [handleKill, setShowMiniMap]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKill, setShowMiniMap]);
 
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
@@ -224,12 +234,12 @@ export default function GameView({
       }
     };
 
-        window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -238,12 +248,12 @@ export default function GameView({
       }
     };
 
-        window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyPress);
-        };
-    }, [nearbySabotages]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [nearbySabotages]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -419,7 +429,7 @@ export default function GameView({
             taskId={nearbyTasks[0].taskId}
             gameCode={game.gameCode}
             handleTaskCompleted={() =>
-            handleTaskCompleted(nearbyTasks[0].taskId)
+              handleTaskCompleted(nearbyTasks[0].taskId)
             }
           />
         ) : (
