@@ -66,8 +66,35 @@ export default function GameView({
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
 
+  const isSabotageActive = (
+    sabotageId: number,
+    position: { x: number; y: number }
+  ) => {
+    return game.sabotages.some(
+      (sabotage) =>
+        sabotage.id === sabotageId &&
+        (sabotage.position.x !== position.x ||
+          sabotage.position.y !== position.y)
+    );
+  };
+
   const handleToggleMiniMap = () => {
-    setShowMiniMap(!showMiniMap);
+    if (!isSabotageActive(3, { x: -1, y: -1 })) {
+      setShowMiniMap(!showMiniMap);
+    } else if (isSabotageActive(3, { x: -1, y: -1 }) && !isImpostor) {
+      toast("Minimap is disabled due to sabotage!", {
+        position: "bottom-right",
+        style: {
+          border: "2px solid black",
+          padding: "16px",
+          color: "white",
+          backgroundColor: "#eF4444",
+        },
+        icon: "⚠️",
+      });
+    } else {
+      setShowMiniMap(!showMiniMap);
+    }
   };
 
   const toggleManualVisibility = useCallback(() => {
@@ -125,14 +152,36 @@ export default function GameView({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isImpostor && event.code === "KeyE") {
         handleKill();
+      }
+      if (
+        isSabotageActive(3, { x: -1, y: -1 }) &&
+        (event.key === "m" ||
+          event.key === "M" ||
+          event.key === "q" ||
+          event.key === "Q") &&
+        !isImpostor
+      ) {
+        setShowMiniMap(false);
+        toast("Minimap is disabled due to sabotage!", {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#eF4444",
+          },
+          icon: "⚠️",
+        });
       } else if (
-        event.key === "m" ||
-        event.key === "M" ||
-        event.key === "q" ||
-        event.key === "Q"
+        (event.key === "m" ||
+          event.key === "M" ||
+          event.key === "q" ||
+          event.key === "Q") &&
+        !showChat
       ) {
         setShowMiniMap((prev) => !prev);
-      } else if (event.code === "KeyR") {
+      }
+      if (event.code === "KeyR") {
         handleReportBody();
       } else if (
         (event.key === "F" || event.key === "f") &&
@@ -363,7 +412,7 @@ export default function GameView({
         <Toaster />
         {showMiniMap && (
           <div
-            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto"
+            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto size-full"
             onClick={() => setShowMiniMap(false)}
           >
             {isImpostor ? (
@@ -376,7 +425,7 @@ export default function GameView({
               <TaskList tasks={game.tasks} />
             )}
             <div
-              className="ml-8 flex flex-col items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+              className="ml-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
               onClick={(e) => e.stopPropagation()}
             >
               <MiniMap

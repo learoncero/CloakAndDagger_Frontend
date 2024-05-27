@@ -3,6 +3,7 @@ import TaskPasscode from "./TaskPasscode";
 import TaskColorSeq from "./TaskColorSeq";
 import TaskDecipherSymbols from "@/app/game/[gameCode]/play/TaskDecipherSymbols";
 import TaskSortingAlgorithm from "@/app/game/[gameCode]/play/TaskSortingAlgorithm";
+import TaskMovingSquare from "@/app/game/[gameCode]/play/TaskMovingSquare";
 
 type TaskProps = {
   miniGameId: number;
@@ -52,6 +53,14 @@ export default function TaskGateway({
                 handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
             />
         );
+  case 5:
+      return (
+          <TaskMovingSquare
+              taskId={taskId}
+              gameCode={gameCode}
+              handleTaskCompleted={(taskId: number) => handleTaskCompleted(taskId)}
+          />
+      );
     default:
       return null;
   }
