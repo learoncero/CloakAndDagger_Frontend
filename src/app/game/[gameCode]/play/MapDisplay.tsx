@@ -12,7 +12,6 @@ type Props = {
   tasks: Task[];
   sabotages: Sabotage[];
   nearbyTask?: Task;
-  handleButtonInteractableChange: (interactable: boolean) => void;
 };
 
 export default function MapDisplay({
@@ -22,7 +21,6 @@ export default function MapDisplay({
   tasks,
   sabotages,
   nearbyTask,
-  handleButtonInteractableChange,
 }: Props) {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMapVisible, setIsMapVisible] = useState(true);
@@ -129,14 +127,6 @@ export default function MapDisplay({
               cellPosX,
               cellPosY
             );
-
-            useEffect(() => {
-              const checkInteractable = () => {
-                handleButtonInteractableChange(isButtonInteractable);
-              };
-
-              checkInteractable();
-            }, [isButtonInteractable]);
 
             const isSabotageInteractable = isAdjacent(
               currentPlayer.playerPosition.x,

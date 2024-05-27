@@ -57,6 +57,16 @@ export default function PlayGame() {
     !showTaskPopup &&
     !showVotingResults;
 
+  let emergencyButtonPosition: { x: number; y: number } | undefined;
+  let emergencyButtonNearby: boolean;
+  if (map?.map && currentPlayer?.playerPosition) {
+    emergencyButtonPosition = getEmergencyButtonPosition(map?.map);
+    if(emergencyButtonPosition?.x) {
+      emergencyButtonNearby = Math.abs(currentPlayer?.playerPosition.x - emergencyButtonPosition.x) <= 1 &&
+          Math.abs(currentPlayer?.playerPosition.y - emergencyButtonPosition.y) <= 1;
+    }
+  }
+
   useEffect(() => {
     if (stompClient) {
       SetGameSubscriptions(
@@ -137,6 +147,16 @@ export default function PlayGame() {
     setShowVotingResults(false);
   }
 
+  function getEmergencyButtonPosition(map: string[][]) {
+    for (let row = 0; row < map.length; row++) {
+      for(let cell = 0; cell < map[row].length; cell++) {
+        if (map[row][cell] === "E") {
+          return { x: cell, y: row };
+        }
+      }
+    }
+  }
+
   async function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
     const isCompleted = await TaskService.getCompletedStatus(
@@ -194,11 +214,18 @@ export default function PlayGame() {
   }
 
   async function callEmergencyMeeting(gameCode: string) {
-    sendCallEmergencyMeetingMessage({ stompClient, gameCode });
+    if(emergencyButtonNearby) {
+      setShowEmergencyMeeting(true)
+      sendCallEmergencyMeetingMessage({stompClient, gameCode});
+    }
   }
 
   function handleCancelSabotage() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
+  }
+
+  function handleEmergencyMeeting(value: boolean) {
+    setShowEmergencyMeeting(value);
   }
 
   let modalTextColor = "text-red-600";
@@ -260,8 +287,8 @@ export default function PlayGame() {
             handleShowBodyReported={setShowBodyReported}
             showChat={showChat}
             showEmergencyMeeting={showEmergencyMeeting}
-            handleEmergencyMeeting={setShowEmergencyMeeting}
             callEmergencyMeeting={callEmergencyMeeting}
+            handleEmergencyMeeting={handleEmergencyMeeting}
           />
         ) : (
           <div>No Player Data Found</div>

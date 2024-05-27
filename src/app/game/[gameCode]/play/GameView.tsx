@@ -37,8 +37,8 @@ type Props = {
   handleShowBodyReported: (show: boolean) => void;
   showChat: boolean;
   showEmergencyMeeting: boolean;
-  handleEmergencyMeeting: (show: boolean) => void;
   callEmergencyMeeting: (gameCode: string) => void;
+  handleEmergencyMeeting: (show: boolean) => void;
 };
 
 export default function GameView({
@@ -56,8 +56,8 @@ export default function GameView({
   handleShowBodyReported,
   showChat,
   showEmergencyMeeting,
-  handleEmergencyMeeting,
   callEmergencyMeeting,
+  handleEmergencyMeeting,
 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
@@ -65,8 +65,6 @@ export default function GameView({
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
-  const [emergencyButtonInteractable, setEmergencyButtonInteractable] =
-    useState(false);
 
   const handleToggleMiniMap = () => {
     setShowMiniMap(!showMiniMap);
@@ -142,12 +140,8 @@ export default function GameView({
         !showMiniMap &&
         !showEmergencyMeeting
       ) {
-        if (emergencyButtonInteractable) {
-          {
-            callEmergencyMeeting(game.gameCode);
-          }
+          callEmergencyMeeting(game.gameCode);
         }
-      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -273,13 +267,6 @@ export default function GameView({
     }
   }
 
-  const handleButtonInteractableChange = useCallback(
-    (interactable: boolean) => {
-      setEmergencyButtonInteractable(interactable);
-    },
-    [setEmergencyButtonInteractable]
-  );
-
   return (
     <div>
       {showManual && (
@@ -325,7 +312,6 @@ export default function GameView({
               tasks={game.tasks}
               sabotages={game.sabotages ?? []}
               nearbyTask={nearbyTasks[0]}
-              handleButtonInteractableChange={handleButtonInteractableChange}
             />
           ) : (
             <div>Loading map...</div>
