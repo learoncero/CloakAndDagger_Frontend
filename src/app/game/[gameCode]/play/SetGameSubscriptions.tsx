@@ -62,7 +62,7 @@ export function SetGameSubscriptions(
         setIsEmergencyMeetingTimeout(true);
         setTimeout(() => {
           setIsEmergencyMeetingTimeout(false);
-        }, 120000);
+        }, 90000);
       },
       [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
