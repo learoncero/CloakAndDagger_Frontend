@@ -22,8 +22,6 @@ export default function Voting({
       handleVotes(selectedPlayerId);
       setVoteGiven(true);
       setSelectedPlayerId(-1);
-    } else {
-      alert("Please select a player to vote for!");
     }
   }
 
@@ -77,10 +75,16 @@ export default function Voting({
               </div>
             ))}
             <div className={"flex justify-start mt-5"}>
-              <VotingButton onClick={() => handleVoteGiven()} selectedPlayerId={selectedPlayerId} />
+              <VotingButton
+                onClick={() => handleVoteGiven()}
+                selectedPlayerId={selectedPlayerId}
+              />
             </div>
             <div className={"flex justify-start mt-2"}>
-              <DeselectVotingButton onClick={() => deselectVote()} selectedPlayerId={selectedPlayerId} />
+              <DeselectVotingButton
+                onClick={() => deselectVote()}
+                selectedPlayerId={selectedPlayerId}
+              />
             </div>
           </div>
         </div>
