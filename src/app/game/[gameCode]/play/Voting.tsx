@@ -1,6 +1,7 @@
 import { Player, Role } from "@/app/types";
 import VotingButton from "./VotingButton";
 import { useState } from "react";
+import DeselectVotingButton from "./DeselectVotingButton";
 
 type VotingProps = {
   currentPlayer: Player;
@@ -21,9 +22,11 @@ export default function Voting({
       handleVotes(selectedPlayerId);
       setVoteGiven(true);
       setSelectedPlayerId(-1);
-    } else {
-      alert("Please select a player to vote for!");
     }
+  }
+
+  function deselectVote() {
+    setSelectedPlayerId(-1);
   }
 
   return (
@@ -71,8 +74,17 @@ export default function Voting({
                 </label>
               </div>
             ))}
-            <div className={"flex justify-center mt-5"}>
-              <VotingButton onClick={() => handleVoteGiven()} />
+            <div className={"flex justify-start mt-5"}>
+              <VotingButton
+                onClick={() => handleVoteGiven()}
+                selectedPlayerId={selectedPlayerId}
+              />
+            </div>
+            <div className={"flex justify-start mt-2"}>
+              <DeselectVotingButton
+                onClick={() => deselectVote()}
+                selectedPlayerId={selectedPlayerId}
+              />
             </div>
           </div>
         </div>
