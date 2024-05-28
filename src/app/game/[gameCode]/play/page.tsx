@@ -25,10 +25,12 @@ import {
 import TaskService from "@/services/TaskService";
 import VotingResultsPopup from "@/app/game/[gameCode]/play/VotingResultsPopup";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function PlayGame() {
   console.log("PAGE RENDERED");
   const { gameCode } = useParams<{ gameCode: string }>();
-  const stompClient = useWebSocket("http://localhost:5010/ws");
+  const stompClient = useWebSocket(`${apiUrl}:5010/ws`);
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
   const [showVotingResults, setShowVotingResults] = useState(false);
@@ -38,6 +40,8 @@ export default function PlayGame() {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
   const [showBodyReported, setShowBodyReported] = useState(false);
+
+  console.log("stompClient", stompClient);y
 
   let playerId: string | null;
   if (typeof window !== "undefined") {

@@ -13,8 +13,11 @@ import { Game } from "@/app/types";
 import useWebSocket from "@/hooks/useWebSocket";
 import LobbyLeave from "@/app/game/setup/lobby/[gameCode]/LobbyLeave";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+console.log("apiUrl", apiUrl);
+
 export default function Lobby() {
-  const stompClient = useWebSocket("http://localhost:5010/ws");
+  const stompClient = useWebSocket(`${apiUrl}:5010/ws`);
   const router = useRouter();
   const { gameCode } = useParams();
   const { game, updateGame } = useGame(gameCode as string);

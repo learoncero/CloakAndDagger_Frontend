@@ -16,6 +16,8 @@ type Props = {
   setShowVotingResults: (value: boolean) => void;
 };
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function Chat({
   onClose,
   gameCode,
@@ -37,7 +39,7 @@ export default function Chat({
 
   useEffect(() => {
     if (!stompClient) {
-      const socket = new SockJS("http://localhost:5011/ws");
+      const socket = new SockJS(`${apiUrl}:5011/ws`);
       const client = Stomp.over(socket);
       client.connect({}, () => {
         setStompClient(client);
