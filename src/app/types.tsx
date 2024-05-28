@@ -38,6 +38,7 @@ export type Sabotage = {
   title: string;
   description: string;
   position: { x: number; y: number };
+  wallPosition: { x: number; y: number }[];
 };
 
 export type ApiResponse<Data = unknown> = {
