@@ -130,6 +130,12 @@ export default function MapDisplay({
                     cellPosX,
                     cellPosY
                 );
+                const isWallInteractable = isAdjacent(
+                    currentPlayer.playerPosition.x,
+                    currentPlayer.playerPosition.y,
+                    cellPosX,
+                    cellPosY
+                );
                 const isTaskInteractable =
                     !!nearbyTask &&
                     (currentPlayer.role === 'CREWMATE' || currentPlayer.role === 'CREWMATE_GHOST');
@@ -183,7 +189,7 @@ export default function MapDisplay({
                       {activeWallSabotage &&
                           activeWallSabotage.wallPosition.some(
                               (pos) => pos.x === cellPosX && pos.y === cellPosY
-                          ) && <Wall />}
+                          ) && <Wall isWallInteractable={isWallInteractable}/>}
                     </div>
                 );
               })}

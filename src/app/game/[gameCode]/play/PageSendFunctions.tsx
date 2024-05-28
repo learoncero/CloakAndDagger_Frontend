@@ -1,4 +1,5 @@
 import {Player, Task} from "@/app/types";
+import {Console} from "inspector";
 
 type SabotageProps = {
     stompClient: any,
@@ -95,4 +96,18 @@ export function sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCo
             JSON.stringify({})
         );
     }
+}
+type WallInteractionProps = {
+    stompClient: any,
+    gameCode: string,
+}
+
+export function sendWallInteractionMessage({stompClient, gameCode}: WallInteractionProps){
+    console.log("HERE SENDWALLMESSAGE")
+    stompClient.send(
+        `/app/game/${gameCode}/wallInteraction`,
+        {},
+        JSON.stringify({})
+    );
+
 }
