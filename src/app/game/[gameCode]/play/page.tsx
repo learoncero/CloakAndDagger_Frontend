@@ -41,7 +41,7 @@ export default function PlayGame() {
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
   const [showBodyReported, setShowBodyReported] = useState(false);
 
-  console.log("stompClient", stompClient);y
+  console.log("stompClient", stompClient);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
