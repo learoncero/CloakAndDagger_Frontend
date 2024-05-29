@@ -12,6 +12,7 @@ type Props = {
   tasks: Task[];
   sabotages: Sabotage[];
   nearbyTask?: Task;
+  isEmergencyMeetingTimeout: boolean;
 };
 
 export default function MapDisplay({
@@ -21,6 +22,7 @@ export default function MapDisplay({
   tasks,
   sabotages,
   nearbyTask,
+  isEmergencyMeetingTimeout,
 }: Props) {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMapVisible, setIsMapVisible] = useState(true);
@@ -195,6 +197,7 @@ export default function MapDisplay({
                   <EmergencyButtonDisplay
                     isButtonInteractable={isButtonInteractable}
                     isVisible={true}
+                    isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
                   />
                 )}
               </div>

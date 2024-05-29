@@ -36,6 +36,10 @@ type Props = {
   showBodyReported: boolean;
   handleShowBodyReported: (show: boolean) => void;
   showChat: boolean;
+  showEmergencyMeeting: boolean;
+  callEmergencyMeeting: (gameCode: string) => void;
+  handleEmergencyMeeting: (show: boolean) => void;
+  isEmergencyMeetingTimeout: boolean;
 };
 
 export default function GameView({
@@ -52,6 +56,10 @@ export default function GameView({
   showBodyReported,
   handleShowBodyReported,
   showChat,
+  showEmergencyMeeting,
+  callEmergencyMeeting,
+  handleEmergencyMeeting,
+  isEmergencyMeetingTimeout,
 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
@@ -177,7 +185,15 @@ export default function GameView({
       }
       if (event.code === "KeyR") {
         handleReportBody();
-      }
+      } else if (
+        (event.key === "F" || event.key === "f") &&
+        !showChat &&
+        !showMiniMap &&
+        !showEmergencyMeeting &&
+        !isEmergencyMeetingTimeout
+      ) {
+          callEmergencyMeeting(game.gameCode);
+        }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -189,7 +205,10 @@ export default function GameView({
 
   useEffect(() => {
     const handleKeyPress = async (event: KeyboardEvent) => {
-      if (event.key === "e" || event.key === "E") {
+      if ((event.key === "e" || event.key === "E") &&
+          !showChat &&
+          !showMiniMap &&
+          !showEmergencyMeeting) {
         if (
           nearbyTasks.length === 0 ||
           (currentPlayer?.role !== Role.CREWMATE &&
@@ -203,8 +222,6 @@ export default function GameView({
           nearbyTasks[0].taskId,
           game.gameCode
         );
-
-        console.log("status", status.data, showTaskPopup);
 
         if (status.data === true && !showTaskPopup) {
           toast("Task already occupied", {
@@ -262,8 +279,6 @@ export default function GameView({
       }
     };
 
-    console.log("show chat", showChat);
-
     window.addEventListener("keydown", handleKeyPress);
 
     return () => {
@@ -320,6 +335,16 @@ export default function GameView({
           onDismiss={() => handleShowBodyReported(false)}
         />
       )}
+      {showEmergencyMeeting && (
+        <InformationPopUp
+          imageSrc={"/emergencyMeeting.png"}
+          heading={"Emergency Meeting!"}
+          text={
+            "Attention crew! An emergency meeting has been initiated. Share your suspicions and vote to find the impostor!"
+          }
+          onDismiss={() => handleEmergencyMeeting(false)}
+        />
+      )}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
         <div className="flex-none w-1/4">
           <RoleInformation role={currentPlayer.role} />
@@ -342,6 +367,7 @@ export default function GameView({
               tasks={game.tasks}
               sabotages={game.sabotages ?? []}
               nearbyTask={nearbyTasks[0]}
+              isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
             />
           ) : (
             <div>Loading map...</div>

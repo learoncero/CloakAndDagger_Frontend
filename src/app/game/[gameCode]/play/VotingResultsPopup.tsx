@@ -47,22 +47,28 @@ export default function VotingResultsPopup({
           <>
             <h2 className="text-2xl font-bold mb-4">Voting Results:</h2>
             <p>{votedPlayer.username} voted out!</p>
-            {votedPlayer?.role === Role.IMPOSTOR_GHOST ? (
-              <>
-                <h3 className={"mt-4 text-xl font-bold"}>Congratulations!</h3>
-                <p>You eliminated an Impostor!!</p>
-              </>
-            ) : votedPlayer.id === currentPlayerId ? (
-              <>
-                <h3 className={"mt-4 text-xl font-bold"}>Bad Luck!</h3>
-                <p>You just got eliminated by popular vote!</p>
-              </>
-            ) : (
-              <>
-                <h3 className={"mt-4 text-xl font-bold"}>Bad Luck!</h3>
-                <p>You eliminated a fellow Crewmate!</p>
-              </>
-            )}
+            {votedPlayer.id === currentPlayerId
+              ? (
+                <>
+                  <h3 className={"mt-4 text-xl font-bold"}>Bad Luck!</h3>
+                  <p>You just got eliminated by popular vote!</p>
+                </>
+              )
+              : (votedPlayer?.role === Role.IMPOSTOR_GHOST ||
+                votedPlayer?.role === Role.IMPOSTOR)
+                ? (
+                  <>
+                    <h3 className={"mt-4 text-xl font-bold"}>Congratulations!</h3>
+                    <p>You eliminated an Impostor!!</p>
+                  </>
+                  )
+                : (
+                  <>
+                    <h3 className={"mt-4 text-xl font-bold"}>Bad Luck!</h3>
+                    <p>You eliminated a fellow Crewmate!</p>
+                  </>
+                  )
+            }
             <br />
             <hr />
             <p className={"mt-2"}>Who got voted?</p>
