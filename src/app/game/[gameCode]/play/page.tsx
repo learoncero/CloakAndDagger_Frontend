@@ -26,9 +26,11 @@ import {
 import TaskService from "@/services/TaskService";
 import VotingResultsPopup from "@/app/game/[gameCode]/play/VotingResultsPopup";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function PlayGame() {
   const { gameCode } = useParams<{ gameCode: string }>();
-  const stompClient = useWebSocket("http://localhost:5010/ws");
+  const stompClient = useWebSocket(`${apiUrl}:5010/ws`);
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
   const [showVotingResults, setShowVotingResults] = useState(false);
