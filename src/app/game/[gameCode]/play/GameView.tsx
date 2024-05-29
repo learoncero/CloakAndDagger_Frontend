@@ -127,6 +127,7 @@ export default function GameView({
       game?.players || [],
       currentPlayer as Player
   );
+
   const nearbyWalls = useNearbyWall(
       game.sabotages,
       currentPlayer.playerPosition
@@ -465,14 +466,17 @@ export default function GameView({
           )}
         </div>
         {showDuelPopup && (
-            <DuelPopup onConfirm={handleConfirmDuel} onCancel={handleCancelDuel} />
+            <DuelPopup onConfirm={handleConfirmDuel} onCancel={handleCancelDuel}/>
         )}
         {showRockPaperScissor && (
             <RockPaperScissor
+                gameCode={game.gameCode}
+                playerId={currentPlayer.id}
                 onConfirm={handleChoice}
                 onCancel={() => setShowRockPaperScissor(false)}
             />
         )}
+
       </div>
   );
 }
