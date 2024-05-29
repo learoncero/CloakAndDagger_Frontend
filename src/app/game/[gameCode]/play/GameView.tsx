@@ -19,7 +19,7 @@ import useNearbyDeadBodies from "@/hooks/useNearbyDeadBodies";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 import DuelPopup from "./SabotageTask04";
-import RockPaperScissor from "./RockPaperScissor"; // Import der RockPaperScissor-Komponente
+import RockPaperScissor from "./RockPaperScissor";
 
 type Props = {
   game: Game;
@@ -127,7 +127,6 @@ export default function GameView({
       game?.players || [],
       currentPlayer as Player
   );
-
   const nearbyWalls = useNearbyWall(
       game.sabotages,
       currentPlayer.playerPosition
@@ -191,7 +190,7 @@ export default function GameView({
         handleReportBody();
       }
       if (event.code === "KeyG" && nearbyWalls.length > 0) {
-        setShowDuelPopup(true); // Zeige das DuelPopup an, wenn "G" gedrückt wird und sich der Spieler in der Nähe einer Wall befindet
+        setShowDuelPopup(true);
       }
     };
 
@@ -200,21 +199,105 @@ export default function GameView({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [nearbyWalls, showChat, toggleManualVisibility]);
+  }, [handleKill, setShowMiniMap, nearbyWalls]);
 
   const handleConfirmDuel = () => {
     setShowDuelPopup(false);
-    setShowRockPaperScissor(true); // Zeige das RockPaperScissor-Popup an, wenn "Ja" im DuelPopup geklickt wird
+    setShowRockPaperScissor(true);
   };
 
   const handleCancelDuel = () => {
-    setShowDuelPopup(false); // Schließe das DuelPopup, wenn "Nein" geklickt wird
+    setShowDuelPopup(false);
   };
 
   const handleChoice = (choice: string) => {
     setShowRockPaperScissor(false);
-    handleWallInteraction(); // Starte handleWallInteraction, nachdem eine Auswahl im RockPaperScissor-Popup getroffen wurde
+    handleWallInteraction();
   };
+
+  useEffect(() => {
+    const handleKeyPress = async (event: KeyboardEvent) => {
+      if (event.key === "e" || event.key === "E") {
+        if (
+            nearbyTasks.length === 0 ||
+            (currentPlayer?.role !== Role.CREWMATE &&
+                currentPlayer?.role !== Role.CREWMATE_GHOST) ||
+            nearbyTasks[0]?.completed
+        ) {
+          return;
+        }
+
+        const status = await TaskService.getActiveStatus(
+            nearbyTasks[0].taskId,
+            game.gameCode
+        );
+
+        console.log("status", status.data, showTaskPopup);
+
+        if (status.data === true && !showTaskPopup) {
+          toast("Task already occupied", {
+            position: "bottom-right",
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "white",
+              backgroundColor: "#eF4444",
+            },
+            icon: "✖️",
+          });
+
+          return;
+        } else if (status.data === false && !showTaskPopup) {
+          const response = await TaskService.startTask(
+              nearbyTasks[0].taskId,
+              nearbyTasks[0].miniGameId,
+              game.gameCode
+          );
+          if (response.status === 200) {
+            await handleToggleTaskPopup();
+          }
+        } else if (status.data === true && showTaskPopup) {
+          await handleToggleTaskPopup();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [game.gameCode, handleToggleTaskPopup, nearbyTasks]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "KeyC" && nearbySabotages.length > 0 && !showMiniMap) {
+        handleCancelSabotage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [nearbySabotages]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if ((event.key === "h" || event.key === "H") && !showChat) {
+        toggleManualVisibility();
+      }
+    };
+
+    console.log("show chat", showChat);
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [showChat, toggleManualVisibility]);
 
   async function handleKill() {
     if (!isTimer && nearbyPlayers.length > 0) {
