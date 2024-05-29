@@ -120,6 +120,7 @@ const MiniMap: React.FC<Props> = ({
                   <EmergencyButtonDisplay
                       isButtonInteractable={false}
                         isVisible={isVisible}
+                        isEmergencyMeetingTimeout={false}
                   />
                 )}
               </div>
