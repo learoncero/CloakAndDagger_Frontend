@@ -78,7 +78,7 @@ export function SetGameSubscriptions(
         const activeSabotage = receivedMessage.body.sabotages.find((sabotage: any) => sabotage.position.x !== -1 && sabotage.position.y !== -1);
 
         if (activeSabotage) {
-          setImpostorWinTimer(3000000000000000000);
+          setImpostorWinTimer(30);
           toast(
               `Sabotage initiated: ${activeSabotage.title}. ${activeSabotage.description}. Crewmates, time is running out! You have 30 seconds to act!`,
               {
