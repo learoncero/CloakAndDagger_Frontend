@@ -103,32 +103,33 @@ const MiniMap: React.FC<Props> = ({
                         } 
                     ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
                     `}
-                    >
-                      {sabotageInCell != undefined && (
-                          <SabotageIconDisplay
-                              isSabotageInteractable={false}
-                              isVisible={isVisible}
-                          />
-                      )}
-                      {taskInCell && isVisible && (
-                          <TaskIconDisplay
-                              completed={taskInCell.completed}
-                              isTaskInteractable={false}
-                              role={currentPlayer.role}
-                          />
-                      )}
-                      {cell === "E" && (
-                          <EmergencyButtonDisplay
-                              isButtonInteractable={false}
-                              isVisible={isVisible}
-                          />
-                      )}
-                    </div>
-                );
-              })}
-            </div>
-        ))}
-      </div>
+              >
+                {sabotageInCell != undefined && (
+                  <SabotageIconDisplay
+                      isSabotageInteractable={false}
+                        isVisible={isVisible}
+                  />
+                )}
+                {taskInCell && isVisible && (
+                  <TaskIconDisplay
+                    completed={taskInCell.completed}
+                    isTaskInteractable={false}
+                    role={currentPlayer.role}
+                  />
+                )}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay
+                      isButtonInteractable={false}
+                        isVisible={isVisible}
+                        isEmergencyMeetingTimeout={false}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 };
 

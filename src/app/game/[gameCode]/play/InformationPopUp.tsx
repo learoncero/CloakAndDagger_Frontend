@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 type Props = {
-  imageSrc: string;
+  imageSrc?: string;
   heading: string;
   text: string;
   onDismiss: () => void;
@@ -16,7 +16,7 @@ export default function InformationPopUp({
   useEffect(() => {
     const timer = setTimeout(() => {
       onDismiss();
-    }, 2000);
+    }, 2500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -25,7 +25,9 @@ export default function InformationPopUp({
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
         <div className="rounded-lg p-8 text-white border border-white content-center text-center bg-black items-center">
           <div className="flex flex-col items-center">
-            <img className="w-80 h-36 mb-2" src={imageSrc} alt={heading} />
+            {imageSrc && (
+              <img className="w-80 h-36 mb-2" src={imageSrc} alt={heading} />
+            )}
             <h2 className="text-6xl font-bold mb-12 mt-6 text-red-500">
               {heading}
             </h2>

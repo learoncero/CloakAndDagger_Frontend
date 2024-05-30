@@ -1,3 +1,5 @@
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default class ApiService {
   static async fetch(
     microservice: string,
@@ -43,9 +45,9 @@ export default class ApiService {
 
   static getBackendUrl(microservice: string) {
     const backendUrls: { [key: string]: string } = {
-      game: "http://localhost:5010",
-      chat: "http://localhost:5011",
-      minigame: "http://localhost:5022",
+      game: `${apiUrl}:5010`,
+      chat: `${apiUrl}:5011`,
+      minigame: `${apiUrl}:5022`,
     };
 
     return backendUrls[microservice];

@@ -13,16 +13,19 @@ type Props = {
   tasks: Task[];
   sabotages: Sabotage[];
   nearbyTask?: Task;
+  isEmergencyMeetingTimeout: boolean;
 };
 
 export default function MapDisplay({
-                                     map,
-                                     playerList,
-                                     currentPlayer,
-                                     tasks,
-                                     sabotages,
-                                     nearbyTask,
-                                   }: Props) {
+  map,
+  playerList,
+  currentPlayer,
+  tasks,
+  sabotages,
+  nearbyTask,
+  isEmergencyMeetingTimeout,
+}: Props) {
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMapVisible, setIsMapVisible] = useState(true);
 
@@ -170,22 +173,26 @@ export default function MapDisplay({
                                   <DeadBody key={player.id} playerColor={player.playerColor} />
                               ))}
 
-                      {taskInCell !== undefined && (
-                          <TaskIconDisplay
-                              completed={taskInCell.completed}
-                              isTaskInteractable={isTaskInteractable}
-                              role={currentPlayer.role}
-                          />
-                      )}
-                      {sabotageInCell !== undefined && (
-                          <SabotageIconDisplay
-                              isSabotageInteractable={isSabotageInteractable}
-                              isVisible={true}
-                          />
-                      )}
-                      {cell === 'E' && (
-                          <EmergencyButtonDisplay isButtonInteractable={isButtonInteractable} isVisible={true} />
-                      )}
+                        {taskInCell !== undefined && (
+                            <TaskIconDisplay
+                                completed={taskInCell.completed}
+                                isTaskInteractable={isTaskInteractable}
+                                role={currentPlayer.role}
+                            />
+                        )}
+                        {sabotageInCell !== undefined && (
+                            <SabotageIconDisplay
+                                isSabotageInteractable={isSabotageInteractable}
+                                isVisible={true}
+                            />
+                        )}
+                        {cell === "E" && (
+                            <EmergencyButtonDisplay
+                                isButtonInteractable={isButtonInteractable}
+                                isVisible={true}
+                                isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+                            />
+                        )}
                       {activeWallSabotage &&
                           activeWallSabotage.wallPositions &&
                           activeWallSabotage.wallPositions.flat().some(
