@@ -116,19 +116,11 @@ export function SetGameSubscriptions(
       [`/topic/${gameCode}/duelChoiceResult`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
-
-
         let result;
         const sabotage = receivedMessage.body.sabotages.find((sabotage: Sabotage) => sabotage.id === 4);
-
-
         const wallPositions = sabotage?.wallPositions?.flat();
-
-
         if (wallPositions) {
           const allWallsDefeated = wallPositions.every((pos: { x: number; y: number }) => pos.x === -1 && pos.y === -1);
-
-
           if (allWallsDefeated) {
             result = "Congratulations, you won the duel! The opponent has been defeated.";
           } else {

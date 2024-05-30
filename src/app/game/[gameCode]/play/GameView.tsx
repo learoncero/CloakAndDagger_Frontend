@@ -18,32 +18,31 @@ import InformationPopUp from "./InformationPopUp";
 import useNearbyDeadBodies from "@/hooks/useNearbyDeadBodies";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
-import DuelPopup from "./DuelPopup";
 import RockPaperScissor from "./RockPaperScissor";
 
 type Props = {
-  game: Game,
-  map: string[][],
-  currentPlayer: Player,
-  getSabotagePosition: (sabotageId: number) => void,
-  handleCancelSabotage: () => void,
+  game: Game;
+  map: string[][];
+  currentPlayer: Player;
+  getSabotagePosition: (sabotageId: number) => void;
+  handleCancelSabotage: () => void;
   killPlayer: (
       gameCode: string,
       playerId: number,
       nearbyTaskForKill: number
-  ) => void,
-  reportBody: (gameCode: string, playerId: number) => void,
-  handleTaskCompleted: (taskId: number) => void,
-  showTaskPopup: boolean,
-  handleShowTaskPopup: (show: boolean) => void,
-  showBodyReported: boolean,
-  handleShowBodyReported: (show: boolean) => void,
-  showChat: boolean,
-  stompClient: any,
-  showEmergencyMeeting: boolean,
-  callEmergencyMeeting: (gameCode: string) => void,
-  handleEmergencyMeeting: (show: boolean) => void,
-  isEmergencyMeetingTimeout: boolean,
+  ) => void;
+  reportBody: (gameCode: string, playerId: number) => void;
+  handleTaskCompleted: (taskId: number) => void;
+  showTaskPopup: boolean;
+  handleShowTaskPopup: (show: boolean) => void;
+  showBodyReported: boolean;
+  handleShowBodyReported: (show: boolean) => void;
+  showChat: boolean;
+  stompClient: any;
+  showEmergencyMeeting: boolean;
+  callEmergencyMeeting: (gameCode: string) => void;
+  handleEmergencyMeeting: (show: boolean) => void;
+  isEmergencyMeetingTimeout: boolean;
 };
 
 export default function GameView({
@@ -64,16 +63,14 @@ export default function GameView({
                                    callEmergencyMeeting,
                                    handleEmergencyMeeting,
                                    isEmergencyMeetingTimeout,
-                                   stompClient
+                                   stompClient,
                                  }: Props) {
-
   const isImpostor =
       currentPlayer?.role == Role.IMPOSTOR ||
       currentPlayer?.role == Role.IMPOSTOR_GHOST;
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
-  const [showDuelPopup, setShowDuelPopup] = useState(false);
   const [showRockPaperScissor, setShowRockPaperScissor] = useState(false);
 
   const isSabotageActive = (
@@ -170,10 +167,7 @@ export default function GameView({
       }
       if (
           isSabotageActive(3, { x: -1, y: -1 }) &&
-          (event.key === "m" ||
-              event.key === "M" ||
-              event.key === "q" ||
-              event.key === "Q") &&
+          (event.key === "m" || event.key === "M" || event.key === "q" || event.key === "Q") &&
           !isImpostor
       ) {
         setShowMiniMap(false);
@@ -188,10 +182,7 @@ export default function GameView({
           icon: "⚠️",
         });
       } else if (
-          (event.key === "m" ||
-              event.key === "M" ||
-              event.key === "q" ||
-              event.key === "Q") &&
+          (event.key === "m" || event.key === "M" || event.key === "q" || event.key === "Q") &&
           !showChat
       ) {
         setShowMiniMap((prev) => !prev);
@@ -199,17 +190,16 @@ export default function GameView({
       if (event.code === "KeyR") {
         handleReportBody();
       } else if (
-        (event.key === "F" || event.key === "f") &&
-        !showChat &&
-        !showMiniMap &&
-        !showEmergencyMeeting &&
-        !isEmergencyMeetingTimeout
+          (event.key === "F" || event.key === "f") &&
+          !showChat &&
+          !showMiniMap &&
+          !showEmergencyMeeting &&
+          !isEmergencyMeetingTimeout
       ) {
-          callEmergencyMeeting(game.gameCode);
-        } else if (event.code === "KeyG" && nearbyWalls.length > 0) {
-        setShowDuelPopup(true);
+        callEmergencyMeeting(game.gameCode);
+      } else if (event.code === "KeyG" && nearbyWalls.length > 0) {
+        setShowRockPaperScissor(true);
       }
-
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -219,19 +209,8 @@ export default function GameView({
     };
   }, [handleKill, setShowMiniMap, nearbyWalls]);
 
-  const handleConfirmDuel = () => {
-    setShowDuelPopup(false);
-    setShowRockPaperScissor(true);
-  };
-
-  const handleCancelDuel = () => {
-    setShowDuelPopup(false);
-  };
-
   const handleChoice = () => {
-
     setShowRockPaperScissor(false);
-
   };
 
   useEffect(() => {
@@ -354,128 +333,128 @@ export default function GameView({
   }
 
   return (
-    <div>
-      {showManual && (
-        <Manual role={currentPlayer.role} onClose={toggleManualVisibility} />
-      )}
-      {showBodyReported && (
-        <InformationPopUp
-          imageSrc={"/bodyReported.png"}
-          heading={"Body Reported!"}
-          text={"Oh no! Looks like someone is taking a long nap!"}
-          onDismiss={() => handleShowBodyReported(false)}
-        />
-      )}
-      {showEmergencyMeeting && (
-        <InformationPopUp
-          imageSrc={"/emergencyMeeting.png"}
-          heading={"Emergency Meeting!"}
-          text={
-            "Attention crew! An emergency meeting has been initiated. Share your suspicions and vote to find the impostor!"
-          }
-          onDismiss={() => handleEmergencyMeeting(false)}
-        />
-      )}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
-        <div className="flex-none w-1/4">
-          <RoleInformation role={currentPlayer.role} />
-          {isImpostor ? (
-            <SabotageList
-              sabotages={game.sabotages}
-              getSabotagePosition={getSabotagePosition}
-              showMiniMap={showMiniMap}
+      <div>
+        {showManual && (
+            <Manual role={currentPlayer.role} onClose={toggleManualVisibility} />
+        )}
+        {showBodyReported && (
+            <InformationPopUp
+                imageSrc={"/bodyReported.png"}
+                heading={"Body Reported!"}
+                text={"Oh no! Looks like someone is taking a long nap!"}
+                onDismiss={() => handleShowBodyReported(false)}
             />
-          ) : (
-            <TaskList tasks={game.tasks} />
-          )}
-        </div>
-        <div className="flex-grow flex justify-center">
-          {map ? (
-            <MapDisplay
-              map={map}
-              playerList={game.players}
-              currentPlayer={currentPlayer}
-              tasks={game.tasks}
-              sabotages={game.sabotages ?? []}
-              nearbyTask={nearbyTasks[0]}
-              isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
-            />
-          ) : (
-            <div>Loading map...</div>
-          )}
-        </div>
-
-        <div className="flex-none w-1/4">
-          <div className="mb-7">
-            <div className="flex gap-10">
-              <ToggleButton
-                onClick={handleToggleMiniMap}
-                label="Show Minimap"
-              />
-              <ToggleButton
-                onClick={toggleManualVisibility}
-                label="Show Manual"
-              />
-            </div>
-            <PlayerList playerId={currentPlayer.id} playerList={game.players} />
-            {isImpostor && <CrewmateCounter playerList={game.players} />}
-          </div>
-
-          <div className="flex gap-5 justify-center">
-            {isImpostor && (
-              <ActionButton
-                onClick={handleKill}
-                buttonclickable={
-                  nearbyPlayers.length > 0 &&
-                  !isTimer &&
-                  currentPlayer.role === Role.IMPOSTOR
+        )}
+        {showEmergencyMeeting && (
+            <InformationPopUp
+                imageSrc={"/emergencyMeeting.png"}
+                heading={"Emergency Meeting!"}
+                text={
+                  "Attention crew! An emergency meeting has been initiated. Share your suspicions and vote to find the impostor!"
                 }
-                colorActive="bg-red-600"
-              >
-                {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
-              </ActionButton>
-            )}
-            <ActionButton
-              onClick={() => handleReportBody()}
-              buttonclickable={
-                nearbyDeadBodies.length > 0 &&
-                !game.reportedBodies.includes(nearbyDeadBodies[0].id)
-              }
-              colorActive="bg-cyan-600"
-            >
-              📢 Report Body
-            </ActionButton>
-          </div>
-        </div>
-        <Toaster />
-        {showMiniMap && (
-          <div
-            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto size-full"
-            onClick={() => setShowMiniMap(false)}
-          >
+                onDismiss={() => handleEmergencyMeeting(false)}
+            />
+        )}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start p-5 lg:p-10">
+          <div className="flex-none w-1/4">
+            <RoleInformation role={currentPlayer.role} />
             {isImpostor ? (
-              <SabotageList
-                sabotages={game.sabotages}
-                getSabotagePosition={getSabotagePosition}
-                showMiniMap={showMiniMap}
-              />
+                <SabotageList
+                    sabotages={game.sabotages}
+                    getSabotagePosition={getSabotagePosition}
+                    showMiniMap={showMiniMap}
+                />
             ) : (
-              <TaskList tasks={game.tasks} />
+                <TaskList tasks={game.tasks} />
             )}
-            <div
-              className="ml-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MiniMap
-                map={map}
-                playerList={game.players}
-                currentPlayer={currentPlayer}
-                closeMiniMap={() => setShowMiniMap(false)}
-                tasks={game.tasks}
-                sabotages={game.sabotages}
-              />
+          </div>
+          <div className="flex-grow flex justify-center">
+            {map ? (
+                <MapDisplay
+                    map={map}
+                    playerList={game.players}
+                    currentPlayer={currentPlayer}
+                    tasks={game.tasks}
+                    sabotages={game.sabotages ?? []}
+                    nearbyTask={nearbyTasks[0]}
+                    isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+                />
+            ) : (
+                <div>Loading map...</div>
+            )}
+          </div>
+
+          <div className="flex-none w-1/4">
+            <div className="mb-7">
+              <div className="flex gap-10">
+                <ToggleButton
+                    onClick={handleToggleMiniMap}
+                    label="Show Minimap"
+                />
+                <ToggleButton
+                    onClick={toggleManualVisibility}
+                    label="Show Manual"
+                />
+              </div>
+              <PlayerList playerId={currentPlayer.id} playerList={game.players} />
+              {isImpostor && <CrewmateCounter playerList={game.players} />}
+            </div>
+
+            <div className="flex gap-5 justify-center">
+              {isImpostor && (
+                  <ActionButton
+                      onClick={handleKill}
+                      buttonclickable={
+                          nearbyPlayers.length > 0 &&
+                          !isTimer &&
+                          currentPlayer.role === Role.IMPOSTOR
+                      }
+                      colorActive="bg-red-600"
+                  >
+                    {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
+                  </ActionButton>
+              )}
+              <ActionButton
+                  onClick={() => handleReportBody()}
+                  buttonclickable={
+                      nearbyDeadBodies.length > 0 &&
+                      !game.reportedBodies.includes(nearbyDeadBodies[0].id)
+                  }
+                  colorActive="bg-cyan-600"
+              >
+                📢 Report Body
+              </ActionButton>
             </div>
           </div>
+          <Toaster />
+          {showMiniMap && (
+              <div
+                  className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto size-full"
+                  onClick={() => setShowMiniMap(false)}
+              >
+                {isImpostor ? (
+                    <SabotageList
+                        sabotages={game.sabotages}
+                        getSabotagePosition={getSabotagePosition}
+                        showMiniMap={showMiniMap}
+                    />
+                ) : (
+                    <TaskList tasks={game.tasks} />
+                )}
+                <div
+                    className="ml-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                  <MiniMap
+                      map={map}
+                      playerList={game.players}
+                      currentPlayer={currentPlayer}
+                      closeMiniMap={() => setShowMiniMap(false)}
+                      tasks={game.tasks}
+                      sabotages={game.sabotages}
+                  />
+                </div>
+              </div>
           )}
 
           {isImpostor ? (
@@ -492,18 +471,15 @@ export default function GameView({
           ) : (
               ""
           )}
+          {showRockPaperScissor && (
+              <RockPaperScissor
+                  stompClient={stompClient}
+                  gameCode={game.gameCode}
+                  onConfirm={handleChoice}
+                  onCancel={() => setShowRockPaperScissor(false)}
+              />
+          )}
         </div>
-        {showDuelPopup && (
-            <DuelPopup onConfirm={handleConfirmDuel} onCancel={handleCancelDuel} />
-        )}
-        {showRockPaperScissor && (
-            <RockPaperScissor
-                stompClient={stompClient}
-                gameCode={game.gameCode}
-                onConfirm={handleChoice}
-                onCancel={() => setShowRockPaperScissor(false)}
-            />
-        )}
       </div>
   );
 }
