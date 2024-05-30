@@ -95,7 +95,7 @@ export default function MapDisplay({
           ? playerList
           : playerList.filter((player) => !isGhost(player));
 
-  // Finde die aktive Sabotage mit ID 4
+
   const activeWallSabotage = sabotages.find((sabotage) => sabotage.id === 4);
 
   return (
@@ -187,9 +187,10 @@ export default function MapDisplay({
                           <EmergencyButtonDisplay isButtonInteractable={isButtonInteractable} isVisible={true} />
                       )}
                       {activeWallSabotage &&
-                          activeWallSabotage.wallPosition.some(
-                              (pos) => pos.x === cellPosX && pos.y === cellPosY
-                          ) && <Wall isWallInteractable={isWallInteractable}/>}
+                          activeWallSabotage.wallPositions &&
+                          activeWallSabotage.wallPositions.flat().some(
+                              (pos: { x: number; y: number }) => pos.x === cellPosX && pos.y === cellPosY
+                          ) && <Wall isWallInteractable={isWallInteractable} />}
                     </div>
                 );
               })}

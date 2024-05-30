@@ -100,13 +100,28 @@ export function SetGameSubscriptions(
       [`/topic/${gameCode}/duelChoiceResult`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
+
+
         let result;
-        const wallPosition = receivedMessage.body.sabotages.find((sabotage: Sabotage) => sabotage.id === 4)?.wallPosition;
-        if (wallPosition && wallPosition[0].x === -1 && wallPosition[0].y === -1) {
-          result = "You won!";
+        const sabotage = receivedMessage.body.sabotages.find((sabotage: Sabotage) => sabotage.id === 4);
+
+
+        const wallPositions = sabotage?.wallPositions?.flat();
+
+
+        if (wallPositions) {
+          const allWallsDefeated = wallPositions.every((pos: { x: number; y: number }) => pos.x === -1 && pos.y === -1);
+
+
+          if (allWallsDefeated) {
+            result = "Congratulations, you won the duel! The opponent has been defeated.";
+          } else {
+            result = "You lost the duel! The opponent has bested you this time.";
+          }
         } else {
-           result = "You lost!";
+          result = "You lost the duel! The opponent has bested you this time.";
         }
+
         toast(result, {
           position: "bottom-right",
           style: {

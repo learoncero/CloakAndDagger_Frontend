@@ -85,13 +85,6 @@ const MiniMap: React.FC<Props> = ({
                         sabotage.position.x === cellIndex &&
                         sabotage.position.y === rowIndex
                 );
-                const wallInCell = sabotages.some(
-                    (sabotage) =>
-                        sabotage.id === 4 &&
-                        sabotage.wallPosition.some(
-                            (pos) => pos.x === cellIndex && pos.y === rowIndex
-                        )
-                );
 
                 return (
                     <div
@@ -99,9 +92,8 @@ const MiniMap: React.FC<Props> = ({
                         style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
                         className={`border border-white box-border 
                     ${
-                            wallInCell
-                                ? "bg-black"
-                                : cell != "#"
+                                
+                                cell != "#"
                                     ? !isVisible
                                         ? "bg-gray-200"
                                         : "bg-gray-400"
@@ -112,7 +104,7 @@ const MiniMap: React.FC<Props> = ({
                     ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
                     `}
                     >
-                      {sabotageInCell != undefined && !wallInCell && (
+                      {sabotageInCell != undefined && (
                           <SabotageIconDisplay
                               isSabotageInteractable={false}
                               isVisible={isVisible}

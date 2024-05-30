@@ -212,6 +212,7 @@ export default function GameView({
   };
 
   const handleChoice = () => {
+
     setShowRockPaperScissor(false);
 
   };
