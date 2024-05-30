@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import {Sabotage} from "@/app/types";
 
 interface Handlers {
   [key: string]: (message: { body: string }) => void;
@@ -23,7 +24,9 @@ export function SetGameSubscriptions(
       `/topic/${gameCode}/gameEnd`,
       `/topic/${gameCode}/sabotageStart`,
       `/topic/${gameCode}/sabotageCancel`,
+      `/topic/${gameCode}/duelChoiceResult`,
       `/topic/${gameCode}/voteResults`,
+
     ];
 
     const handlers: Handlers = {
@@ -59,7 +62,7 @@ export function SetGameSubscriptions(
         const activeSabotage = receivedMessage.body.sabotages.find((sabotage: any) => sabotage.position.x !== -1 && sabotage.position.y !== -1);
 
         if (activeSabotage) {
-          setImpostorWinTimer(30);
+          setImpostorWinTimer(3000000000000000000);
           toast(
               `Sabotage initiated: ${activeSabotage.title}. ${activeSabotage.description}. Crewmates, time is running out! You have 30 seconds to act!`,
               {
@@ -94,8 +97,30 @@ export function SetGameSubscriptions(
           icon: "❕",
         });
       },
+      [`/topic/${gameCode}/duelChoiceResult`]: (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+        let result;
+        const wallPosition = receivedMessage.body.sabotages.find((sabotage: Sabotage) => sabotage.id === 4)?.wallPosition;
+        if (wallPosition && wallPosition[0].x === -1 && wallPosition[0].y === -1) {
+          result = "You won!";
+        } else {
+           result = "You lost!";
+        }
+        toast(result, {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "black",
+            backgroundColor: "#eF4444",
+          },
+          icon: "✂️",
+        });
+      },
       [`/topic/${gameCode}/voteResults`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+
         updateGame(receivedMessage);
         setLatestVote(receivedMessage.votingResult);
       }

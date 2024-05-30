@@ -18,7 +18,7 @@ import InformationPopUp from "./InformationPopUp";
 import useNearbyDeadBodies from "@/hooks/useNearbyDeadBodies";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
-import DuelPopup from "./SabotageTask04";
+import DuelPopup from "./DuelPopup";
 import RockPaperScissor from "./RockPaperScissor";
 
 type Props = {
@@ -39,7 +39,7 @@ type Props = {
   showBodyReported: boolean;
   handleShowBodyReported: (show: boolean) => void;
   showChat: boolean;
-  handleWallInteraction: () => void;
+  stompClient: any;
 };
 
 export default function GameView({
@@ -56,7 +56,7 @@ export default function GameView({
                                    showBodyReported,
                                    handleShowBodyReported,
                                    showChat,
-                                   handleWallInteraction,
+                                   stompClient,
                                  }: Props) {
   const isImpostor =
       currentPlayer?.role == Role.IMPOSTOR ||
@@ -211,9 +211,9 @@ export default function GameView({
     setShowDuelPopup(false);
   };
 
-  const handleChoice = (choice: string) => {
+  const handleChoice = () => {
     setShowRockPaperScissor(false);
-    handleWallInteraction();
+
   };
 
   useEffect(() => {
@@ -466,17 +466,16 @@ export default function GameView({
           )}
         </div>
         {showDuelPopup && (
-            <DuelPopup onConfirm={handleConfirmDuel} onCancel={handleCancelDuel}/>
+            <DuelPopup onConfirm={handleConfirmDuel} onCancel={handleCancelDuel} />
         )}
         {showRockPaperScissor && (
             <RockPaperScissor
+                stompClient={stompClient}
                 gameCode={game.gameCode}
-                playerId={currentPlayer.id}
                 onConfirm={handleChoice}
                 onCancel={() => setShowRockPaperScissor(false)}
             />
         )}
-
       </div>
   );
 }

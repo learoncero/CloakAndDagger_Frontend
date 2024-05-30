@@ -97,17 +97,19 @@ export function sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCo
         );
     }
 }
-type WallInteractionProps = {
+
+type DuelChoiceProps = {
     stompClient: any,
     gameCode: string,
-}
+    choice: string,
+};
 
-export function sendWallInteractionMessage({stompClient, gameCode}: WallInteractionProps){
-    console.log("HERE SENDWALLMESSAGE")
-    stompClient.send(
-        `/app/game/${gameCode}/wallInteraction`,
-        {},
-        JSON.stringify({})
-    );
-
+export function sendDuelChoiceMessage({ stompClient, gameCode, choice }: DuelChoiceProps) {
+    const duelChoiceMessage = {
+        gameCode: gameCode,
+        choice: choice,
+    };
+    if (stompClient) {
+        stompClient.send(`/app/game/${gameCode}/submitDuelChoice`, {}, JSON.stringify(duelChoiceMessage));
+    }
 }

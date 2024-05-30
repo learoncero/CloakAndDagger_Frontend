@@ -20,7 +20,7 @@ import {
   sendMovePlayerMessage,
   sendReportBodyMessage,
   sendSabotageMessage,
-  sendWallInteractionMessage,
+  sendDuelChoiceMessage,
 } from "./PageSendFunctions";
 
 import TaskService from "@/services/TaskService";
@@ -201,9 +201,6 @@ export default function PlayGame() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
 
-  function handleWallInteraction() {
-    sendWallInteractionMessage({stompClient, gameCode });
-  }
 
   let modalTextColor = "text-red-600";
 
@@ -273,7 +270,7 @@ export default function PlayGame() {
                   showBodyReported={showBodyReported}
                   handleShowBodyReported={setShowBodyReported}
                   showChat={showChat}
-                  handleWallInteraction={handleWallInteraction}
+                  stompClient={stompClient}
               />
           ) : (
               <div>No Player Data Found</div>
