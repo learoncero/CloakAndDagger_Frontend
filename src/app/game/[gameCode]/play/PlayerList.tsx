@@ -15,7 +15,6 @@ export default function PlayerList({ playerId, playerList }: Props) {
           PlayerListItem({
             username: player.username,
             currPlayer: player.id === playerId,
-            key: player.id,
             isGhost:
               player.role === Role.CREWMATE_GHOST ||
               player.role === Role.IMPOSTOR_GHOST,
