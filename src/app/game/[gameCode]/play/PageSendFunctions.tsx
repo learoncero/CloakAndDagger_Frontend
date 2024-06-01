@@ -1,3 +1,4 @@
+
 import { Player, Task } from "@/app/types";
 
 type SabotageProps = {
@@ -138,16 +139,29 @@ type SabotageCancelProps = {
   impostorWinTimer: number;
   gameCode: string;
 };
-export function sendCancelSabotageMessage({
-  stompClient,
-  impostorWinTimer,
-  gameCode,
-}: SabotageCancelProps) {
-  if (impostorWinTimer > 0) {
-    stompClient.send(
-      `/app/game/${gameCode}/cancelSabotage`,
-      {},
-      JSON.stringify({})
-    );
-  }
+export function sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCode}: SabotageCancelProps){
+    if (impostorWinTimer > 0) {
+        stompClient.send(
+            `/app/game/${gameCode}/cancelSabotage`,
+            {},
+            JSON.stringify({})
+        );
+    }
 }
+
+type DuelChoiceProps = {
+    stompClient: any,
+    gameCode: string,
+    choice: string,
+};
+
+export function sendDuelChoiceMessage({ stompClient, gameCode, choice }: DuelChoiceProps) {
+    const duelChoiceMessage = {
+        gameCode: gameCode,
+        choice: choice,
+    };
+    if (stompClient) {
+        stompClient.send(`/app/game/${gameCode}/submitDuelChoice`, {}, JSON.stringify(duelChoiceMessage));
+    }
+}
+

@@ -21,6 +21,7 @@ import {
   sendMovePlayerMessage,
   sendReportBodyMessage,
   sendSabotageMessage,
+  sendDuelChoiceMessage,
 } from "./PageSendFunctions";
 
 import TaskService from "@/services/TaskService";
@@ -238,6 +239,7 @@ export default function PlayGame() {
     setShowEmergencyMeeting(value);
   }
 
+
   let modalTextColor = "text-red-600";
 
   if (
@@ -310,6 +312,7 @@ export default function PlayGame() {
             callEmergencyMeeting={callEmergencyMeeting}
             handleEmergencyMeeting={handleEmergencyMeeting}
             isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+            stompClient={stompClient}
           />
         ) : (
           <div>No Player Data Found</div>
