@@ -96,3 +96,17 @@ export function sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCo
         );
     }
 }
+
+
+type VentUsageProps = {
+    stompClient: any,
+    gameCode: string,
+    playerId: number,
+}
+export function sendVentUsageMessage({stompClient, gameCode, playerId}: VentUsageProps) {
+    const ventUsageMessage = {
+        gameCode: gameCode,
+        playerId: playerId,
+    };
+    stompClient.send(`/app/game/${gameCode}/useVent`, {}, JSON.stringify(ventUsageMessage));
+}
