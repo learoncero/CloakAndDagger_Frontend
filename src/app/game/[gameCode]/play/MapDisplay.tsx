@@ -5,6 +5,7 @@ import SabotageIconDisplay from "./SabotageIconDisplay";
 import { DeadBody, PlayerSprites } from "./PlayerSprites";
 import { useEffect, useState } from "react";
 import VentIconDisplay from "./VentIconDisplay";
+import {number} from "prop-types";
 
 type Props = {
   map: string[][];
@@ -127,7 +128,8 @@ export default function MapDisplay({
                 sabotage.position.y === cellPosY
             );
 
-            const ventInCell = cell.match(`/[0-9]/`);
+            const cellNumValue = parseInt(cell);
+            const ventInCell = cellNumValue.valueOf() >= 0 && cellNumValue.valueOf() <= 9;
 
             const isButtonInteractable = isAdjacent(
               currentPlayer.playerPosition.x,
