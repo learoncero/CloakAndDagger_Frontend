@@ -4,6 +4,7 @@ import TaskIconDisplay from "./TaskIconDisplay";
 import SabotageIconDisplay from "./SabotageIconDisplay";
 import { DeadBody, PlayerSprites } from "./PlayerSprites";
 import { useEffect, useState } from "react";
+import VentIconDisplay from "./VentIconDisplay";
 
 type Props = {
   map: string[][];
@@ -125,6 +126,9 @@ export default function MapDisplay({
                 sabotage.position.x === cellPosX &&
                 sabotage.position.y === cellPosY
             );
+
+            const ventInCell = cell.match(`/[0-9]/`);
+
             const isButtonInteractable = isAdjacent(
               currentPlayer.playerPosition.x,
               currentPlayer.playerPosition.y,
@@ -138,10 +142,18 @@ export default function MapDisplay({
               cellPosX,
               cellPosY
             );
+
             const isTaskInteractable =
               !!nearbyTask &&
               (currentPlayer.role === "CREWMATE" ||
                 currentPlayer.role === "CREWMATE_GHOST");
+
+            const isVentInteractable = isAdjacent(
+                currentPlayer.playerPosition.x,
+                currentPlayer.playerPosition.y,
+                cellPosX,
+                cellPosY
+                );
             return (
               <div
                 key={cellIndex}
@@ -189,6 +201,12 @@ export default function MapDisplay({
                   <SabotageIconDisplay
                     isSabotageInteractable={isSabotageInteractable}
                     isVisible={true}
+                  />
+                )}
+                {ventInCell && (
+                  <VentIconDisplay
+                      isVentInteractable={isVentInteractable}
+                      isVisible={true}
                   />
                 )}
                 {cell === "E" && (
