@@ -1,10 +1,11 @@
+import React, { useEffect, useState } from "react";
 import { Player, Task, Sabotage } from "@/app/types";
 import EmergencyButtonDisplay from "./EmergencyButtonDisplay";
 import TaskIconDisplay from "./TaskIconDisplay";
 import SabotageIconDisplay from "./SabotageIconDisplay";
 import { DeadBody, PlayerSprites } from "./PlayerSprites";
-import { useEffect, useState } from "react";
 import VentIconDisplay from "./VentIconDisplay";
+import Wall from './Wall';
 import {number} from "prop-types";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
   tasks: Task[];
   sabotages: Sabotage[];
   nearbyTask?: Task;
+  isEmergencyMeetingTimeout: boolean;
 };
 
 export default function MapDisplay({
@@ -23,7 +25,9 @@ export default function MapDisplay({
   tasks,
   sabotages,
   nearbyTask,
+  isEmergencyMeetingTimeout,
 }: Props) {
+
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMapVisible, setIsMapVisible] = useState(true);
 
@@ -33,28 +37,30 @@ export default function MapDisplay({
       setIsMapVisible(window.innerWidth > 1025);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
     handleResize();
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   if (!isMapVisible) {
     return (
-      <div className="map-overlay">
-        Map is hidden due to small window size. Please switch to full screen to
-        view the map.
-      </div>
-    ); // You can style this overlay as needed
+        <div className="map-overlay">
+          Map is hidden due to small window size. Please switch to full screen to view the map.
+        </div>
+    );
   }
+
   const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
-    return sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
+    return sabotages.some(
+        (sabotage) => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y)
+    );
   };
 
-  const isCrewmate = currentPlayer.role === "CREWMATE";
-  const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : (4 * 2 + 1);
+  const isCrewmate = currentPlayer.role === 'CREWMATE';
+  const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.playerPosition;
   let startX = Math.max(0, x - halfViewport);
@@ -79,27 +85,23 @@ export default function MapDisplay({
   startX = Math.max(0, startX);
   startY = Math.max(0, startY);
 
-  const isAdjacent = (
-    posX: number,
-    posY: number,
-    targetX: number,
-    targetY: number
-  ) => {
+  const isAdjacent = (posX: number, posY: number, targetX: number, targetY: number) => {
     return (
-      (posX === targetX && Math.abs(posY - targetY) === 1) ||
-      (posY === targetY && Math.abs(posX - targetX) === 1) ||
-      (Math.abs(posX - targetX) === 1 && Math.abs(posY - targetY) === 1)
+        (posX === targetX && Math.abs(posY - targetY) === 1) ||
+        (posY === targetY && Math.abs(posX - targetX) === 1) ||
+        (Math.abs(posX - targetX) === 1 && Math.abs(posY - targetY) === 1)
     );
   };
 
-  const isGhost = (player: Player) =>
-    player.role === "CREWMATE_GHOST" || player.role === "IMPOSTOR_GHOST";
+  const isGhost = (player: Player) => player.role === 'CREWMATE_GHOST' || player.role === 'IMPOSTOR_GHOST';
 
   const visiblePlayers =
-    currentPlayer.role === "IMPOSTOR_GHOST" ||
-    currentPlayer.role === "CREWMATE_GHOST"
-      ? playerList
-      : playerList.filter((player) => !isGhost(player));
+      currentPlayer.role === 'IMPOSTOR_GHOST' || currentPlayer.role === 'CREWMATE_GHOST'
+          ? playerList
+          : playerList.filter((player) => !isGhost(player));
+
+
+  const activeWallSabotage = sabotages.find((sabotage) => sabotage.id === 4);
 
   return (
     <div className="relative border-3 border-black">
@@ -139,6 +141,13 @@ export default function MapDisplay({
             );
 
             const isSabotageInteractable = isAdjacent(
+              currentPlayer.playerPosition.x,
+              currentPlayer.playerPosition.y,
+              cellPosX,
+              cellPosY
+            );
+            
+            const isWallInteractable = isAdjacent(
               currentPlayer.playerPosition.x,
               currentPlayer.playerPosition.y,
               cellPosX,
@@ -205,6 +214,14 @@ export default function MapDisplay({
                     isVisible={true}
                   />
                 )}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay
+                    isButtonInteractable={isButtonInteractable}
+                    isVisible={true}
+                    isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+                  />
+                )}
+
                 {ventInCell && (
                   <VentIconDisplay
                       isVentInteractable={isVentInteractable}
@@ -212,12 +229,11 @@ export default function MapDisplay({
                       isVisible={true}
                   />
                 )}
-                {cell === "E" && (
-                  <EmergencyButtonDisplay
-                    isButtonInteractable={isButtonInteractable}
-                    isVisible={true}
-                  />
-                )}
+                {activeWallSabotage &&
+                 activeWallSabotage.wallPositions &&
+                 activeWallSabotage.wallPositions.flat().some(
+                  (pos: { x: number; y: number }) => pos.x === cellPosX && pos.y === cellPosY) && 
+                 <Wall isWallInteractable={isWallInteractable} />}
               </div>
             );
           })}

@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import {Sabotage} from "@/app/types";
 
 interface Handlers {
   [key: string]: (message: { body: string }) => void;
@@ -6,25 +7,29 @@ interface Handlers {
 let subscriptionsSet = false;
 
 export function SetGameSubscriptions(
-    stompClient: any,
-    updateGame: Function,
-    setImpostorWinTimer: Function,
-    handleChatView: Function,
-    setLatestVote: Function,
-    gameCode: string,
-    setShowBodyReported: Function,
+  stompClient: any,
+  updateGame: Function,
+  setImpostorWinTimer: Function,
+  handleChatView: Function,
+  setLatestVote: Function,
+  gameCode: string,
+  setShowBodyReported: Function,
+  setShowEmergencyMeeting: Function,
+  setIsEmergencyMeetingTimeout: Function
 ) {
   if (!subscriptionsSet) {
     const subscriptions = [
       `/topic/${gameCode}/positionChange`,
-      `/topic/${gameCode}/IdleChange`,
+      `/topic/${gameCode}/idleChange`,
       `/topic/${gameCode}/playerKill`,
       `/topic/${gameCode}/bodyReport`,
       `/topic/${gameCode}/gameEnd`,
       `/topic/${gameCode}/sabotageStart`,
       `/topic/${gameCode}/sabotageCancel`,
+      `/topic/${gameCode}/duelChoiceResult`,
       `/topic/${gameCode}/voteResults`,
       `/topic/${gameCode}/useVent`,
+      `/topic/${gameCode}/emergencyMeetingStart`,
     ];
 
     const handlers: Handlers = {
@@ -46,12 +51,25 @@ export function SetGameSubscriptions(
       },
       [`/topic/${gameCode}/bodyReport`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
-        console.log("receivedMessage BodyReport: ", receivedMessage);
         updateGame(receivedMessage.body);
         setShowBodyReported(true);
         setTimeout(() => {
           handleChatView(true);
-        }, 2000);
+        }, 3000);
+      },
+      [`/topic/${gameCode}/emergencyMeetingStart`]: (message: {
+        body: string;
+      }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+        setShowEmergencyMeeting(true);
+        setTimeout(() => {
+          handleChatView(true);
+        }, 3000);
+        setIsEmergencyMeetingTimeout(true);
+        setTimeout(() => {
+          setIsEmergencyMeetingTimeout(false);
+        }, 90000);
       },
       [`/topic/${gameCode}/gameEnd`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
@@ -99,11 +117,40 @@ export function SetGameSubscriptions(
           icon: "❕",
         });
       },
+      [`/topic/${gameCode}/duelChoiceResult`]: (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+        let result;
+        const sabotage = receivedMessage.body.sabotages.find((sabotage: Sabotage) => sabotage.id === 4);
+        const wallPositions = sabotage?.wallPositions?.flat();
+        if (wallPositions) {
+          const allWallsDefeated = wallPositions.every((pos: { x: number; y: number }) => pos.x === -1 && pos.y === -1);
+          if (allWallsDefeated) {
+            result = "Congratulations, you won the duel! The opponent has been defeated.";
+          } else {
+            result = "You lost the duel! The opponent has bested you this time.";
+          }
+        } else {
+          result = "You lost the duel! The opponent has bested you this time.";
+        }
+
+        toast(result, {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "black",
+            backgroundColor: "#eF4444",
+          },
+          icon: "✂️",
+        });
+      },
       [`/topic/${gameCode}/voteResults`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
+
         updateGame(receivedMessage);
         setLatestVote(receivedMessage.votingResult);
-      }
+      },
     };
 
     subscriptions.forEach((topic) => {

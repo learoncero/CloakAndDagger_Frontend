@@ -14,6 +14,7 @@ import GameView from "./GameView";
 import { Toaster } from "react-hot-toast";
 
 import {
+  sendCallEmergencyMeetingMessage,
   sendCancelSabotageMessage,
   sendGameEndMessage,
   sendKillPlayerMessage,
@@ -21,15 +22,17 @@ import {
   sendReportBodyMessage,
   sendSabotageMessage,
   sendVentUsageMessage,
+  sendDuelChoiceMessage,
 } from "./PageSendFunctions";
 
 import TaskService from "@/services/TaskService";
 import VotingResultsPopup from "@/app/game/[gameCode]/play/VotingResultsPopup";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function PlayGame() {
-  console.log("PAGE RENDERED");
   const { gameCode } = useParams<{ gameCode: string }>();
-  const stompClient = useWebSocket("http://localhost:5010/ws");
+  const stompClient = useWebSocket(`${apiUrl}:5010/ws`);
   const { game, map, loadGameData, updateGame } = useGame(gameCode as string);
   const [showChat, setShowChat] = useState(false);
   const [showVotingResults, setShowVotingResults] = useState(false);
@@ -39,6 +42,8 @@ export default function PlayGame() {
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
   const [showBodyReported, setShowBodyReported] = useState(false);
+  const [showEmergencyMeeting, setShowEmergencyMeeting] = useState(false);
+  const [isEmergencyMeetingTimeout, setIsEmergencyMeetingTimeout] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -54,25 +59,37 @@ export default function PlayGame() {
   const isGhost =
       currentPlayer?.role === Role.CREWMATE_GHOST ||
       currentPlayer?.role === Role.IMPOSTOR_GHOST;
-
+  
   const playerRole = currentPlayer?.role ?? "";
 
   const isMovingAllowed =
-      game?.gameStatus === GameStatus.IN_GAME &&
-      !showChat &&
-      !showTaskPopup &&
-      !showVotingResults;
+    game?.gameStatus === GameStatus.IN_GAME &&
+    !showChat &&
+    !showTaskPopup &&
+    !showVotingResults;
+
+  let emergencyButtonPosition: { x: number; y: number } | undefined;
+  let emergencyButtonNearby: boolean;
+  if (map?.map && currentPlayer?.playerPosition) {
+    emergencyButtonPosition = getEmergencyButtonPosition(map?.map);
+    if(emergencyButtonPosition?.x) {
+      emergencyButtonNearby = Math.abs(currentPlayer?.playerPosition.x - emergencyButtonPosition.x) <= 1 &&
+          Math.abs(currentPlayer?.playerPosition.y - emergencyButtonPosition.y) <= 1;
+    }
+  }
 
   useEffect(() => {
     if (stompClient) {
       SetGameSubscriptions(
-          stompClient,
-          updateGame,
-          setImpostorWinTimer,
-          handleChatView,
-          setLatestVote,
-          gameCode,
-          setShowBodyReported,
+        stompClient,
+        updateGame,
+        setImpostorWinTimer,
+        handleChatView,
+        setLatestVote,
+        gameCode,
+        setShowBodyReported,
+        setShowEmergencyMeeting,
+        setIsEmergencyMeetingTimeout,
       );
     }
     return () => {
@@ -101,6 +118,7 @@ export default function PlayGame() {
     if (impostorWinTimer > 0) {
       countdownInterval = setInterval(() => {
         setImpostorWinTimer((prevTime) => prevTime - 1);
+        console.log("impostorWinTimer", impostorWinTimer);
       }, 1000);
     } else if (impostorWinTimer === 0) {
       sendGameEndMessage({ stompClient, gameCode });
@@ -139,6 +157,16 @@ export default function PlayGame() {
 
   function onCloseResultsPopup() {
     setShowVotingResults(false);
+  }
+
+  function getEmergencyButtonPosition(map: string[][]) {
+    for (let row = 0; row < map.length; row++) {
+      for(let cell = 0; cell < map[row].length; cell++) {
+        if (map[row][cell] === "E") {
+          return { x: cell, y: row };
+        }
+      }
+    }
   }
 
   async function handleTaskCompleted(taskId: number) {
@@ -197,6 +225,13 @@ export default function PlayGame() {
     sendSabotageMessage({ stompClient, gameCode, sabotageId, map: game.map });
   }
 
+  async function callEmergencyMeeting(gameCode: string) {
+    if(emergencyButtonNearby) {
+      setShowEmergencyMeeting(true)
+      sendCallEmergencyMeetingMessage({stompClient, gameCode});
+    }
+  }
+
   function handleCancelSabotage() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
@@ -204,6 +239,11 @@ export default function PlayGame() {
     console.log("Vent usage");
     sendVentUsageMessage({stompClient, gameCode, playerId});
   }
+
+  function handleEmergencyMeeting(value: boolean) {
+    setShowEmergencyMeeting(value);
+  }
+
 
   let modalTextColor = "text-red-600";
 
@@ -226,27 +266,27 @@ export default function PlayGame() {
   };
 
   return (
-      <AnimationProvider>
-        <div className="min-h-screen min-w-screen bg-black text-white">
-          {showChat && (
-              <Chat
-                  onClose={handleChatView}
-                  gameCode={gameCode}
-                  players={game?.players}
-                  currentPlayer={currentPlayer as Player}
-                  setShowVotingResults={setShowVotingResults}
-              />
-          )}
-          {game && showVotingResults && (
-              <VotingResultsPopup
-                  onCloseResultsPopup={onCloseResultsPopup}
-                  voteResult={latestVote}
-                  players={game?.players}
-                  voteEvents={game?.voteEvents}
-                  currentPlayerId={currentPlayer?.id}
-              />
-          )}
-          {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
+    <AnimationProvider>
+      <div className="min-h-screen min-w-screen bg-black text-white">
+        {showChat && (
+          <Chat
+            onClose={handleChatView}
+            gameCode={gameCode}
+            players={game?.players}
+            currentPlayer={currentPlayer as Player}
+            setShowVotingResults={setShowVotingResults}
+          />
+        )}
+        {game && showVotingResults && (
+          <VotingResultsPopup
+            onCloseResultsPopup={onCloseResultsPopup}
+            voteResult={latestVote}
+            players={game?.players}
+            voteEvents={game?.voteEvents}
+            currentPlayerId={currentPlayer?.id}
+          />
+        )}
+        {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
               <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
                 <BackLink href={"/"} onClick={handleBackLinkClick}>
                   Return to Landing Page
@@ -274,6 +314,11 @@ export default function PlayGame() {
                   handleShowBodyReported={setShowBodyReported}
                   handleVentUsage={handleVentUsage}
                   showChat={showChat}
+                  showEmergencyMeeting={showEmergencyMeeting}
+                  callEmergencyMeeting={callEmergencyMeeting}
+                  handleEmergencyMeeting={handleEmergencyMeeting}
+                  isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+                  stompClient={stompClient}
               />
           ) : (
               <div>No Player Data Found</div>
