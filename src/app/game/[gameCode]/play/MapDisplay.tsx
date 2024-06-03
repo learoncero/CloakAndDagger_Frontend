@@ -208,6 +208,7 @@ export default function MapDisplay({
                 {ventInCell && (
                   <VentIconDisplay
                       isVentInteractable={isVentInteractable}
+                      role={currentPlayer.role}
                       isVisible={true}
                   />
                 )}

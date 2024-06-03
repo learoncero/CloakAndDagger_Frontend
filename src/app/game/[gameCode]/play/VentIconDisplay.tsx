@@ -1,15 +1,18 @@
 import Image from "next/image";
+import {Role} from "@/app/types";
 
 type VentProps = {
     isVentInteractable: boolean;
+    role: Role;
     isVisible: boolean;
 }
 
 export default function VentIconDisplay ({
     isVentInteractable,
+    role,
     isVisible,
  }: VentProps) {
-
+    const isImpostor = (role == Role.IMPOSTOR);
     return (
         <div className={`flex place-content-center w-full h-full z-10 ${!isVisible ? "opacity-20" : ""}`}>
             <Image
@@ -19,7 +22,7 @@ export default function VentIconDisplay ({
                 height={100}
                 className={`object-contain p-[10%]`}
             />
-            {isVentInteractable && (
+            {isVentInteractable && isImpostor &&(
                 <div className="absolute top-1 right-2 text-black font-bold bg-white px-1 rounded-full">
                     V
                 </div>
