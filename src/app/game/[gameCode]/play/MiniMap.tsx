@@ -3,6 +3,7 @@ import { Player, Sabotage, Task } from "@/app/types";
 import SabotageIconDisplay from "@/app/game/[gameCode]/play/SabotageIconDisplay";
 import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import EmergencyButtonDisplay from "./EmergencyButtonDisplay";
+import VentIconDisplay from "@/app/game/[gameCode]/play/VentIconDisplay";
 
 type Props = {
   map: string[][];
@@ -85,6 +86,9 @@ const MiniMap: React.FC<Props> = ({
                 sabotage.position.x === cellIndex &&
                 sabotage.position.y === rowIndex
             );
+            const cellNumValue = parseInt(cell);
+            const ventInCell = cellNumValue.valueOf() >= 0 && cellNumValue.valueOf() <= 9;
+
 
             return (
               <div
@@ -115,6 +119,12 @@ const MiniMap: React.FC<Props> = ({
                     isTaskInteractable={false}
                     role={currentPlayer.role}
                   />
+                )}
+                {ventInCell && (
+                  <VentIconDisplay
+                    isVentInteractable={false}
+                    isVisible={isVisible}
+                    />
                 )}
                 {cell === "E" && (
                   <EmergencyButtonDisplay

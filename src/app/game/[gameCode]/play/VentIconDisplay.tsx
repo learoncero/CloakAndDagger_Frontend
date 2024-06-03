@@ -11,7 +11,7 @@ export default function VentIconDisplay ({
  }: VentProps) {
 
     return (
-        <div className={`flex place-content-center w-full h-full z-10 ${!isVisible ? "opacity-50" : ""}`}>
+        <div className={`flex place-content-center w-full h-full z-10 ${!isVisible ? "opacity-20" : ""}`}>
             <Image
                 src={"/vent.png"}
                 alt={"Vent"}
