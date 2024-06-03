@@ -151,9 +151,14 @@ export function SetGameSubscriptions(
     };
 
     subscriptions.forEach((topic) => {
-      stompClient.subscribe(topic, (message: { body: string }) => {
-        handlers[topic](message);
-      });
+      if (handlers[topic]) {
+        console.log(`Subscribing to ${topic}`);
+        stompClient.subscribe(topic, (message: { body: string }) => {
+          handlers[topic](message);
+        });
+      } else {
+        console.error(`No handler found for topic: ${topic}`);
+      }
     });
 
     subscriptionsSet = true;
