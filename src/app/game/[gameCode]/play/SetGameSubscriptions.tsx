@@ -24,10 +24,15 @@ export function SetGameSubscriptions(
       `/topic/${gameCode}/sabotageStart`,
       `/topic/${gameCode}/sabotageCancel`,
       `/topic/${gameCode}/voteResults`,
+      `/topic/${gameCode}/useVent`,
     ];
 
     const handlers: Handlers = {
       [`/topic/${gameCode}/positionChange`]: (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+      },
+      [`/topic/${gameCode}/useVent`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
@@ -61,10 +66,10 @@ export function SetGameSubscriptions(
         if (activeSabotage) {
           setImpostorWinTimer(30);
           toast(
-              `Sabotage initiated: ${activeSabotage.title}. ${activeSabotage.description}. Crewmates, time is running out! You have 30 seconds to act!`,
+              `Sabotage initiated:\n ${activeSabotage.title}. \n${activeSabotage.description}. \nCrewmates, time is running out! You have 30 seconds to act!`,
               {
                 position: "top-center",
-                duration: 10000, // Duration in milliseconds
+                duration: 6000, // Duration in milliseconds
                 style: {
                   border: "2px solid black",
                   padding: "16px",
