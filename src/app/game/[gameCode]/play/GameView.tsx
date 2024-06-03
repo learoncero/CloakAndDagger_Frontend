@@ -36,6 +36,7 @@ type Props = {
   handleShowTaskPopup: (show: boolean) => void;
   showBodyReported: boolean;
   handleShowBodyReported: (show: boolean) => void;
+  handleVentUsage: (gameCode: string, id: number) => void;
   showChat: boolean;
 };
 
@@ -52,6 +53,7 @@ export default function GameView({
   handleShowTaskPopup,
   showBodyReported,
   handleShowBodyReported,
+  handleVentUsage,
   showChat,
 }: Props) {
   const isImpostor =
@@ -163,10 +165,10 @@ export default function GameView({
             event.key === "q" ||
             event.key === "Q") {
           setShowMiniMap((prev) => !prev);
-        }
-        if (event.code === "KeyR") {
-          handleReportBody();
-        }
+      }
+      if (event.code === "KeyR") {
+        handleReportBody();
+      }
     };
 
 
@@ -221,6 +223,9 @@ export default function GameView({
         } else if (status.data === true && showTaskPopup) {
           await handleToggleTaskPopup();
         }
+      }
+      if(event.code === "KeyV") {
+        handleVentUsage(game.gameCode, currentPlayer.id);
       }
     };
 

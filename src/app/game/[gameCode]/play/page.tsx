@@ -20,6 +20,7 @@ import {
   sendMovePlayerMessage,
   sendReportBodyMessage,
   sendSabotageMessage,
+  sendVentUsageMessage,
 } from "./PageSendFunctions";
 
 import TaskService from "@/services/TaskService";
@@ -199,6 +200,10 @@ export default function PlayGame() {
   function handleCancelSabotage() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
+  function handleVentUsage(gameCode: string, playerId: number) {
+    console.log("Vent usage");
+    sendVentUsageMessage({stompClient, gameCode, playerId});
+  }
 
   let modalTextColor = "text-red-600";
 
@@ -267,6 +272,7 @@ export default function PlayGame() {
                   handleShowTaskPopup={setShowTaskPopup}
                   showBodyReported={showBodyReported}
                   handleShowBodyReported={setShowBodyReported}
+                  handleVentUsage={handleVentUsage}
                   showChat={showChat}
               />
           ) : (
