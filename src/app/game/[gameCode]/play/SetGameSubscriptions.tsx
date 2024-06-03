@@ -20,16 +20,16 @@ export function SetGameSubscriptions(
   if (!subscriptionsSet) {
     const subscriptions = [
       `/topic/${gameCode}/positionChange`,
+      `/topic/${gameCode}/useVent`,
       `/topic/${gameCode}/idleChange`,
       `/topic/${gameCode}/playerKill`,
       `/topic/${gameCode}/bodyReport`,
+      `/topic/${gameCode}/emergencyMeetingStart`,
       `/topic/${gameCode}/gameEnd`,
       `/topic/${gameCode}/sabotageStart`,
       `/topic/${gameCode}/sabotageCancel`,
       `/topic/${gameCode}/duelChoiceResult`,
       `/topic/${gameCode}/voteResults`,
-      `/topic/${gameCode}/useVent`,
-      `/topic/${gameCode}/emergencyMeetingStart`,
     ];
 
     const handlers: Handlers = {
@@ -41,7 +41,7 @@ export function SetGameSubscriptions(
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
-      [`/topic/${gameCode}/IdleChange`]: (message: { body: string }) => {
+      [`/topic/${gameCode}/idleChange`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
       },
@@ -57,9 +57,7 @@ export function SetGameSubscriptions(
           handleChatView(true);
         }, 3000);
       },
-      [`/topic/${gameCode}/emergencyMeetingStart`]: (message: {
-        body: string;
-      }) => {
+      [`/topic/${gameCode}/emergencyMeetingStart`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setShowEmergencyMeeting(true);
@@ -101,7 +99,6 @@ export function SetGameSubscriptions(
           console.error("Active sabotage data missing in message: ", receivedMessage);
         }
       },
-        
       [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);

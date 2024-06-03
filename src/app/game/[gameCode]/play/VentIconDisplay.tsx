@@ -3,7 +3,7 @@ import {Role} from "@/app/types";
 
 type VentProps = {
     isVentInteractable: boolean;
-    role: Role;
+    role?: Role;
     isVisible: boolean;
 }
 
