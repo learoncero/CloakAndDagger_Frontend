@@ -224,7 +224,7 @@ export default function GameView({
           await handleToggleTaskPopup();
         }
       }
-      if(event.code === "KeyV") {
+      if(event.code === "KeyV" && currentPlayer.role === Role.IMPOSTOR && !showMiniMap && !showMiniMap) {
         handleVentUsage(game.gameCode, currentPlayer.id);
       }
     };
