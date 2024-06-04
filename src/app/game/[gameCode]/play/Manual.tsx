@@ -73,6 +73,7 @@ export default function Manual({ role, onClose }: Props) {
                 <li>Cancel Sabotage: C</li>
                 <li>Report Dead Body: R</li>
                 <li>Call an emergency meeting: F</li>
+                <li>Use Vents: V</li>
               </ul>
             </div>
           )}
