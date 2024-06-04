@@ -70,6 +70,9 @@ export default function GameView({
   const isImpostor =
       currentPlayer?.role == Role.IMPOSTOR ||
       currentPlayer?.role == Role.IMPOSTOR_GHOST;
+  const isGhost =
+      currentPlayer?.role == Role.CREWMATE_GHOST ||
+      currentPlayer?.role == Role.IMPOSTOR_GHOST;
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
@@ -198,7 +201,8 @@ export default function GameView({
           !showChat &&
           !showMiniMap &&
           !showEmergencyMeeting &&
-          !isEmergencyMeetingTimeout
+          !isEmergencyMeetingTimeout &&
+          !isGhost
       ) {
         callEmergencyMeeting(game.gameCode);
       } else if (event.code === "KeyG" && nearbyWalls.length > 0) {
