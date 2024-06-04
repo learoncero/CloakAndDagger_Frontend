@@ -78,7 +78,9 @@ export default function CreateGameFormInputField({
                 {selectedOption.label}
               </div>
             ) : (
-              <div className="text-left">Choose your color</div>
+              <div className="text-left text-slate-300 font-semibold">
+                Choose your color
+              </div>
             )}
           </button>
           {isOpen && (
