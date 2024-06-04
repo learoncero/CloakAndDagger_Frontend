@@ -19,6 +19,7 @@ export default function PlayerList({ playerId, playerList }: Props) {
               player.role === Role.CREWMATE_GHOST ||
               player.role === Role.IMPOSTOR_GHOST,
             color: player.playerColor,
+            key: player.id,
           })
         )}
       </ul>

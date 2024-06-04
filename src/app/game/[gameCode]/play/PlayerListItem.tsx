@@ -5,6 +5,7 @@ type Props = {
   currPlayer: boolean;
   isGhost: boolean;
   color: string;
+  key: number;
 };
 
 const playerIcons: { [key: string]: string } = {
@@ -22,9 +23,10 @@ export default function PlayerListItem({
   currPlayer,
   isGhost,
   color,
+  key
 }: Props) {
   return (
-    <li className="bg-gray-700 bg-opacity-70 rounded-md p-2 mb-2 flex items-center">
+    <li key={key} className="bg-gray-700 bg-opacity-70 rounded-md p-2 mb-2 flex items-center">
       <img src={playerIcons[color]} alt={color} className="w-6 h-6 mr-2" />
       {currPlayer ? (
         <span className="font-semibold text-cyan-500">{username}</span>
