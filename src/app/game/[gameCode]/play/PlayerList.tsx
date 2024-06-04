@@ -1,4 +1,4 @@
-import { Game, Player, Role } from "@/app/types";
+import { Player, Role } from "@/app/types";
 import PlayerListItem from "./PlayerListItem";
 
 type Props = {
