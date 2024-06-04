@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import CreateGameFormInputField from "./CreateGameFormInputField";
 import CreateGameFormSubmitButton from "./CreateGameFormSubmitButton";
-import JoinGameFormInputField from "@/app/game/setup/joinGame/JoinGameFormInputField";
 
 type Props = {
   onSubmit: (state: any, data: FormData) => Promise<any>;
@@ -12,14 +11,31 @@ export default function CreateGameForm({ onSubmit }: Props) {
   const [username, setUsername] = useState("");
   const [numPlayers, setNumPlayers] = useState(1);
   const [numImpostors, setNumImpostors] = useState(0);
-  const [map, setMap] = useState("DevMap1");
+  const [map, setMap] = useState("Spaceship");
   const [state, formAction] = useFormState(onSubmit, undefined);
   const [buttonDisabled, setButtonDisabled] = useState(true);
-  const [playerColor, setPlayerColor] = useState("");
+  const [playerColor, setPlayerColor] = useState("Choose your color");
   const [playerNameError, setPlayerNameError] = useState("");
-
   const hasResponse = state !== undefined;
   const hasError = hasResponse && state.status !== 200;
+
+  const idleOptions = [
+    { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
+    { value: "black", label: "Black", imgSrc: "/Sprites/Black/BlackIdle.png" },
+    { value: "blue", label: "Blue", imgSrc: "/Sprites/Blue/BlueIdle.png" },
+    { value: "pink", label: "Pink", imgSrc: "/Sprites/Pink/PinkIdle.png" },
+    {
+      value: "purple",
+      label: "Purple",
+      imgSrc: "/Sprites/Purple/PurpleIdle.png",
+    },
+    { value: "brown", label: "Brown", imgSrc: "/Sprites/Brown/BrownIdle.png" },
+    {
+      value: "turquoise",
+      label: "Turquoise",
+      imgSrc: "/Sprites/Turquoise/TurquoiseIdle.png",
+    },
+  ];
 
   function validateUsername(name: string) {
     const regex = /^[a-zA-Z0-9._-]+$/;
@@ -36,7 +52,14 @@ export default function CreateGameForm({ onSubmit }: Props) {
     const error = validateUsername(username);
     setPlayerNameError(error);
 
-    if (username && !error && numPlayers && numImpostors >= 0 && map) {
+    if (
+      username &&
+      !error &&
+      numPlayers &&
+      numImpostors >= 0 &&
+      map &&
+      playerColor != "Choose your color"
+    ) {
       if (numImpostors > numPlayers / 2) {
         setNumImpostors(Math.floor(numPlayers / 2));
       }
@@ -47,7 +70,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
     } else {
       setButtonDisabled(true);
     }
-  }, [username, numPlayers, numImpostors, map]);
+  }, [username, numPlayers, numImpostors, map, playerColor]);
 
   return (
     <form action={formAction}>
@@ -67,21 +90,14 @@ export default function CreateGameForm({ onSubmit }: Props) {
       )}
       <CreateGameFormInputField
         label="Player Color"
-        name={"playerColor"}
+        name="playerColor"
         value={playerColor}
         onChange={(e) => setPlayerColor(e.target.value)}
-        type={"select"}
         required={true}
-        options={[
-          "red",
-          "black",
-          "blue",
-          "pink",
-          "purple",
-          "brown",
-          "turquoise",
-        ]}
+        idleOptions={idleOptions}
+        type="select"
       />
+      <input type="hidden" name="playerColor" value={playerColor} />
       <CreateGameFormInputField
         label="Number of Players"
         name="numPlayers"
@@ -109,7 +125,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         onChange={(e) => setMap(e.target.value)}
         type="select"
         required={true}
-        options={["Spaceship", "Wormhole", "Jungle", "Basement"]}
+        textOptions={["Spaceship", "Wormhole", "Jungle", "Basement"]}
       />
       <CreateGameFormSubmitButton buttonDisabled={buttonDisabled} />
     </form>

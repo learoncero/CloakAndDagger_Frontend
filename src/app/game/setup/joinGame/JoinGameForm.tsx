@@ -13,6 +13,24 @@ export default function JoinGameForm() {
   const [playerNameError, setPlayerNameError] = useState("");
   const [gameCodeError, setGameCodeError] = useState("");
 
+  const idleOptions = [
+    { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
+    { value: "black", label: "Black", imgSrc: "/Sprites/Black/BlackIdle.png" },
+    { value: "blue", label: "Blue", imgSrc: "/Sprites/Blue/BlueIdle.png" },
+    { value: "pink", label: "Pink", imgSrc: "/Sprites/Pink/PinkIdle.png" },
+    {
+      value: "purple",
+      label: "Purple",
+      imgSrc: "/Sprites/Purple/PurpleIdle.png",
+    },
+    { value: "brown", label: "Brown", imgSrc: "/Sprites/Brown/BrownIdle.png" },
+    {
+      value: "turquoise",
+      label: "Turquoise",
+      imgSrc: "/Sprites/Turquoise/TurquoiseIdle.png",
+    },
+  ];
+
   const handlePlayerNameChange = (
     event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
   ) => {
@@ -133,15 +151,7 @@ export default function JoinGameForm() {
           type={"select"}
           placeholder={"Choose your Color"}
           required={true}
-          options={[
-            "red",
-            "black",
-            "blue",
-            "pink",
-            "purple",
-            "brown",
-            "turquoise",
-          ]}
+          options={idleOptions}
         />
         <JoinGameFormSubmitButton isJoinDisabled={isJoinDisabled} />
       </form>
