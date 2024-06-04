@@ -101,6 +101,15 @@ export default function JoinGameForm() {
           maxLength={20}
         />
         <JoinGameFormInputField
+            name={"playerColor"}
+            value={playerColor}
+            onChange={handlePlayerColorChange}
+            type={"select"}
+            placeholder={"Choose your Color"}
+            required={true}
+            options={idleOptions}
+        />
+        <JoinGameFormInputField
           name={"gameCode"}
           value={gameCode}
           onChange={handleGameCodeChange}
@@ -108,15 +117,6 @@ export default function JoinGameForm() {
           placeholder={"Enter game code"}
           maxLength={6}
           required={true}
-        />
-        <JoinGameFormInputField
-          name={"playerColor"}
-          value={playerColor}
-          onChange={handlePlayerColorChange}
-          type={"select"}
-          placeholder={"Choose your Color"}
-          required={true}
-          options={idleOptions}
         />
         <JoinGameFormSubmitButton isJoinDisabled={isJoinDisabled} />
       </form>
