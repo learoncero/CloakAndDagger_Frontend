@@ -12,7 +12,7 @@ export default function VentIconDisplay ({
     role,
     isVisible,
  }: VentProps) {
-    const isImpostor = (role == Role.IMPOSTOR);
+    const isImpostor = (role == Role.IMPOSTOR) || (role == Role.IMPOSTOR_GHOST);
     return (
         <div className={`flex place-content-center w-full h-full z-10 ${!isVisible ? "opacity-20" : ""}`}>
             <Image
