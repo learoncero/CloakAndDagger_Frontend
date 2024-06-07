@@ -12,13 +12,10 @@ export default function useNearbyWall(
 
   useEffect(() => {
     const filterNearbyWalls = () => {
-      console.log("Current Player Position:", currentPlayerPosition);
       const walls = sabotages
           .filter((sabotage) => sabotage.id === 4 && sabotage.wallPositions)
           .flatMap((sabotage) => sabotage.wallPositions)
           .flat();
-
-      console.log("All Walls:", walls);
 
       const filteredWalls = walls.filter(
           (wallPosition) =>
@@ -26,12 +23,8 @@ export default function useNearbyWall(
               Math.abs(wallPosition.y - currentPlayerPosition.y) <= range
       );
 
-      console.log("Filtered Walls:", filteredWalls);
-
       setNearbyWalls(filteredWalls);
     };
-
-    filterNearbyWalls();
 
     const filterInterval = setInterval(filterNearbyWalls, 200);
 

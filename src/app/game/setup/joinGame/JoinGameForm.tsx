@@ -131,6 +131,15 @@ export default function JoinGameForm() {
           </div>
         )}
         <JoinGameFormInputField
+            name={"playerColor"}
+            value={playerColor}
+            onChange={handlePlayerColorChange}
+            type={"select"}
+            placeholder={"Choose your Color"}
+            required={true}
+            options={idleOptions}
+        />
+        <JoinGameFormInputField
           name={"gameCode"}
           value={gameCode}
           onChange={handleGameCodeChange}
@@ -144,15 +153,6 @@ export default function JoinGameForm() {
             <div className="text-red-600 text-sm mb-4 ">{gameCodeError}</div>
           </div>
         )}
-        <JoinGameFormInputField
-          name={"playerColor"}
-          value={playerColor}
-          onChange={handlePlayerColorChange}
-          type={"select"}
-          placeholder={"Choose your Color"}
-          required={true}
-          options={idleOptions}
-        />
         <JoinGameFormSubmitButton isJoinDisabled={isJoinDisabled} />
       </form>
       <Toaster />

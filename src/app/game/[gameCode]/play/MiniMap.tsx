@@ -3,6 +3,7 @@ import { Player, Sabotage, Task } from "@/app/types";
 import SabotageIconDisplay from "@/app/game/[gameCode]/play/SabotageIconDisplay";
 import TaskIconDisplay from "@/app/game/[gameCode]/play/TaskIconDisplay";
 import EmergencyButtonDisplay from "./EmergencyButtonDisplay";
+import VentIconDisplay from "@/app/game/[gameCode]/play/VentIconDisplay";
 
 type Props = {
   map: string[][];
@@ -59,33 +60,34 @@ const MiniMap: React.FC<Props> = ({
   }
 
   return (
-      <div className="w-[1150px] h-[565px]">
-        {map.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex">
-              {row.map((cell, cellIndex) => {
-                const isVisible =
-                    cellIndex >= startX &&
-                    cellIndex < endX &&
-                    rowIndex >= startY &&
-                    rowIndex < endY;
-                const isPlayerHere = playerList.some(
-                    (player) =>
-                        player.playerPosition.x === cellIndex &&
-                        player.playerPosition.y === rowIndex
-                );
-                const cellWidth = Math.floor(1150 / row.length); // Rundet das Ergebnis ab
-                const cellHeight = Math.floor(565 / map.length);
-                const taskInCell = tasks.find(
-                    (task) =>
-                        task.position.x === cellIndex && task.position.y === rowIndex
-                );
-                const sabotageInCell = sabotages.find(
-                    (sabotage) =>
-                        sabotage.position &&
-                        sabotage.position.x === cellIndex &&
-                        sabotage.position.y === rowIndex
-                );
-
+    <div className="w-[1150px] h-[565px]">
+      {map.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex">
+          {row.map((cell, cellIndex) => {
+            const isVisible =
+              cellIndex >= startX &&
+              cellIndex < endX &&
+              rowIndex >= startY &&
+              rowIndex < endY;
+            const isPlayerHere = playerList.some(
+              (player) =>
+                player.playerPosition.x === cellIndex &&
+                player.playerPosition.y === rowIndex
+            );
+            const cellWidth = Math.floor(1150 / row.length); //Rundet das Ergebnis ab
+            const cellHeight = Math.floor(565 / map.length);
+            const taskInCell = tasks.find(
+              (task) =>
+                task.position.x === cellIndex && task.position.y === rowIndex
+            );
+            const sabotageInCell = sabotages.find(
+              (sabotage) =>
+                sabotage.position &&
+                sabotage.position.x === cellIndex &&
+                sabotage.position.y === rowIndex
+            );
+            const cellNumValue = parseInt(cell);
+            const ventInCell = cellNumValue.valueOf() >= 0 && cellNumValue.valueOf() <= 9;
                 return (
                     <div
                         key={cellIndex}
@@ -116,6 +118,12 @@ const MiniMap: React.FC<Props> = ({
                     isTaskInteractable={false}
                     role={currentPlayer.role}
                   />
+                )}
+                {ventInCell && (
+                  <VentIconDisplay
+                    isVentInteractable={false}
+                    isVisible={isVisible}
+                    />
                 )}
                 {cell === "E" && (
                   <EmergencyButtonDisplay

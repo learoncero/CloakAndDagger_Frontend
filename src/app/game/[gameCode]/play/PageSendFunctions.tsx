@@ -149,12 +149,24 @@ export function sendCancelSabotageMessage({stompClient, impostorWinTimer, gameCo
     }
 }
 
+type VentUsageProps = {
+    stompClient: any,
+    gameCode: string,
+    playerId: number,
+};
+export function sendVentUsageMessage({stompClient, gameCode, playerId}: VentUsageProps) {
+    const ventUsageMessage = {
+        gameCode: gameCode,
+        playerId: playerId,
+    };
+    stompClient.send(`/app/game/${gameCode}/useVent`, {}, JSON.stringify(ventUsageMessage));
+}
+
 type DuelChoiceProps = {
     stompClient: any,
     gameCode: string,
     choice: string,
 };
-
 export function sendDuelChoiceMessage({ stompClient, gameCode, choice }: DuelChoiceProps) {
     const duelChoiceMessage = {
         gameCode: gameCode,
@@ -164,4 +176,3 @@ export function sendDuelChoiceMessage({ stompClient, gameCode, choice }: DuelCho
         stompClient.send(`/app/game/${gameCode}/submitDuelChoice`, {}, JSON.stringify(duelChoiceMessage));
     }
 }
-

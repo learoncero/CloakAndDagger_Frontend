@@ -37,6 +37,7 @@ type Props = {
   handleShowTaskPopup: (show: boolean) => void;
   showBodyReported: boolean;
   handleShowBodyReported: (show: boolean) => void;
+  handleVentUsage: (gameCode: string, id: number) => void;
   showChat: boolean;
   stompClient: any;
   showEmergencyMeeting: boolean;
@@ -46,27 +47,31 @@ type Props = {
 };
 
 export default function GameView({
-                                   game,
-                                   map,
-                                   currentPlayer,
-                                   getSabotagePosition,
-                                   handleCancelSabotage,
-                                   killPlayer,
-                                   reportBody,
-                                   handleTaskCompleted,
-                                   showTaskPopup,
-                                   handleShowTaskPopup,
-                                   showBodyReported,
-                                   handleShowBodyReported,
-                                   showChat,
-                                   showEmergencyMeeting,
-                                   callEmergencyMeeting,
-                                   handleEmergencyMeeting,
-                                   isEmergencyMeetingTimeout,
-                                   stompClient,
-                                 }: Props) {
+  game,
+  map,
+  currentPlayer,
+  getSabotagePosition,
+  handleCancelSabotage,
+  killPlayer,
+  reportBody,
+  handleTaskCompleted,
+  showTaskPopup,
+  handleShowTaskPopup,
+  showBodyReported,
+  handleShowBodyReported,
+  handleVentUsage,
+  showChat,
+  showEmergencyMeeting,
+  callEmergencyMeeting,
+  handleEmergencyMeeting,
+  isEmergencyMeetingTimeout,
+  stompClient,
+}: Props) {
   const isImpostor =
       currentPlayer?.role == Role.IMPOSTOR ||
+      currentPlayer?.role == Role.IMPOSTOR_GHOST;
+  const isGhost =
+      currentPlayer?.role == Role.CREWMATE_GHOST ||
       currentPlayer?.role == Role.IMPOSTOR_GHOST;
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isTimer, setIsTimer] = useState(false);
@@ -182,10 +187,12 @@ export default function GameView({
           icon: "⚠️",
         });
       } else if (
-          (event.key === "m" || event.key === "M" || event.key === "q" || event.key === "Q") &&
-          !showChat
-      ) {
-        setShowMiniMap((prev) => !prev);
+        (event.key === "m" ||
+        event.key === "M" ||
+        event.key === "q" ||
+        event.key === "Q") &&
+        !showChat) {
+          setShowMiniMap((prev) => !prev);
       }
       if (event.code === "KeyR") {
         handleReportBody();
@@ -194,7 +201,8 @@ export default function GameView({
           !showChat &&
           !showMiniMap &&
           !showEmergencyMeeting &&
-          !isEmergencyMeetingTimeout
+          !isEmergencyMeetingTimeout &&
+          !isGhost
       ) {
         callEmergencyMeeting(game.gameCode);
       } else if (event.code === "KeyG" && nearbyWalls.length > 0) {
@@ -258,6 +266,9 @@ export default function GameView({
         } else if (status.data === true && showTaskPopup) {
           await handleToggleTaskPopup();
         }
+      }
+      if(event.code === "KeyV" && isImpostor && !showMiniMap && !showMiniMap) {
+        handleVentUsage(game.gameCode, currentPlayer.id);
       }
     };
 
