@@ -31,7 +31,6 @@ export default function useNearbyWall(
       setNearbyWalls(filteredWalls);
     };
 
-    filterNearbyWalls();
 
     const filterInterval = setInterval(filterNearbyWalls, 200);
 
