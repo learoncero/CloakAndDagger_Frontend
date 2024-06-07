@@ -59,7 +59,7 @@ export default function MapDisplay({
     );
   };
 
-  const isCrewmate = currentPlayer.role === 'CREWMATE';
+  const isCrewmate = currentPlayer.role === 'CREWMATE' || currentPlayer.role === 'CREWMATE_GHOST';
   const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.playerPosition;
