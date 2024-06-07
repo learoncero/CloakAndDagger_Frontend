@@ -21,7 +21,6 @@ export default function useNearbyPlayers(
       );
       setNearbyPlayers(filteredEntities);
     };
-    filterNearbyEntities();
 
     const filterInterval = setInterval(filterNearbyEntities, 200);
 
