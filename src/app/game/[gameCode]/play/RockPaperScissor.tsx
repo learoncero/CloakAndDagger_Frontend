@@ -35,7 +35,7 @@ const RockPaperScissor: React.FC<Props> = ({ stompClient, gameCode, onConfirm, o
                 <div className="flex flex-col items-center bg-black rounded-lg p-8 max-w-md">
                     <div className="text-center mb-4">
                         <p className="text-xl font-bold text-white">Thug:</p>
-                        <p className="text-lg text-white">"Let's settle this like real fighters! Rock, Paper, Scissors, now!"</p>
+                        <p className="text-lg text-white">Let us settle this like real fighters! Rock, Paper, Scissors, now!</p>
                     </div>
                     <h2 className="text-2xl font-bold mb-4 text-white">Choose Rock, Paper, or Scissors</h2>
                     <div className="flex gap-4 mb-4">
