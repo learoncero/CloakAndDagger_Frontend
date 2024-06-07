@@ -21,6 +21,7 @@ import {
   sendMovePlayerMessage,
   sendReportBodyMessage,
   sendSabotageMessage,
+  sendVentUsageMessage,
   sendDuelChoiceMessage,
 } from "./PageSendFunctions";
 
@@ -234,6 +235,10 @@ export default function PlayGame() {
   function handleCancelSabotage() {
     sendCancelSabotageMessage({ stompClient, impostorWinTimer, gameCode });
   }
+  function handleVentUsage(gameCode: string, playerId: number) {
+    console.log("Vent usage");
+    sendVentUsageMessage({stompClient, gameCode, playerId});
+  }
 
   function handleEmergencyMeeting(value: boolean) {
     setShowEmergencyMeeting(value);
@@ -293,33 +298,34 @@ export default function PlayGame() {
                   Return to Landing Page
                 </BackLink>
               </Modal>
-        ) : currentPlayer ? (
-          <GameView
-            game={game}
-            map={map.map}
-            currentPlayer={currentPlayer}
-            showTaskPopup={showTaskPopup}
-            getSabotagePosition={getSabotagePosition}
-            handleCancelSabotage={handleCancelSabotage}
-            killPlayer={killPlayer}
-            reportBody={reportBody}
-            handleTaskCompleted={handleTaskCompleted}
-            handleShowTaskPopup={setShowTaskPopup}
-            showBodyReported={showBodyReported}
-            handleShowBodyReported={setShowBodyReported}
-            showChat={showChat}
-            showEmergencyMeeting={showEmergencyMeeting}
-            callEmergencyMeeting={callEmergencyMeeting}
-            handleEmergencyMeeting={handleEmergencyMeeting}
-            isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
-            stompClient={stompClient}
-          />
-        ) : (
-          <div>No Player Data Found</div>
-        )}
-      </div>
-      <Toaster />
-    </AnimationProvider>
+          ) : currentPlayer ? (
+              <GameView
+                  game={game}
+                  map={map.map}
+                  currentPlayer={currentPlayer}
+                  showTaskPopup={showTaskPopup}
+                  getSabotagePosition={getSabotagePosition}
+                  handleCancelSabotage={handleCancelSabotage}
+                  killPlayer={killPlayer}
+                  reportBody={reportBody}
+                  handleTaskCompleted={handleTaskCompleted}
+                  handleShowTaskPopup={setShowTaskPopup}
+                  showBodyReported={showBodyReported}
+                  handleShowBodyReported={setShowBodyReported}
+                  handleVentUsage={handleVentUsage}
+                  showChat={showChat}
+                  showEmergencyMeeting={showEmergencyMeeting}
+                  callEmergencyMeeting={callEmergencyMeeting}
+                  handleEmergencyMeeting={handleEmergencyMeeting}
+                  isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+                  stompClient={stompClient}
+              />
+          ) : (
+              <div>No Player Data Found</div>
+          )}
+        </div>
+        <Toaster />
+      </AnimationProvider>
   );
 }
 

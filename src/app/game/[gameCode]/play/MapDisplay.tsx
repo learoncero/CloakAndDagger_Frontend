@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Player, Task, Sabotage } from '@/app/types';
-import EmergencyButtonDisplay from './EmergencyButtonDisplay';
-import TaskIconDisplay from './TaskIconDisplay';
-import SabotageIconDisplay from './SabotageIconDisplay';
-import { DeadBody, PlayerSprites } from './PlayerSprites';
+import React, { useEffect, useState } from "react";
+import { Player, Task, Sabotage } from "@/app/types";
+import EmergencyButtonDisplay from "./EmergencyButtonDisplay";
+import TaskIconDisplay from "./TaskIconDisplay";
+import SabotageIconDisplay from "./SabotageIconDisplay";
+import { DeadBody, PlayerSprites } from "./PlayerSprites";
+import VentIconDisplay from "./VentIconDisplay";
 import Wall from './Wall';
+import {number} from "prop-types";
 
 type Props = {
   map: string[][];
@@ -57,7 +59,7 @@ export default function MapDisplay({
     );
   };
 
-  const isCrewmate = currentPlayer.role === 'CREWMATE';
+  const isCrewmate = currentPlayer.role === 'CREWMATE' || currentPlayer.role === 'CREWMATE_GHOST';
   const viewportSize = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 5 : 4 * 2 + 1;
   const halfViewport = Math.floor(viewportSize / 2);
   const { x, y } = currentPlayer.playerPosition;
@@ -102,107 +104,141 @@ export default function MapDisplay({
   const activeWallSabotage = sabotages.find((sabotage) => sabotage.id === 4);
 
   return (
-      <div className="relative border-3 border-black">
-        {map.slice(startY, endY).map((row, rowIndex) => (
-            <div key={rowIndex} className="flex">
-              {row.slice(startX, endX).map((cell, cellIndex) => {
-                const cellPosX = cellIndex + startX;
-                const cellPosY = rowIndex + startY;
-                const isPlayerHere = visiblePlayers.some(
-                    (player) => player.playerPosition.x === cellPosX && player.playerPosition.y === cellPosY
-                );
-                const deadBodyHere = playerList.some(
-                    (player) => player.deadBodyPosition.x === cellPosX && player.deadBodyPosition.y === cellPosY
-                );
-                const taskInCell = tasks.find(
-                    (task) => task.position.x === cellPosX && task.position.y === cellPosY
-                );
-                const sabotageInCell = sabotages.find(
-                    (sabotage) => sabotage.position.x === cellPosX && sabotage.position.y === cellPosY
-                );
-                const isButtonInteractable = isAdjacent(
-                    currentPlayer.playerPosition.x,
-                    currentPlayer.playerPosition.y,
-                    cellPosX,
-                    cellPosY
-                );
+    <div className="relative border-3 border-black">
+      {map.slice(startY, endY).map((row, rowIndex) => (
+        <div key={rowIndex} className="flex">
+          {row.slice(startX, endX).map((cell, cellIndex) => {
+            const cellPosX = cellIndex + startX;
+            const cellPosY = rowIndex + startY;
+            const isPlayerHere = visiblePlayers.some(
+              (player) =>
+                player.playerPosition.x === cellPosX &&
+                player.playerPosition.y === cellPosY
+            );
+            const deadBodyHere = playerList.some(
+              (player) =>
+                player.deadBodyPosition.x === cellPosX &&
+                player.deadBodyPosition.y === cellPosY
+            );
+            const taskInCell = tasks.find(
+              (task) =>
+                task.position.x === cellPosX && task.position.y === cellPosY
+            );
+            const sabotageInCell = sabotages.find(
+              (sabotage) =>
+                sabotage.position.x === cellPosX &&
+                sabotage.position.y === cellPosY
+            );
 
-                const isSabotageInteractable = isAdjacent(
-                    currentPlayer.playerPosition.x,
-                    currentPlayer.playerPosition.y,
-                    cellPosX,
-                    cellPosY
-                );
-                const isWallInteractable = isAdjacent(
-                    currentPlayer.playerPosition.x,
-                    currentPlayer.playerPosition.y,
-                    cellPosX,
-                    cellPosY
-                );
-                const isTaskInteractable =
-                    !!nearbyTask &&
-                    (currentPlayer.role === 'CREWMATE' || currentPlayer.role === 'CREWMATE_GHOST');
+            const cellNumValue = parseInt(cell);
+            const ventInCell = cellNumValue.valueOf() >= 0 && cellNumValue.valueOf() <= 9;
 
-                return (
-                    <div
-                        key={cellIndex}
-                        className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
-                              ${cell != '#' ? 'bg-gray-400' : 'bg-red-950'} relative`}
-                    >
-                      {isPlayerHere &&
-                          playerList
-                              .filter(
-                                  (player) =>
-                                      player.playerPosition.x === cellPosX && player.playerPosition.y === cellPosY
-                              )
-                              .map((player) => (
-                                  <PlayerSprites
-                                      key={player.id}
-                                      player={player}
-                                      currentPlayerRole={currentPlayer.role}
-                                  />
-                              ))}
-                      {deadBodyHere &&
-                          playerList
-                              .filter(
-                                  (player) =>
-                                      player.deadBodyPosition.x === cellPosX &&
-                                      player.deadBodyPosition.y === cellPosY
-                              )
-                              .map((player) => (
-                                  <DeadBody key={player.id} playerColor={player.playerColor} />
-                              ))}
+            const isButtonInteractable = isAdjacent(
+              currentPlayer.playerPosition.x,
+              currentPlayer.playerPosition.y,
+              cellPosX,
+              cellPosY
+            );
 
-                        {taskInCell !== undefined && (
-                            <TaskIconDisplay
-                                completed={taskInCell.completed}
-                                isTaskInteractable={isTaskInteractable}
-                                role={currentPlayer.role}
-                            />
-                        )}
-                        {sabotageInCell !== undefined && (
-                            <SabotageIconDisplay
-                                isSabotageInteractable={isSabotageInteractable}
-                                isVisible={true}
-                            />
-                        )}
-                        {cell === "E" && (
-                            <EmergencyButtonDisplay
-                                isButtonInteractable={isButtonInteractable}
-                                isVisible={true}
-                                isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
-                            />
-                        )}
-                      {activeWallSabotage &&
-                          activeWallSabotage.wallPositions &&
-                          activeWallSabotage.wallPositions.flat().some(
-                              (pos: { x: number; y: number }) => pos.x === cellPosX && pos.y === cellPosY
-                          ) && <Wall isWallInteractable={isWallInteractable} />}
-                    </div>
+            const isSabotageInteractable = isAdjacent(
+              currentPlayer.playerPosition.x,
+              currentPlayer.playerPosition.y,
+              cellPosX,
+              cellPosY
+            );
+            
+            const isWallInteractable = isAdjacent(
+              currentPlayer.playerPosition.x,
+              currentPlayer.playerPosition.y,
+              cellPosX,
+              cellPosY
+            );
+
+            const isTaskInteractable =
+              !!nearbyTask &&
+              (currentPlayer.role === "CREWMATE" ||
+                currentPlayer.role === "CREWMATE_GHOST");
+
+            const isVentInteractable = isAdjacent(
+                currentPlayer.playerPosition.x,
+                currentPlayer.playerPosition.y,
+                cellPosX,
+                cellPosY
                 );
-              })}
-            </div>
-        ))}
-      </div>
+            return (
+              <div
+                key={cellIndex}
+                className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 border border-1 border-gray-300 box-border 
+                                  ${
+                                    cell != "#" ? "bg-gray-400" : "bg-red-950"
+                                  } relative`}
+              >
+                {isPlayerHere &&
+                  playerList
+                    .filter(
+                      (player) =>
+                        player.playerPosition.x === cellPosX &&
+                        player.playerPosition.y === cellPosY
+                    )
+                    .map((player) => (
+                      <PlayerSprites
+                        key={player.id}
+                        player={player}
+                        currentPlayerRole={currentPlayer.role}
+                      />
+                    ))}
+                {deadBodyHere &&
+                  playerList
+                    .filter(
+                      (player) =>
+                        player.deadBodyPosition.x === cellPosX &&
+                        player.deadBodyPosition.y === cellPosY
+                    )
+                    .map((player) => (
+                      <DeadBody
+                        key={player.id}
+                        playerColor={player.playerColor}
+                      />
+                    ))}
+
+                {taskInCell !== undefined && (
+                  <TaskIconDisplay
+                    completed={taskInCell.completed}
+                    isTaskInteractable={isTaskInteractable}
+                    role={currentPlayer.role}
+                  />
+                )}
+                {sabotageInCell !== undefined && (
+                  <SabotageIconDisplay
+                    isSabotageInteractable={isSabotageInteractable}
+                    isVisible={true}
+                  />
+                )}
+                {cell === "E" && (
+                  <EmergencyButtonDisplay
+                    isButtonInteractable={isButtonInteractable}
+                    isVisible={true}
+                    isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+                  />
+                )}
+
+                {ventInCell && (
+                  <VentIconDisplay
+                      isVentInteractable={isVentInteractable}
+                      role={currentPlayer.role}
+                      isVisible={true}
+                  />
+                )}
+                {activeWallSabotage &&
+                 activeWallSabotage.wallPositions &&
+                 activeWallSabotage.wallPositions.flat().some(
+                  (pos: { x: number; y: number }) => pos.x === cellPosX && pos.y === cellPosY) && 
+                 <Wall isWallInteractable={isWallInteractable} />}
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
   );
 }
