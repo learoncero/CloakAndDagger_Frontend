@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import JoinGameFormInputField from "./JoinGameFormInputField";
 import { useRouter } from "next/navigation";
 import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
@@ -9,8 +9,9 @@ export default function JoinGameForm() {
   const router = useRouter();
   const [playerName, setPlayerName] = useState("");
   const [gameCode, setGameCode] = useState("");
-  const [playerColor, setPlayerColor] = useState("Choose your color");
-  const [isJoinDisabled, setIsJoinDisabled] = useState(true);
+  const [playerColor, setPlayerColor] = useState("");
+  const [playerNameError, setPlayerNameError] = useState("");
+  const [gameCodeError, setGameCodeError] = useState("");
 
   const idleOptions = [
     { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
@@ -34,12 +35,14 @@ export default function JoinGameForm() {
     event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
   ) => {
     setPlayerName(event.target.value);
+    setPlayerNameError(validateUsername(event.target.value));
   };
 
   const handleGameCodeChange = (
     event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
   ) => {
     setGameCode(event.target.value);
+    setGameCodeError(validateGameCode(event.target.value));
   };
 
   const handlePlayerColorChange = (
@@ -48,13 +51,35 @@ export default function JoinGameForm() {
     setPlayerColor(event.target.value);
   };
 
-  useEffect(() => {
-    if (playerName && gameCode && playerColor !== "Choose your color") {
-      setIsJoinDisabled(false);
-    } else {
-      setIsJoinDisabled(true);
+  function validateUsername(name: string) {
+    const regex = /^[a-zA-Z0-9._-]+$/;
+    if (!name) {
+      return "";
     }
-  }, [playerName, gameCode, playerColor]);
+    if (!regex.test(name)) {
+      return "Username can only contain letters, numbers, -, ., and _.";
+    }
+    return "";
+  }
+
+  function validateGameCode(gameCode: string) {
+    const regex = /^[A-Z0-9]+$/;
+    if (!gameCode) {
+      return "";
+    }
+    if (!regex.test(gameCode)) {
+      return "Game code can only contain letters (A-Z) and numbers (0-9).";
+    }
+    return "";
+  }
+
+  const isJoinDisabled = !(
+    playerName &&
+    gameCode &&
+    playerColor &&
+    !playerNameError &&
+    !gameCodeError
+  );
 
   const handleJoinGame = async () => {
     if (!isJoinDisabled) {
@@ -100,6 +125,11 @@ export default function JoinGameForm() {
           required={true}
           maxLength={20}
         />
+        {playerNameError && (
+          <div style={{ maxWidth: "25rem" }}>
+            <div className="text-red-600 text-sm mb-4 ">{playerNameError}</div>
+          </div>
+        )}
         <JoinGameFormInputField
             name={"playerColor"}
             value={playerColor}
@@ -118,6 +148,11 @@ export default function JoinGameForm() {
           maxLength={6}
           required={true}
         />
+        {gameCodeError && (
+          <div style={{ maxWidth: "25rem" }}>
+            <div className="text-red-600 text-sm mb-4 ">{gameCodeError}</div>
+          </div>
+        )}
         <JoinGameFormSubmitButton isJoinDisabled={isJoinDisabled} />
       </form>
       <Toaster />

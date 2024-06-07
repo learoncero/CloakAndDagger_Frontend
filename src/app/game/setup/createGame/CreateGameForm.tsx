@@ -15,9 +15,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
   const [state, formAction] = useFormState(onSubmit, undefined);
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [playerColor, setPlayerColor] = useState("Choose your color");
-
-  // Check if the form has a response and if the response status is not 200
-  // Todo: should we handle error?
+  const [playerNameError, setPlayerNameError] = useState("");
   const hasResponse = state !== undefined;
   const hasError = hasResponse && state.status !== 200;
 
@@ -39,13 +37,28 @@ export default function CreateGameForm({ onSubmit }: Props) {
     },
   ];
 
+  function validateUsername(name: string) {
+    const regex = /^[a-zA-Z0-9._-]+$/;
+    if (!name) {
+      return "";
+    }
+    if (!regex.test(name)) {
+      return "Username can only contain letters, numbers, -, ., and _.";
+    }
+    return "";
+  }
+
   useEffect(() => {
+    const error = validateUsername(username);
+    setPlayerNameError(error);
+
     if (
       username &&
+      !error &&
       numPlayers &&
       numImpostors >= 0 &&
       map &&
-      playerColor !== "Choose your color"
+      playerColor != "Choose your color"
     ) {
       if (numImpostors > numPlayers / 2) {
         setNumImpostors(Math.floor(numPlayers / 2));
@@ -70,6 +83,11 @@ export default function CreateGameForm({ onSubmit }: Props) {
         required={true}
         maxLength={20}
       />
+      {playerNameError && (
+        <div style={{ maxWidth: "15rem" }}>
+          <div className="text-red-600 text-sm mb-4 ">{playerNameError}</div>
+        </div>
+      )}
       <CreateGameFormInputField
         label="Player Color"
         name="playerColor"
