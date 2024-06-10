@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import CreateGameFormInputField from "./CreateGameFormInputField";
 import CreateGameFormSubmitButton from "./CreateGameFormSubmitButton";
+import CreateGameFormRadioButtons from "./CreateGameFormRadioButtons";
 
 type Props = {
   onSubmit: (state: any, data: FormData) => Promise<any>;
@@ -74,6 +75,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
 
   return (
     <form action={formAction}>
+      <CreateGameFormRadioButtons />
       <CreateGameFormInputField
         label="Player Name"
         name="username"
