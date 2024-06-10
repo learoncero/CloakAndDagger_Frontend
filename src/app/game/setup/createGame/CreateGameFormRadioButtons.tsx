@@ -29,8 +29,8 @@ export default function CreateGameFormRadioButton() {
               : "border-gray-700 hover:bg-gray-800"
           }`}
         >
-          <div className="block">
-            <div className="w-full text-lg font-semibold">Private</div>
+          <div className="flex justify-center items-center w-full">
+            <div className="text-lg font-semibold">PRIVATE</div>
           </div>
         </label>
       </li>
@@ -53,8 +53,8 @@ export default function CreateGameFormRadioButton() {
               : "border-gray-700 hover:bg-gray-800"
           }`}
         >
-          <div className="block">
-            <div className="w-full text-lg font-semibold">Public</div>
+          <div className="flex justify-center items-center w-full">
+            <div className="text-lg font-semibold">PUBLIC</div>
           </div>
         </label>
       </li>

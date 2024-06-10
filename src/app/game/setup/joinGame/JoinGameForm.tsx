@@ -5,7 +5,11 @@ import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
 import GameService from "@/services/GameService";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function JoinGameForm() {
+type Props = {
+  gameModeIndex: number;
+};
+
+export default function JoinGameForm({ gameModeIndex }: Props) {
   const router = useRouter();
   const [playerName, setPlayerName] = useState("");
   const [gameCode, setGameCode] = useState("");
@@ -131,23 +135,25 @@ export default function JoinGameForm() {
           </div>
         )}
         <JoinGameFormInputField
-            name={"playerColor"}
-            value={playerColor}
-            onChange={handlePlayerColorChange}
-            type={"select"}
-            placeholder={"Choose your Color"}
-            required={true}
-            options={idleOptions}
-        />
-        <JoinGameFormInputField
-          name={"gameCode"}
-          value={gameCode}
-          onChange={handleGameCodeChange}
-          type={"text"}
-          placeholder={"Enter game code"}
-          maxLength={6}
+          name={"playerColor"}
+          value={playerColor}
+          onChange={handlePlayerColorChange}
+          type={"select"}
+          placeholder={"Choose your Color"}
           required={true}
+          options={idleOptions}
         />
+        {gameModeIndex === 0 && (
+          <JoinGameFormInputField
+            name={"gameCode"}
+            value={gameCode}
+            onChange={handleGameCodeChange}
+            type={"text"}
+            placeholder={"Enter game code"}
+            maxLength={6}
+            required={true}
+          />
+        )}
         {gameCodeError && (
           <div style={{ maxWidth: "25rem" }}>
             <div className="text-red-600 text-sm mb-4 ">{gameCodeError}</div>
