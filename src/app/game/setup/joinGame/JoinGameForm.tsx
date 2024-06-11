@@ -14,7 +14,7 @@ export default function JoinGameForm() {
   const [playerColor, setPlayerColor] = useState("");
   const [playerNameError, setPlayerNameError] = useState("");
   const [gameCodeError, setGameCodeError] = useState("");
-  const [selectedOption, setSelectedOption] = useState(GameMode.PRIVATE);
+  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.PRIVATE);
 
   const idleOptions = [
     { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
@@ -54,10 +54,10 @@ export default function JoinGameForm() {
     setPlayerColor(event.target.value);
   };
 
-  const handleOptionChange = (event: {
+  const handleGameModeChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
-    setSelectedOption(event.target.value as GameMode);
+    setSelectedGameMode(event.target.value as GameMode);
   };
 
   function validateUsername(name: string) {
@@ -84,22 +84,20 @@ export default function JoinGameForm() {
 
   const isJoinDisabled = !(
     playerName &&
-    gameCode &&
     playerColor &&
     !playerNameError &&
-    !gameCodeError
+    (selectedGameMode === GameMode.PUBLIC || (gameCode && !gameCodeError))
   );
 
   const handleJoinGame = async () => {
     if (!isJoinDisabled) {
       try {
-        let game;
-        if (selectedOption === GameMode.PRIVATE) {
-          game = await GameService.joinGame(playerName, gameCode, playerColor);
-        } else {
-          game = await GameService.joinGame(playerName, gameCode, playerColor);
-        }
-
+        const game = await GameService.joinGame(
+          playerName,
+          gameCode,
+          playerColor,
+          selectedGameMode
+        );
         const playerId = game.data?.players.find(
           (player: { username: string }) => player.username === playerName
         )?.id;
@@ -108,7 +106,7 @@ export default function JoinGameForm() {
           window.sessionStorage.setItem("playerId", String(playerId));
         }
 
-        router.push("/game/setup/lobby/" + gameCode);
+        router.push("/game/setup/lobby/" + game.data?.gameCode);
       } catch (error: any) {
         toast(`Error joining game: ${error.message}`, {
           position: "bottom-right",
@@ -128,8 +126,8 @@ export default function JoinGameForm() {
     <div className="w-96 flex flex-col space-y-4">
       <form action={handleJoinGame}>
         <JoinGameFormRadioButtons
-          selectedOption={selectedOption}
-          handleOptionChange={handleOptionChange}
+          selectedGameMode={selectedGameMode}
+          handleGameModeChange={handleGameModeChange}
         />
         <JoinGameFormInputField
           name={"playerName"}
@@ -154,7 +152,7 @@ export default function JoinGameForm() {
           required={true}
           options={idleOptions}
         />
-        {selectedOption === GameMode.PRIVATE && (
+        {selectedGameMode === GameMode.PRIVATE && (
           <JoinGameFormInputField
             name={"gameCode"}
             value={gameCode}
@@ -162,7 +160,7 @@ export default function JoinGameForm() {
             type={"text"}
             placeholder={"Enter game code"}
             maxLength={6}
-            required={true}
+            required={selectedGameMode === GameMode.PRIVATE}
           />
         )}
         {gameCodeError && (

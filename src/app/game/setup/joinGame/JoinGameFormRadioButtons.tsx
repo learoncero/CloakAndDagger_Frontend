@@ -2,13 +2,13 @@ import { GameMode } from "@/app/types";
 import React from "react";
 
 type Props = {
-  selectedOption: string;
-  handleOptionChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedGameMode: GameMode;
+  handleGameModeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 export default function JoinGameFormRadioButtons({
-  selectedOption,
-  handleOptionChange,
+  selectedGameMode,
+  handleGameModeChange,
 }: Props) {
   return (
     <ul className="grid w-full gap-6 md:grid-cols-2 mb-4">
@@ -19,13 +19,13 @@ export default function JoinGameFormRadioButtons({
           name="gameMode"
           value={GameMode.PRIVATE}
           className="hidden peer"
-          checked={selectedOption === GameMode.PRIVATE}
-          onChange={handleOptionChange}
+          checked={selectedGameMode === GameMode.PRIVATE}
+          onChange={handleGameModeChange}
         />
         <label
           htmlFor="private"
           className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2 ${
-            selectedOption === GameMode.PRIVATE
+            selectedGameMode === GameMode.PRIVATE
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
           }`}
@@ -42,14 +42,14 @@ export default function JoinGameFormRadioButtons({
           name="gameMode"
           value={GameMode.PUBLIC}
           className="hidden peer"
-          checked={selectedOption === GameMode.PUBLIC}
-          onChange={handleOptionChange}
+          checked={selectedGameMode === GameMode.PUBLIC}
+          onChange={handleGameModeChange}
           required
         />
         <label
           htmlFor="public"
           className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2 ${
-            selectedOption === GameMode.PUBLIC
+            selectedGameMode === GameMode.PUBLIC
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
           }`}

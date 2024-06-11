@@ -35,10 +35,6 @@ export default class GameService {
   ) {
     const joinedGame = await ApiService.post("game", "/api/game/join", {
       username,
-      position: {
-        x: 10,
-        y: 9,
-      },
       gameCode,
       playerColor,
       gameMode,
