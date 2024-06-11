@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 
-export default function CreateGameFormRadioButtons() {
-  const [selectedOption, setSelectedOption] = useState("private");
+type Props = {
+  selectedOption: string;
+  handleOptionChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
 
-  const handleOptionChange = (event: {
-    target: { value: React.SetStateAction<string> };
-  }) => {
-    setSelectedOption(event.target.value);
-  };
-
+export default function JoinGameFormRadioButtons({
+  selectedOption,
+  handleOptionChange,
+}: Props) {
   return (
     <ul className="grid w-full gap-6 md:grid-cols-2 mb-4">
       <li>
         <input
           type="radio"
           id="private"
-          name="private"
+          name="gameType"
           value="private"
           className="hidden peer"
           checked={selectedOption === "private"}
@@ -23,7 +23,7 @@ export default function CreateGameFormRadioButtons() {
         />
         <label
           htmlFor="private"
-          className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2  ${
+          className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2 ${
             selectedOption === "private"
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
@@ -38,7 +38,7 @@ export default function CreateGameFormRadioButtons() {
         <input
           type="radio"
           id="public"
-          name="public"
+          name="gameType"
           value="public"
           className="hidden peer"
           checked={selectedOption === "public"}

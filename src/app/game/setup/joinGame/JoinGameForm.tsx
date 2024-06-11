@@ -4,18 +4,16 @@ import { useRouter } from "next/navigation";
 import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
 import GameService from "@/services/GameService";
 import toast, { Toaster } from "react-hot-toast";
+import JoinGameFormRadioButtons from "./JoinGameFormRadioButtons";
 
-type Props = {
-  gameModeIndex: number;
-};
-
-export default function JoinGameForm({ gameModeIndex }: Props) {
+export default function JoinGameForm() {
   const router = useRouter();
   const [playerName, setPlayerName] = useState("");
   const [gameCode, setGameCode] = useState("");
   const [playerColor, setPlayerColor] = useState("");
   const [playerNameError, setPlayerNameError] = useState("");
   const [gameCodeError, setGameCodeError] = useState("");
+  const [selectedOption, setSelectedOption] = useState("private");
 
   const idleOptions = [
     { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
@@ -53,6 +51,12 @@ export default function JoinGameForm({ gameModeIndex }: Props) {
     event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
   ) => {
     setPlayerColor(event.target.value);
+  };
+
+  const handleOptionChange = (event: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setSelectedOption(event.target.value);
   };
 
   function validateUsername(name: string) {
@@ -120,6 +124,10 @@ export default function JoinGameForm({ gameModeIndex }: Props) {
   return (
     <div className="w-96 flex flex-col space-y-4">
       <form action={handleJoinGame}>
+        <JoinGameFormRadioButtons
+          selectedOption={selectedOption}
+          handleOptionChange={handleOptionChange}
+        />
         <JoinGameFormInputField
           name={"playerName"}
           value={playerName}
@@ -143,7 +151,7 @@ export default function JoinGameForm({ gameModeIndex }: Props) {
           required={true}
           options={idleOptions}
         />
-        {gameModeIndex === 0 && (
+        {selectedOption === "private" && (
           <JoinGameFormInputField
             name={"gameCode"}
             value={gameCode}
