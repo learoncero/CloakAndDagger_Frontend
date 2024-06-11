@@ -446,7 +446,7 @@ export default function GameView({
         <Toaster />
         {showMiniMap && (
           <div
-            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto size-full"
+            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto pr-14"
             onClick={() => setShowMiniMap(false)}
           >
             {isImpostor ? (
@@ -459,7 +459,7 @@ export default function GameView({
               <TaskList tasks={game.tasks} />
             )}
             <div
-              className="ml-8 mr-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+              className="ml-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
               onClick={(e) => e.stopPropagation()}
             >
               <MiniMap

@@ -68,8 +68,11 @@ const MiniMap: React.FC<Props> = ({
     endY = map.length;
   }
 
+  const width = window.innerWidth * 0.7;
+  const height = window.innerHeight * 0.8;
+
   return (
-    <div className="w-[1150px] h-[565px]">
+    <div >
       {map.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, cellIndex) => {
@@ -83,8 +86,8 @@ const MiniMap: React.FC<Props> = ({
                 player.playerPosition.x === cellIndex &&
                 player.playerPosition.y === rowIndex
             );
-            const cellWidth = Math.floor(1150 / row.length); //Rundet das Ergebnis ab
-            const cellHeight = Math.floor(565 / map.length);
+            const cellWidth = Math.floor(width / row.length); //Rundet das Ergebnis ab
+            const cellHeight = Math.floor(height / map.length);
             const taskInCell = tasks.find(
               (task) =>
                 task.position.x === cellIndex && task.position.y === rowIndex
