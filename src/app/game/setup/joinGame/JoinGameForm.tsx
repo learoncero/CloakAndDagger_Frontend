@@ -5,6 +5,7 @@ import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
 import GameService from "@/services/GameService";
 import toast, { Toaster } from "react-hot-toast";
 import JoinGameFormRadioButtons from "./JoinGameFormRadioButtons";
+import { GameMode } from "@/app/types";
 
 export default function JoinGameForm() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function JoinGameForm() {
   const [playerColor, setPlayerColor] = useState("");
   const [playerNameError, setPlayerNameError] = useState("");
   const [gameCodeError, setGameCodeError] = useState("");
-  const [selectedOption, setSelectedOption] = useState("private");
+  const [selectedOption, setSelectedOption] = useState(GameMode.PRIVATE);
 
   const idleOptions = [
     { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
@@ -56,7 +57,7 @@ export default function JoinGameForm() {
   const handleOptionChange = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
-    setSelectedOption(event.target.value);
+    setSelectedOption(event.target.value as GameMode);
   };
 
   function validateUsername(name: string) {
@@ -92,11 +93,13 @@ export default function JoinGameForm() {
   const handleJoinGame = async () => {
     if (!isJoinDisabled) {
       try {
-        const game = await GameService.joinGame(
-          playerName,
-          gameCode,
-          playerColor
-        );
+        let game;
+        if (selectedOption === GameMode.PRIVATE) {
+          game = await GameService.joinGame(playerName, gameCode, playerColor);
+        } else {
+          game = await GameService.joinGame(playerName, gameCode, playerColor);
+        }
+
         const playerId = game.data?.players.find(
           (player: { username: string }) => player.username === playerName
         )?.id;
@@ -151,7 +154,7 @@ export default function JoinGameForm() {
           required={true}
           options={idleOptions}
         />
-        {selectedOption === "private" && (
+        {selectedOption === GameMode.PRIVATE && (
           <JoinGameFormInputField
             name={"gameCode"}
             value={gameCode}

@@ -1,3 +1,4 @@
+import { GameMode } from "@/app/types";
 import React from "react";
 
 type Props = {
@@ -15,16 +16,16 @@ export default function JoinGameFormRadioButtons({
         <input
           type="radio"
           id="private"
-          name="gameType"
-          value="private"
+          name="gameMode"
+          value={GameMode.PRIVATE}
           className="hidden peer"
-          checked={selectedOption === "private"}
+          checked={selectedOption === GameMode.PRIVATE}
           onChange={handleOptionChange}
         />
         <label
           htmlFor="private"
           className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2 ${
-            selectedOption === "private"
+            selectedOption === GameMode.PRIVATE
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
           }`}
@@ -38,17 +39,17 @@ export default function JoinGameFormRadioButtons({
         <input
           type="radio"
           id="public"
-          name="gameType"
-          value="public"
+          name="gameMode"
+          value={GameMode.PUBLIC}
           className="hidden peer"
-          checked={selectedOption === "public"}
+          checked={selectedOption === GameMode.PUBLIC}
           onChange={handleOptionChange}
           required
         />
         <label
           htmlFor="public"
           className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2 ${
-            selectedOption === "public"
+            selectedOption === GameMode.PUBLIC
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
           }`}

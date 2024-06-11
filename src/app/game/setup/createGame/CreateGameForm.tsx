@@ -3,6 +3,7 @@ import { useFormState } from "react-dom";
 import CreateGameFormInputField from "./CreateGameFormInputField";
 import CreateGameFormSubmitButton from "./CreateGameFormSubmitButton";
 import CreateGameFormRadioButtons from "./CreateGameFormRadioButtons";
+import { GameMode } from "@/app/types";
 
 type Props = {
   onSubmit: (state: any, data: FormData) => Promise<any>;
@@ -19,6 +20,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
   const [playerNameError, setPlayerNameError] = useState("");
   const hasResponse = state !== undefined;
   const hasError = hasResponse && state.status !== 200;
+  const [selectedOption, setSelectedOption] = useState(GameMode.PRIVATE);
 
   const idleOptions = [
     { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
@@ -73,9 +75,16 @@ export default function CreateGameForm({ onSubmit }: Props) {
     }
   }, [username, numPlayers, numImpostors, map, playerColor]);
 
+  const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedOption(event.target.value as GameMode);
+  };
+
   return (
     <form action={formAction}>
-      <CreateGameFormRadioButtons />
+      <CreateGameFormRadioButtons
+        selectedOption={selectedOption}
+        handleOptionChange={handleOptionChange}
+      />
       <CreateGameFormInputField
         label="Player Name"
         name="username"
@@ -130,6 +139,7 @@ export default function CreateGameForm({ onSubmit }: Props) {
         textOptions={["Spaceship", "Wormhole", "Jungle", "Basement"]}
       />
       <CreateGameFormSubmitButton buttonDisabled={buttonDisabled} />
+      <input type="hidden" name="gameMode" value={selectedOption} />
     </form>
   );
 }

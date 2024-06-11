@@ -1,30 +1,31 @@
-import React, { useState } from "react";
+import { GameMode } from "@/app/types";
+import React, { ChangeEvent, useState } from "react";
 
-export default function CreateGameFormRadioButtons() {
-  const [selectedOption, setSelectedOption] = useState("private");
+type Props = {
+  selectedOption: string;
+  handleOptionChange: (event: ChangeEvent<HTMLInputElement>) => void;
+};
 
-  const handleOptionChange = (event: {
-    target: { value: React.SetStateAction<string> };
-  }) => {
-    setSelectedOption(event.target.value);
-  };
-
+export default function CreateGameFormRadioButtons({
+  selectedOption,
+  handleOptionChange,
+}: Props) {
   return (
     <ul className="grid w-full gap-6 md:grid-cols-2 mb-4">
       <li>
         <input
           type="radio"
           id="private"
-          name="private"
-          value="private"
+          name="gameMode"
+          value={GameMode.PRIVATE}
           className="hidden"
-          checked={selectedOption === "private"}
+          checked={selectedOption === GameMode.PRIVATE}
           onChange={handleOptionChange}
         />
         <label
           htmlFor="private"
           className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2  ${
-            selectedOption === "private"
+            selectedOption === GameMode.PRIVATE
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
           }`}
@@ -38,16 +39,16 @@ export default function CreateGameFormRadioButtons() {
         <input
           type="radio"
           id="public"
-          name="public"
-          value="public"
+          name="gameMode"
+          value={GameMode.PUBLIC}
           className="hidden"
-          checked={selectedOption === "public"}
+          checked={selectedOption === GameMode.PUBLIC}
           onChange={handleOptionChange}
         />
         <label
           htmlFor="public"
           className={`inline-flex items-center justify-between w-full p-1 rounded-lg cursor-pointer border-2 ${
-            selectedOption === "public"
+            selectedOption === GameMode.PUBLIC
               ? "bg-cyan-500 border-cyan-500"
               : "border-gray-700 hover:bg-gray-800"
           }`}
