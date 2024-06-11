@@ -17,7 +17,7 @@ export default function CreateGameFormRadioButtons() {
           id="private"
           name="private"
           value="private"
-          className="hidden peer"
+          className="hidden"
           checked={selectedOption === "private"}
           onChange={handleOptionChange}
         />
@@ -40,10 +40,9 @@ export default function CreateGameFormRadioButtons() {
           id="public"
           name="public"
           value="public"
-          className="hidden peer"
+          className="hidden"
           checked={selectedOption === "public"}
           onChange={handleOptionChange}
-          required
         />
         <label
           htmlFor="public"

@@ -1,5 +1,6 @@
 export type Game = {
   gameCode: string;
+  gameMode: GameMode;
   numberOfPlayers: number;
   numberOfImpostors: number;
   map: string;
@@ -41,7 +42,6 @@ export type Sabotage = {
   wallPositions: { x: number; y: number }[];
 };
 
-
 export type ApiResponse<Data = unknown> = {
   statusText: string;
   status?: number;
@@ -60,6 +60,11 @@ export enum GameStatus {
   IMPOSTORS_WIN = "IMPOSTORS_WIN",
   LOBBY = "LOBBY",
   IN_GAME = "IN_GAME",
+}
+
+export enum GameMode {
+  PUBLIC = "PUBLIC",
+  PRIVATE = "PRIVATE",
 }
 
 export type Map = {
@@ -82,4 +87,4 @@ export type ChatMessage = {
 export type VoteEvent = {
   votedForPlayer: number;
   votedBy: number;
-}
+};
