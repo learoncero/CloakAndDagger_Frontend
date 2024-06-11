@@ -68,7 +68,7 @@ export default function PlayGame() {
     !showChat &&
     !showTaskPopup &&
     !showVotingResults;
-  3;
+
   let emergencyButtonPosition: { x: number; y: number } | undefined;
   let emergencyButtonNearby: boolean;
   if (map?.map && currentPlayer?.playerPosition) {
