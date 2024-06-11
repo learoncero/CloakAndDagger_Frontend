@@ -43,7 +43,8 @@ export default function PlayGame() {
   const [latestVote, setLatestVote] = useState<number | undefined>(undefined);
   const [showBodyReported, setShowBodyReported] = useState(false);
   const [showEmergencyMeeting, setShowEmergencyMeeting] = useState(false);
-  const [isEmergencyMeetingTimeout, setIsEmergencyMeetingTimeout] = useState(false);
+  const [isEmergencyMeetingTimeout, setIsEmergencyMeetingTimeout] =
+    useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -51,15 +52,15 @@ export default function PlayGame() {
   }
 
   const currentPlayer = game?.players?.find(
-      (player) => player.id.toString() === playerId
+    (player) => player.id.toString() === playerId
   );
 
   const currentPlayerVotedOut = currentPlayer?.id == latestVote;
 
   const isGhost =
-      currentPlayer?.role === Role.CREWMATE_GHOST ||
-      currentPlayer?.role === Role.IMPOSTOR_GHOST;
-  
+    currentPlayer?.role === Role.CREWMATE_GHOST ||
+    currentPlayer?.role === Role.IMPOSTOR_GHOST;
+
   const playerRole = currentPlayer?.role ?? "";
 
   const isMovingAllowed =
@@ -72,9 +73,12 @@ export default function PlayGame() {
   let emergencyButtonNearby: boolean;
   if (map?.map && currentPlayer?.playerPosition) {
     emergencyButtonPosition = getEmergencyButtonPosition(map?.map);
-    if(emergencyButtonPosition?.x) {
-      emergencyButtonNearby = Math.abs(currentPlayer?.playerPosition.x - emergencyButtonPosition.x) <= 1 &&
-          Math.abs(currentPlayer?.playerPosition.y - emergencyButtonPosition.y) <= 1;
+    if (emergencyButtonPosition?.x) {
+      emergencyButtonNearby =
+        Math.abs(currentPlayer?.playerPosition.x - emergencyButtonPosition.x) <=
+          1 &&
+        Math.abs(currentPlayer?.playerPosition.y - emergencyButtonPosition.y) <=
+          1;
     }
   }
 
@@ -89,7 +93,7 @@ export default function PlayGame() {
         gameCode,
         setShowBodyReported,
         setShowEmergencyMeeting,
-        setIsEmergencyMeetingTimeout,
+        setIsEmergencyMeetingTimeout
       );
     }
     return () => {
@@ -161,7 +165,7 @@ export default function PlayGame() {
 
   function getEmergencyButtonPosition(map: string[][]) {
     for (let row = 0; row < map.length; row++) {
-      for(let cell = 0; cell < map[row].length; cell++) {
+      for (let cell = 0; cell < map[row].length; cell++) {
         if (map[row][cell] === "E") {
           return { x: cell, y: row };
         }
@@ -172,8 +176,8 @@ export default function PlayGame() {
   async function handleTaskCompleted(taskId: number) {
     let task = game.tasks.find((task) => task.taskId === taskId);
     const isCompleted = await TaskService.getCompletedStatus(
-        taskId,
-        game.gameCode
+      taskId,
+      game.gameCode
     );
 
     if (isCompleted.data === true && task) {
@@ -187,11 +191,11 @@ export default function PlayGame() {
     const keysArray = Array.from(pressedKeys.current.values());
     const keyCodeToSend = keysArray.length > 0 ? keysArray[0] : null;
     let newMirroring =
-        keyCodeToSend === "KeyA"
-            ? true
-            : keyCodeToSend === "KeyD"
-                ? false
-                : false;
+      keyCodeToSend === "KeyA"
+        ? true
+        : keyCodeToSend === "KeyD"
+        ? false
+        : false;
 
     if (!keyCodeToSend) return;
     sendMovePlayerMessage({
@@ -205,9 +209,9 @@ export default function PlayGame() {
   }
 
   async function killPlayer(
-      gameCode: string,
-      playerToKillId: number,
-      nearbyTask: number
+    gameCode: string,
+    playerToKillId: number,
+    nearbyTask: number
   ) {
     sendKillPlayerMessage({
       stompClient,
@@ -226,9 +230,9 @@ export default function PlayGame() {
   }
 
   async function callEmergencyMeeting(gameCode: string) {
-    if(emergencyButtonNearby) {
-      setShowEmergencyMeeting(true)
-      sendCallEmergencyMeetingMessage({stompClient, gameCode});
+    if (emergencyButtonNearby) {
+      setShowEmergencyMeeting(true);
+      sendCallEmergencyMeetingMessage({ stompClient, gameCode });
     }
   }
 
@@ -237,24 +241,23 @@ export default function PlayGame() {
   }
   function handleVentUsage(gameCode: string, playerId: number) {
     console.log("Vent usage");
-    sendVentUsageMessage({stompClient, gameCode, playerId});
+    sendVentUsageMessage({ stompClient, gameCode, playerId });
   }
 
   function handleEmergencyMeeting(value: boolean) {
     setShowEmergencyMeeting(value);
   }
 
-
   let modalTextColor = "text-red-600";
 
   if (
-      game?.gameStatus === GameStatus.CREWMATES_WIN &&
-      (playerRole === Role.CREWMATE || playerRole === Role.CREWMATE_GHOST)
+    game?.gameStatus === GameStatus.CREWMATES_WIN &&
+    (playerRole === Role.CREWMATE || playerRole === Role.CREWMATE_GHOST)
   ) {
     modalTextColor = "text-green-600";
   } else if (
-      game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
-      (playerRole === Role.IMPOSTOR || playerRole === Role.IMPOSTOR_GHOST)
+    game?.gameStatus === GameStatus.IMPOSTORS_WIN &&
+    (playerRole === Role.IMPOSTOR || playerRole === Role.IMPOSTOR_GHOST)
   ) {
     modalTextColor = "text-green-600";
   }
@@ -287,45 +290,44 @@ export default function PlayGame() {
           />
         )}
         {game?.gameStatus === GameStatus.CREWMATES_WIN ? (
-              <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
-                <BackLink href={"/"} onClick={handleBackLinkClick}>
-                  Return to Landing Page
-                </BackLink>
-              </Modal>
-          ) : game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
-              <Modal modalText={"IMPOSTORS WIN!"} textColor={modalTextColor}>
-                <BackLink href={"/"} onClick={handleBackLinkClick}>
-                  Return to Landing Page
-                </BackLink>
-              </Modal>
-          ) : currentPlayer ? (
-              <GameView
-                  game={game}
-                  map={map.map}
-                  currentPlayer={currentPlayer}
-                  showTaskPopup={showTaskPopup}
-                  getSabotagePosition={getSabotagePosition}
-                  handleCancelSabotage={handleCancelSabotage}
-                  killPlayer={killPlayer}
-                  reportBody={reportBody}
-                  handleTaskCompleted={handleTaskCompleted}
-                  handleShowTaskPopup={setShowTaskPopup}
-                  showBodyReported={showBodyReported}
-                  handleShowBodyReported={setShowBodyReported}
-                  handleVentUsage={handleVentUsage}
-                  showChat={showChat}
-                  showEmergencyMeeting={showEmergencyMeeting}
-                  callEmergencyMeeting={callEmergencyMeeting}
-                  handleEmergencyMeeting={handleEmergencyMeeting}
-                  isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
-                  stompClient={stompClient}
-              />
-          ) : (
-              <div>No Player Data Found</div>
-          )}
-        </div>
-        <Toaster />
-      </AnimationProvider>
+          <Modal modalText={"CREWMATES WIN!"} textColor={modalTextColor}>
+            <BackLink href={"/"} onClick={handleBackLinkClick}>
+              Return to Landing Page
+            </BackLink>
+          </Modal>
+        ) : game?.gameStatus === GameStatus.IMPOSTORS_WIN ? (
+          <Modal modalText={"IMPOSTORS WIN!"} textColor={modalTextColor}>
+            <BackLink href={"/"} onClick={handleBackLinkClick}>
+              Return to Landing Page
+            </BackLink>
+          </Modal>
+        ) : currentPlayer ? (
+          <GameView
+            game={game}
+            map={map.map}
+            currentPlayer={currentPlayer}
+            showTaskPopup={showTaskPopup}
+            getSabotagePosition={getSabotagePosition}
+            handleCancelSabotage={handleCancelSabotage}
+            killPlayer={killPlayer}
+            reportBody={reportBody}
+            handleTaskCompleted={handleTaskCompleted}
+            handleShowTaskPopup={setShowTaskPopup}
+            showBodyReported={showBodyReported}
+            handleShowBodyReported={setShowBodyReported}
+            handleVentUsage={handleVentUsage}
+            showChat={showChat}
+            showEmergencyMeeting={showEmergencyMeeting}
+            callEmergencyMeeting={callEmergencyMeeting}
+            handleEmergencyMeeting={handleEmergencyMeeting}
+            isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+            stompClient={stompClient}
+          />
+        ) : (
+          <div>No Player Data Found</div>
+        )}
+      </div>
+      <Toaster />
+    </AnimationProvider>
   );
 }
-
