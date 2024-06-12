@@ -47,26 +47,26 @@ type Props = {
 };
 
 export default function GameView({
-  game,
-  map,
-  currentPlayer,
-  getSabotagePosition,
-  handleCancelSabotage,
-  killPlayer,
-  reportBody,
-  handleTaskCompleted,
-  showTaskPopup,
-  handleShowTaskPopup,
-  showBodyReported,
-  handleShowBodyReported,
-  handleVentUsage,
-  showChat,
-  showEmergencyMeeting,
-  callEmergencyMeeting,
-  handleEmergencyMeeting,
-  isEmergencyMeetingTimeout,
-  stompClient,
-}: Props) {
+                                   game,
+                                   map,
+                                   currentPlayer,
+                                   getSabotagePosition,
+                                   handleCancelSabotage,
+                                   killPlayer,
+                                   reportBody,
+                                   handleTaskCompleted,
+                                   showTaskPopup,
+                                   handleShowTaskPopup,
+                                   showBodyReported,
+                                   handleShowBodyReported,
+                                   handleVentUsage,
+                                   showChat,
+                                   showEmergencyMeeting,
+                                   callEmergencyMeeting,
+                                   handleEmergencyMeeting,
+                                   isEmergencyMeetingTimeout,
+                                   stompClient,
+                                 }: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
     currentPlayer?.role == Role.IMPOSTOR_GHOST;
@@ -78,6 +78,15 @@ export default function GameView({
   const [showManual, setShowManual] = useState(false);
   const [showRockPaperScissor, setShowRockPaperScissor] = useState(false);
 
+
+
+  const isAnySabotageActive = () => {
+    return game.sabotages.some(
+        (sabotage) =>
+            sabotage.position.x !== -1 || sabotage.position.y !== -1
+    );
+  };
+
   const isSabotageActive = (
     sabotageId: number,
     position: { x: number; y: number }
@@ -87,6 +96,7 @@ export default function GameView({
         sabotage.id === sabotageId &&
         (sabotage.position.x !== position.x ||
           sabotage.position.y !== position.y)
+
     );
   };
 
@@ -112,6 +122,7 @@ export default function GameView({
   const toggleManualVisibility = useCallback(() => {
     setShowManual(!showManual);
   }, [showManual]);
+
 
   const nearbyTasks = useNearbyItems(
     game.tasks,
@@ -144,6 +155,7 @@ export default function GameView({
     currentPlayer.playerPosition
   );
 
+
   const handleToggleTaskPopup = useCallback(async () => {
     if (nearbyTasks.length > 0) {
       const setActiveStatus = async () => {
@@ -153,11 +165,13 @@ export default function GameView({
       if (showTaskPopup) {
         handleShowTaskPopup(false);
         await setActiveStatus();
+
         await TaskService.cancelTask(
           nearbyTasks[0].taskId,
           nearbyTasks[0].miniGameId,
           game.gameCode
         );
+
       } else {
         handleShowTaskPopup(true);
         await setActiveStatus();
@@ -190,25 +204,42 @@ export default function GameView({
           icon: "⚠️",
         });
       } else if (
+
         (event.key === "m" ||
           event.key === "M" ||
           event.key === "q" ||
           event.key === "Q") &&
         !showChat
+
       ) {
         setShowMiniMap((prev) => !prev);
       }
       if (event.code === "KeyR") {
         handleReportBody();
       } else if (
-        (event.key === "F" || event.key === "f") &&
-        !showChat &&
-        !showMiniMap &&
-        !showEmergencyMeeting &&
-        !isEmergencyMeetingTimeout &&
-        !isGhost
+          (event.key === "F" || event.key === "f") &&
+          !showChat &&
+          !showMiniMap &&
+          !showEmergencyMeeting &&
+          !isEmergencyMeetingTimeout &&
+          !isGhost &&
+          !isAnySabotageActive()
+
       ) {
         callEmergencyMeeting(game.gameCode);
+      } else if (
+          (event.key === "F" || event.key === "f") && isAnySabotageActive()
+      ) {
+        toast("Cannot call an emergency meeting during an active sabotage!", {
+          position: "bottom-right",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#eF4444",
+          },
+          icon: "⚠️",
+        });
       } else if (event.code === "KeyG" && nearbyWalls.length > 0) {
         setShowRockPaperScissor(true);
       }
@@ -242,6 +273,7 @@ export default function GameView({
           return;
         }
 
+
         const status = await TaskService.getActiveStatus(
           nearbyTasks[0].taskId,
           game.gameCode
@@ -261,11 +293,13 @@ export default function GameView({
 
           return;
         } else if (status.data === false && !showTaskPopup) {
+
           const response = await TaskService.startTask(
             nearbyTasks[0].taskId,
             nearbyTasks[0].miniGameId,
             game.gameCode
           );
+
           if (response.status === 200) {
             await handleToggleTaskPopup();
           }
@@ -316,11 +350,13 @@ export default function GameView({
   async function handleKill() {
     if (!isTimer && nearbyPlayers.length > 0) {
       const playerToKillId = nearbyPlayers[0].id;
+
       killPlayer(
         game?.gameCode as string,
         playerToKillId,
         nearbyTasksForKill[0]?.taskId
       );
+
 
       toast("You killed a crewmate!", {
         position: "bottom-right",
@@ -341,6 +377,19 @@ export default function GameView({
   }
 
   function handleReportBody() {
+    if (isAnySabotageActive()) {
+      toast("Cannot report body during an active sabotage!", {
+        position: "bottom-right",
+        style: {
+          border: "2px solid black",
+          padding: "16px",
+          color: "white",
+          backgroundColor: "#eF4444",
+        },
+        icon: "⚠️",
+      });
+      return;
+    }
     if (nearbyDeadBodies.length > 0) {
       const bodyToReportId = nearbyDeadBodies[0].id;
       if (!game.reportedBodies.includes(bodyToReportId)) {
