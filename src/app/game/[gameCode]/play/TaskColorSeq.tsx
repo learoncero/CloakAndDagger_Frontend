@@ -106,7 +106,7 @@ export default function TaskColorSeq({
               {initialColors.map((color, index) => (
                 <div
                   key={index}
-                  className="cursor-pointer w-12 h-12 rounded hover:border-white hover:border hover:border-2"
+                  className="cursor-pointer w-12 h-12 rounded hover:border-white hover:border-2"
                   style={{ backgroundColor: color }}
                   onClick={() => handleColorClick(color)}
                 ></div>
