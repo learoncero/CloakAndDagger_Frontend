@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import JoinGameFormSubmitButton from "./JoinGameFormSubmitButton";
 import GameService from "@/services/GameService";
 import toast, { Toaster } from "react-hot-toast";
+import JoinGameFormRadioButtons from "./JoinGameFormRadioButtons";
+import { GameMode } from "@/app/types";
 
 export default function JoinGameForm() {
   const router = useRouter();
@@ -12,6 +14,7 @@ export default function JoinGameForm() {
   const [playerColor, setPlayerColor] = useState("");
   const [playerNameError, setPlayerNameError] = useState("");
   const [gameCodeError, setGameCodeError] = useState("");
+  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.PRIVATE);
 
   const idleOptions = [
     { value: "red", label: "Red", imgSrc: "/Sprites/Red/RedIdle.png" },
@@ -51,6 +54,12 @@ export default function JoinGameForm() {
     setPlayerColor(event.target.value);
   };
 
+  const handleGameModeChange = (event: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setSelectedGameMode(event.target.value as GameMode);
+  };
+
   function validateUsername(name: string) {
     const regex = /^[a-zA-Z0-9._-]+$/;
     if (!name) {
@@ -75,10 +84,9 @@ export default function JoinGameForm() {
 
   const isJoinDisabled = !(
     playerName &&
-    gameCode &&
     playerColor &&
     !playerNameError &&
-    !gameCodeError
+    (selectedGameMode === GameMode.PUBLIC || (gameCode && !gameCodeError))
   );
 
   const handleJoinGame = async () => {
@@ -87,7 +95,8 @@ export default function JoinGameForm() {
         const game = await GameService.joinGame(
           playerName,
           gameCode,
-          playerColor
+          playerColor,
+          selectedGameMode
         );
         const playerId = game.data?.players.find(
           (player: { username: string }) => player.username === playerName
@@ -97,7 +106,7 @@ export default function JoinGameForm() {
           window.sessionStorage.setItem("playerId", String(playerId));
         }
 
-        router.push("/game/setup/lobby/" + gameCode);
+        router.push("/game/setup/lobby/" + game.data?.gameCode);
       } catch (error: any) {
         toast(`Error joining game: ${error.message}`, {
           position: "bottom-right",
@@ -116,6 +125,10 @@ export default function JoinGameForm() {
   return (
     <div className="w-96 flex flex-col space-y-4">
       <form action={handleJoinGame}>
+        <JoinGameFormRadioButtons
+          selectedGameMode={selectedGameMode}
+          handleGameModeChange={handleGameModeChange}
+        />
         <JoinGameFormInputField
           name={"playerName"}
           value={playerName}
@@ -131,23 +144,25 @@ export default function JoinGameForm() {
           </div>
         )}
         <JoinGameFormInputField
-            name={"playerColor"}
-            value={playerColor}
-            onChange={handlePlayerColorChange}
-            type={"select"}
-            placeholder={"Choose your Color"}
-            required={true}
-            options={idleOptions}
-        />
-        <JoinGameFormInputField
-          name={"gameCode"}
-          value={gameCode}
-          onChange={handleGameCodeChange}
-          type={"text"}
-          placeholder={"Enter game code"}
-          maxLength={6}
+          name={"playerColor"}
+          value={playerColor}
+          onChange={handlePlayerColorChange}
+          type={"select"}
+          placeholder={"Choose your Color"}
           required={true}
+          options={idleOptions}
         />
+        {selectedGameMode === GameMode.PRIVATE && (
+          <JoinGameFormInputField
+            name={"gameCode"}
+            value={gameCode}
+            onChange={handleGameCodeChange}
+            type={"text"}
+            placeholder={"Enter game code"}
+            maxLength={6}
+            required={selectedGameMode === GameMode.PRIVATE}
+          />
+        )}
         {gameCodeError && (
           <div style={{ maxWidth: "25rem" }}>
             <div className="text-red-600 text-sm mb-4 ">{gameCodeError}</div>

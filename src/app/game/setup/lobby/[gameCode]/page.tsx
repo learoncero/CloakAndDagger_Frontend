@@ -9,7 +9,7 @@ import LobbyPlayerList from "./LobbyPlayerList";
 import LobbyReadyToStartText from "./LobbyReadyToStartText";
 import LobbyHeader from "./LobbyHeader";
 import { fetchGame } from "./actions";
-import { Game } from "@/app/types";
+import { Game, GameMode } from "@/app/types";
 import useWebSocket from "@/hooks/useWebSocket";
 import LobbyLeave from "@/app/game/setup/lobby/[gameCode]/LobbyLeave";
 
@@ -27,7 +27,7 @@ export default function Lobby() {
   }
 
   const currentPlayer = game?.players?.find(
-      (player) => player.id.toString() === playerId
+    (player) => player.id.toString() === playerId
   );
 
   async function loadGameData() {
@@ -86,7 +86,10 @@ export default function Lobby() {
         )}
       </div>
       <div className="text-white flex flex-col justify-between">
-        <LobbyGameCode gameCode={gameCode} />
+        {game.gameMode === GameMode.PRIVATE && (
+          <LobbyGameCode gameCode={gameCode} />
+        )}
+
         <LobbyStartGameButton
           handleStartGame={handleStartGame}
           isGameReadyToStart={isGameReadyToStart}
