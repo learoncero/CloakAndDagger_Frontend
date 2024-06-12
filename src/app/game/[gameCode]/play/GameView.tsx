@@ -366,9 +366,10 @@ export default function GameView({
         <InformationPopUp
           imageSrc={"/emergencyMeeting.png"}
           heading={"Emergency Meeting!"}
-          text={
-            "Attention crew! An emergency meeting has been initiated. Share your suspicions and vote to find the impostor!"
-          }
+          text={[
+            "Attention crew! An emergency meeting has been initiated.",
+            "Share your suspicions and vote to find the impostor!",
+          ]}
           onDismiss={() => handleEmergencyMeeting(false)}
         />
       )}
