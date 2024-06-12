@@ -96,7 +96,7 @@ export default function TaskColorSeq({
               {shuffledColors.map((color, index) => (
                 <div
                   key={index}
-                  className="w-12 h-12 border border-white"
+                  className="w-8 h-8 rounded"
                   style={{ backgroundColor: color }}
                 ></div>
               ))}
@@ -106,7 +106,7 @@ export default function TaskColorSeq({
               {initialColors.map((color, index) => (
                 <div
                   key={index}
-                  className="cursor-pointer w-12 h-12 border border-white"
+                  className="cursor-pointer w-12 h-12 rounded hover:border-white hover:border-2"
                   style={{ backgroundColor: color }}
                   onClick={() => handleColorClick(color)}
                 ></div>
@@ -116,7 +116,7 @@ export default function TaskColorSeq({
               {selectedColors.map((color, index) => (
                 <div
                   key={index}
-                  className="w-5 h-5 border border-white"
+                  className="w-8 h-8 rounded"
                   style={{ backgroundColor: color }}
                 ></div>
               ))}

@@ -1,4 +1,4 @@
-import { ApiResponse, Game, Player } from "@/app/types";
+import { ApiResponse, Game, GameMode, Player } from "@/app/types";
 import ApiService from "./ApiService";
 
 export default class GameService {
@@ -12,7 +12,8 @@ export default class GameService {
     numberOfPlayers: number,
     numberOfImpostors: number,
     map: string,
-    playerColor: string
+    playerColor: string,
+    gameMode: GameMode
   ) {
     const createdGame = await ApiService.post("game", "/api/game", {
       username,
@@ -20,6 +21,7 @@ export default class GameService {
       numberOfImpostors,
       map,
       playerColor,
+      gameMode,
     });
 
     return createdGame as ApiResponse<Game>;
@@ -28,16 +30,14 @@ export default class GameService {
   static async joinGame(
     username: string,
     gameCode: string,
-    playerColor: string
+    playerColor: string,
+    gameMode: GameMode
   ) {
     const joinedGame = await ApiService.post("game", "/api/game/join", {
       username,
-      position: {
-        x: 10,
-        y: 9,
-      },
       gameCode,
       playerColor,
+      gameMode,
     });
 
     if (joinedGame.status !== 200) {
