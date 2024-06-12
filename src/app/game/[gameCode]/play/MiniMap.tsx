@@ -15,22 +15,31 @@ type Props = {
 };
 
 const MiniMap: React.FC<Props> = ({
-                                    map,
-                                    playerList,
-                                    currentPlayer,
-                                    tasks,
-                                    sabotages,
-                                  }: Props) => {
+  map,
+  playerList,
+  currentPlayer,
+  tasks,
+  sabotages,
+}: Props) => {
   if (!map) {
     return <div>Can not show Minimap right now</div>;
   }
 
-  const isSabotageActive = (sabotageId: number, position: { x: number; y: number }) => {
-    return sabotages.some(sabotage => sabotage.id === sabotageId && (sabotage.position.x !== position.x || sabotage.position.y !== position.y));
+  const isSabotageActive = (
+    sabotageId: number,
+    position: { x: number; y: number }
+  ) => {
+    return sabotages.some(
+      (sabotage) =>
+        sabotage.id === sabotageId &&
+        (sabotage.position.x !== position.x ||
+          sabotage.position.y !== position.y)
+    );
   };
 
   const isCrewmate = currentPlayer.role === "CREWMATE";
-  const viewRadius = isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 2 : 4; // Set viewRadius to 2 for 5x5 viewport
+  const viewRadius =
+    isSabotageActive(1, { x: -1, y: -1 }) && isCrewmate ? 2 : 4; // Set viewRadius to 2 for 5x5 viewport
   const totalViewSize = 2 * viewRadius + 1;
 
   const { x, y } = currentPlayer.playerPosition;
@@ -59,8 +68,11 @@ const MiniMap: React.FC<Props> = ({
     endY = map.length;
   }
 
+  const width = window.innerWidth * 0.7;
+  const height = window.innerHeight * 0.8;
+
   return (
-    <div className="w-[1150px] h-[565px]">
+    <div >
       {map.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, cellIndex) => {
@@ -74,8 +86,8 @@ const MiniMap: React.FC<Props> = ({
                 player.playerPosition.x === cellIndex &&
                 player.playerPosition.y === rowIndex
             );
-            const cellWidth = Math.floor(1150 / row.length); //Rundet das Ergebnis ab
-            const cellHeight = Math.floor(565 / map.length);
+            const cellWidth = Math.floor(width / row.length); //Rundet das Ergebnis ab
+            const cellHeight = Math.floor(height / map.length);
             const taskInCell = tasks.find(
               (task) =>
                 task.position.x === cellIndex && task.position.y === rowIndex
@@ -87,29 +99,29 @@ const MiniMap: React.FC<Props> = ({
                 sabotage.position.y === rowIndex
             );
             const cellNumValue = parseInt(cell);
-            const ventInCell = cellNumValue.valueOf() >= 0 && cellNumValue.valueOf() <= 9;
-                return (
-                    <div
-                        key={cellIndex}
-                        style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
-                        className={`border border-white box-border 
+            const ventInCell =
+              cellNumValue.valueOf() >= 0 && cellNumValue.valueOf() <= 9;
+            return (
+              <div
+                key={cellIndex}
+                style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
+                className={`border border-white box-border 
                     ${
-                                
-                                cell != "#"
-                                    ? !isVisible
-                                        ? "bg-gray-200"
-                                        : "bg-gray-400"
-                                    : !isVisible
-                                        ? "bg-red-950 opacity-30"
-                                        : "bg-red-950"
-                        } 
+                      cell != "#"
+                        ? !isVisible
+                          ? "bg-gray-200"
+                          : "bg-gray-400"
+                        : !isVisible
+                        ? "bg-red-950 opacity-30"
+                        : "bg-red-950"
+                    } 
                     ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
                     `}
               >
                 {sabotageInCell != undefined && (
                   <SabotageIconDisplay
-                      isSabotageInteractable={false}
-                        isVisible={isVisible}
+                    isSabotageInteractable={false}
+                    isVisible={isVisible}
                   />
                 )}
                 {taskInCell && isVisible && (
@@ -123,13 +135,13 @@ const MiniMap: React.FC<Props> = ({
                   <VentIconDisplay
                     isVentInteractable={false}
                     isVisible={isVisible}
-                    />
+                  />
                 )}
                 {cell === "E" && (
                   <EmergencyButtonDisplay
-                      isButtonInteractable={false}
-                        isVisible={isVisible}
-                        isEmergencyMeetingTimeout={false}
+                    isButtonInteractable={false}
+                    isVisible={isVisible}
+                    isEmergencyMeetingTimeout={false}
                   />
                 )}
               </div>

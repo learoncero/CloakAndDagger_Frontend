@@ -447,7 +447,7 @@ export default function GameView({
         <Toaster />
         {showMiniMap && (
           <div
-            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto size-full"
+            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto pr-14"
             onClick={() => setShowMiniMap(false)}
           >
             {isImpostor ? (
