@@ -19,6 +19,7 @@ import useNearbyDeadBodies from "@/hooks/useNearbyDeadBodies";
 import SabotageList from "./SabotageList";
 import RoleInformation from "./RoleInformation";
 import RockPaperScissor from "./RockPaperScissor";
+import ImpostorCounter from "./ImpostorCounter";
 
 type Props = {
   game: Game;
@@ -47,43 +48,43 @@ type Props = {
 };
 
 export default function GameView({
-                                   game,
-                                   map,
-                                   currentPlayer,
-                                   getSabotagePosition,
-                                   handleCancelSabotage,
-                                   killPlayer,
-                                   reportBody,
-                                   handleTaskCompleted,
-                                   showTaskPopup,
-                                   handleShowTaskPopup,
-                                   showBodyReported,
-                                   handleShowBodyReported,
-                                   handleVentUsage,
-                                   showChat,
-                                   showEmergencyMeeting,
-                                   callEmergencyMeeting,
-                                   handleEmergencyMeeting,
-                                   isEmergencyMeetingTimeout,
-                                   stompClient,
-                                 }: Props) {
+  game,
+  map,
+  currentPlayer,
+  getSabotagePosition,
+  handleCancelSabotage,
+  killPlayer,
+  reportBody,
+  handleTaskCompleted,
+  showTaskPopup,
+  handleShowTaskPopup,
+  showBodyReported,
+  handleShowBodyReported,
+  handleVentUsage,
+  showChat,
+  showEmergencyMeeting,
+  callEmergencyMeeting,
+  handleEmergencyMeeting,
+  isEmergencyMeetingTimeout,
+  stompClient,
+}: Props) {
   const isImpostor =
     currentPlayer?.role == Role.IMPOSTOR ||
     currentPlayer?.role == Role.IMPOSTOR_GHOST;
   const isGhost =
     currentPlayer?.role == Role.CREWMATE_GHOST ||
     currentPlayer?.role == Role.IMPOSTOR_GHOST;
+  const isCrewmate =
+    currentPlayer?.role == Role.CREWMATE ||
+    currentPlayer?.role == Role.CREWMATE_GHOST;
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [isTimer, setIsTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [showRockPaperScissor, setShowRockPaperScissor] = useState(false);
 
-
-
   const isAnySabotageActive = () => {
     return game.sabotages.some(
-        (sabotage) =>
-            sabotage.position.x !== -1 || sabotage.position.y !== -1
+      (sabotage) => sabotage.position.x !== -1 || sabotage.position.y !== -1
     );
   };
 
@@ -96,7 +97,6 @@ export default function GameView({
         sabotage.id === sabotageId &&
         (sabotage.position.x !== position.x ||
           sabotage.position.y !== position.y)
-
     );
   };
 
@@ -122,7 +122,6 @@ export default function GameView({
   const toggleManualVisibility = useCallback(() => {
     setShowManual(!showManual);
   }, [showManual]);
-
 
   const nearbyTasks = useNearbyItems(
     game.tasks,
@@ -155,7 +154,6 @@ export default function GameView({
     currentPlayer.playerPosition
   );
 
-
   const handleToggleTaskPopup = useCallback(async () => {
     if (nearbyTasks.length > 0) {
       const setActiveStatus = async () => {
@@ -171,7 +169,6 @@ export default function GameView({
           nearbyTasks[0].miniGameId,
           game.gameCode
         );
-
       } else {
         handleShowTaskPopup(true);
         await setActiveStatus();
@@ -204,31 +201,29 @@ export default function GameView({
           icon: "⚠️",
         });
       } else if (
-
         (event.key === "m" ||
           event.key === "M" ||
           event.key === "q" ||
           event.key === "Q") &&
         !showChat
-
       ) {
         setShowMiniMap((prev) => !prev);
       }
       if (event.code === "KeyR") {
         handleReportBody();
       } else if (
-          (event.key === "F" || event.key === "f") &&
-          !showChat &&
-          !showMiniMap &&
-          !showEmergencyMeeting &&
-          !isEmergencyMeetingTimeout &&
-          !isGhost &&
-          !isAnySabotageActive()
-
+        (event.key === "F" || event.key === "f") &&
+        !showChat &&
+        !showMiniMap &&
+        !showEmergencyMeeting &&
+        !isEmergencyMeetingTimeout &&
+        !isGhost &&
+        !isAnySabotageActive()
       ) {
         callEmergencyMeeting(game.gameCode);
       } else if (
-          (event.key === "F" || event.key === "f") && isAnySabotageActive()
+        (event.key === "F" || event.key === "f") &&
+        isAnySabotageActive()
       ) {
         toast("Cannot call an emergency meeting during an active sabotage!", {
           position: "bottom-right",
@@ -273,7 +268,6 @@ export default function GameView({
           return;
         }
 
-
         const status = await TaskService.getActiveStatus(
           nearbyTasks[0].taskId,
           game.gameCode
@@ -293,7 +287,6 @@ export default function GameView({
 
           return;
         } else if (status.data === false && !showTaskPopup) {
-
           const response = await TaskService.startTask(
             nearbyTasks[0].taskId,
             nearbyTasks[0].miniGameId,
@@ -356,7 +349,6 @@ export default function GameView({
         playerToKillId,
         nearbyTasksForKill[0]?.taskId
       );
-
 
       toast("You killed a crewmate!", {
         position: "bottom-right",
@@ -465,6 +457,7 @@ export default function GameView({
             </div>
             <PlayerList playerId={currentPlayer.id} playerList={game.players} />
             {isImpostor && <CrewmateCounter playerList={game.players} />}
+            {isCrewmate && <ImpostorCounter playerList={game.players} />}
           </div>
 
           <div className="flex gap-5 justify-center">
