@@ -18,7 +18,7 @@ export default function InformationPopUp({
       onDismiss();
     }, 2500);
     return () => clearTimeout(timer);
-  }, [onDismiss]);
+  }, []);
 
   return (
     <>
