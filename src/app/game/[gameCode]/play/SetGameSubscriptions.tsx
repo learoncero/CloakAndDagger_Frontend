@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import {Sabotage} from "@/app/types";
+import { Sabotage } from "@/app/types";
 
 interface Handlers {
   [key: string]: (message: { body: string }) => void;
@@ -57,7 +57,9 @@ export function SetGameSubscriptions(
           handleChatView(true);
         }, 3000);
       },
-      [`/topic/${gameCode}/emergencyMeetingStart`]: (message: { body: string }) => {
+      [`/topic/${gameCode}/emergencyMeetingStart`]: (message: {
+        body: string;
+      }) => {
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         setShowEmergencyMeeting(true);
@@ -77,26 +79,32 @@ export function SetGameSubscriptions(
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
 
-        const activeSabotage = receivedMessage.body.sabotages.find((sabotage: any) => sabotage.position.x !== -1 && sabotage.position.y !== -1);
+        const activeSabotage = receivedMessage.body.sabotages.find(
+          (sabotage: any) =>
+            sabotage.position.x !== -1 && sabotage.position.y !== -1
+        );
 
         if (activeSabotage) {
           setImpostorWinTimer(30);
           toast(
-              `Sabotage initiated:\n ${activeSabotage.title}. \n${activeSabotage.description}. \nCrewmates, time is running out! You have 30 seconds to act!`,
-              {
-                position: "top-center",
-                duration: 6000, // Duration in milliseconds
-                style: {
-                  border: "2px solid black",
-                  padding: "16px",
-                  color: "white",
-                  backgroundColor: "#eF4444",
-                },
-                icon: "❕",
-              }
+            `Sabotage initiated:\n ${activeSabotage.title}. \n${activeSabotage.description}. \nCrewmates, time is running out! You have 30 seconds to act!`,
+            {
+              position: "top-left",
+              duration: 6000, // Duration in milliseconds
+              style: {
+                border: "2px solid black",
+                padding: "16px",
+                color: "white",
+                backgroundColor: "#eF4444",
+              },
+              icon: "❕",
+            }
           );
         } else {
-          console.error("Active sabotage data missing in message: ", receivedMessage);
+          console.error(
+            "Active sabotage data missing in message: ",
+            receivedMessage
+          );
         }
       },
       [`/topic/${gameCode}/sabotageCancel`]: (message: { body: string }) => {
@@ -104,7 +112,7 @@ export function SetGameSubscriptions(
         updateGame(receivedMessage.body);
         setImpostorWinTimer(-1);
         toast("Sabotage cancelled. Crewmates, you're safe for now!", {
-          position: "top-center",
+          position: "top-left",
           style: {
             border: "2px solid black",
             padding: "16px",
@@ -118,14 +126,20 @@ export function SetGameSubscriptions(
         const receivedMessage = JSON.parse(message.body);
         updateGame(receivedMessage.body);
         let result;
-        const sabotage = receivedMessage.body.sabotages.find((sabotage: Sabotage) => sabotage.id === 4);
+        const sabotage = receivedMessage.body.sabotages.find(
+          (sabotage: Sabotage) => sabotage.id === 4
+        );
         const wallPositions = sabotage?.wallPositions?.flat();
         if (wallPositions) {
-          const allWallsDefeated = wallPositions.every((pos: { x: number; y: number }) => pos.x === -1 && pos.y === -1);
+          const allWallsDefeated = wallPositions.every(
+            (pos: { x: number; y: number }) => pos.x === -1 && pos.y === -1
+          );
           if (allWallsDefeated) {
-            result = "Congratulations, you won the duel! The opponent has been defeated.";
+            result =
+              "Congratulations, you won the duel! The opponent has been defeated.";
           } else {
-            result = "You lost the duel! The opponent has bested you this time.";
+            result =
+              "You lost the duel! The opponent has bested you this time.";
           }
         } else {
           result = "You lost the duel! The opponent has bested you this time.";
