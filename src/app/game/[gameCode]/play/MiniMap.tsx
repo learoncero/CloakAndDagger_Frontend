@@ -72,7 +72,7 @@ const MiniMap: React.FC<Props> = ({
   const height = window.innerHeight * 0.8;
 
   return (
-    <div >
+    <div>
       {map.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((cell, cellIndex) => {
@@ -112,8 +112,8 @@ const MiniMap: React.FC<Props> = ({
                           ? "bg-gray-200"
                           : "bg-gray-400"
                         : !isVisible
-                        ? "bg-red-950 opacity-30"
-                        : "bg-red-950"
+                        ? "bg-gray-800 opacity-30"
+                        : "bg-gray-800"
                     } 
                     ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
                     `}
