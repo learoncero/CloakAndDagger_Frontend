@@ -84,7 +84,7 @@ export default function CreateGameFormInputField({
             )}
           </button>
           {isOpen && (
-            <ul className="absolute z-10 mt-2 bg-gray-800 border-2 border-gray-700 rounded-lg w-full">
+            <ul className="absolute z-10 mt-2 bg-gray-800 border-2 border-gray-700 rounded-lg w-full max-h-48 overflow-auto scrollbar-thin scrollbar-thumb-cyan-500 scrollbar-track-transparent">
               {idleOptions.map((option) => (
                 <li
                   key={option.value}
