@@ -6,7 +6,6 @@ import SabotageIconDisplay from "./SabotageIconDisplay";
 import { DeadBody, PlayerSprites } from "./PlayerSprites";
 import VentIconDisplay from "./VentIconDisplay";
 import Wall from "./Wall";
-import { number } from "prop-types";
 
 type Props = {
   map: string[][];
@@ -16,6 +15,7 @@ type Props = {
   sabotages: Sabotage[];
   nearbyTask?: Task;
   isEmergencyMeetingTimeout: boolean;
+  mapName: String;
 };
 
 export default function MapDisplay({
@@ -26,6 +26,7 @@ export default function MapDisplay({
   sabotages,
   nearbyTask,
   isEmergencyMeetingTimeout,
+  mapName,
 }: Props) {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMapVisible, setIsMapVisible] = useState(true);
@@ -184,12 +185,15 @@ export default function MapDisplay({
             return (
               <div
                 key={cellIndex}
-                className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 box-border 
-                                  ${
-                                    cell != "#"
-                                      ? "bg-floor border-2 border-gray-400"
-                                      : "bg-wall border-2 border-gray-600"
-                                  } relative`}
+                className={`w-13 h-13 md:w-16 md:h-16 lg:w-19 lg:h-19 box-border relative ${
+                  cell === "#"
+                    ? mapName === "Spaceship"
+                      ? "bg-spaceshipWall border-2 border-gray-600"
+                      : "bg-jungleWall border-2 border-green-400"
+                    : mapName === "Spaceship"
+                    ? "bg-spaceshipFloor border-2 border-gray-400"
+                    : "bg-jungleFloor border-2 border-orange-100"
+                }`}
               >
                 {isPlayerHere &&
                   playerList

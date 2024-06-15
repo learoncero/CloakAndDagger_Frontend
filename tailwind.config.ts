@@ -12,8 +12,10 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        floor: "url(/floor.png)",
-        wall: "url(/wall.png)",
+        spaceshipFloor: "url(/tileImages/spaceshipFloor.png)",
+        spaceshipWall: "url(/tileImages/spaceshipWall.png)",
+        jungleFloor: "url(/tileImages/jungleFloor.png)",
+        jungleWall: "url(/tileImages/jungleWall.png)",
       },
       keyframes: {
         blink: {
