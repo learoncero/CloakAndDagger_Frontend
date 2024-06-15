@@ -437,6 +437,7 @@ export default function GameView({
               sabotages={game.sabotages ?? []}
               nearbyTask={nearbyTasks[0]}
               isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+              mapName={game.map}
             />
           ) : (
             <div>Loading map...</div>
@@ -457,7 +458,9 @@ export default function GameView({
             </div>
             <PlayerList playerId={currentPlayer.id} playerList={game.players} />
             {isImpostor && <CrewmateCounter playerList={game.players} />}
-            {isCrewmate && <ImpostorCounter playerList={game.players} />}
+            {isCrewmate && game.numberOfImpostors > 0 && (
+              <ImpostorCounter playerList={game.players} />
+            )}
           </div>
 
           <div className="flex gap-5 justify-center">
@@ -512,6 +515,7 @@ export default function GameView({
                 closeMiniMap={() => setShowMiniMap(false)}
                 tasks={game.tasks}
                 sabotages={game.sabotages}
+                mapName={game.map}
               />
             </div>
           </div>
