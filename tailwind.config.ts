@@ -16,6 +16,10 @@ const config: Config = {
         spaceshipWall: "url(/tileImages/spaceshipWall.png)",
         jungleFloor: "url(/tileImages/jungleFloor.png)",
         jungleWall: "url(/tileImages/jungleWall.png)",
+        basementFloor: "url(/tileImages/basementFloor.png)",
+        basementWall: "url(/tileImages/basementWall.png)",
+        pirateShipFloor: "url(/tileImages/pirateShipFloor.png)",
+        pirateShipWall: "url(/tileImages/pirateShipWall.png)",
       },
       keyframes: {
         blink: {

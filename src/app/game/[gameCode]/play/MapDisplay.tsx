@@ -15,7 +15,7 @@ type Props = {
   sabotages: Sabotage[];
   nearbyTask?: Task;
   isEmergencyMeetingTimeout: boolean;
-  mapName: String;
+  mapName: string;
 };
 
 export default function MapDisplay({
@@ -189,10 +189,22 @@ export default function MapDisplay({
                   cell === "#"
                     ? mapName === "Spaceship"
                       ? "bg-spaceshipWall border-2 border-gray-600"
-                      : "bg-jungleWall border-2 border-green-400"
+                      : mapName === "Jungle"
+                      ? "bg-jungleWall border-2 border-green-400"
+                      : mapName === "Basement"
+                      ? "bg-basementWall border-2 border-gray-600"
+                      : mapName === "PirateShip"
+                      ? "bg-pirateShipWall border-2 border-cyan-200"
+                      : ""
                     : mapName === "Spaceship"
                     ? "bg-spaceshipFloor border-2 border-gray-400"
-                    : "bg-jungleFloor border-2 border-orange-100"
+                    : mapName === "Jungle"
+                    ? "bg-jungleFloor border-2 border-orange-100"
+                    : mapName === "Basement"
+                    ? "bg-basementFloor border-2 border-orange-200"
+                    : mapName === "PirateShip"
+                    ? "bg-pirateShipFloor border-2 border-orange-200"
+                    : ""
                 }`}
               >
                 {isPlayerHere &&
@@ -249,6 +261,7 @@ export default function MapDisplay({
                     isVentInteractable={isVentInteractable}
                     role={currentPlayer.role}
                     isVisible={true}
+                    mapName={mapName}
                   />
                 )}
                 {activeWallSabotage &&

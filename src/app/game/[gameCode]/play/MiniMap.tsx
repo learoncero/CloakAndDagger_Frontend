@@ -12,6 +12,7 @@ type Props = {
   currentPlayer: Player;
   tasks: Task[];
   sabotages: Sabotage[];
+  mapName: string;
 };
 
 const MiniMap: React.FC<Props> = ({
@@ -20,6 +21,7 @@ const MiniMap: React.FC<Props> = ({
   currentPlayer,
   tasks,
   sabotages,
+  mapName,
 }: Props) => {
   if (!map) {
     return <div>Can not show Minimap right now</div>;
@@ -105,18 +107,45 @@ const MiniMap: React.FC<Props> = ({
               <div
                 key={cellIndex}
                 style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
-                className={`border border-white box-border 
-                    ${
-                      cell != "#"
-                        ? !isVisible
-                          ? "bg-gray-200"
-                          : "bg-gray-400"
-                        : !isVisible
-                        ? "bg-gray-800 opacity-30"
-                        : "bg-gray-800"
-                    } 
-                    ${isPlayerHere && isVisible ? "bg-red-600" : ""} 
-                    `}
+                className={`border border-white box-border ${
+                  isPlayerHere && isVisible
+                    ? "bg-red-600"
+                    : cell !== "#"
+                    ? mapName === "Spaceship"
+                      ? isVisible
+                        ? "bg-gray-400"
+                        : "bg-gray-200"
+                      : mapName === "Jungle"
+                      ? isVisible
+                        ? "bg-orange-200"
+                        : "bg-orange-200 opacity-30"
+                      : mapName === "Basement"
+                      ? isVisible
+                        ? "bg-orange-200"
+                        : "bg-orange-200 opacity-30"
+                      : mapName === "PirateShip"
+                      ? isVisible
+                        ? "bg-orange-200"
+                        : "bg-orange-200 opacity-30"
+                      : ""
+                    : mapName === "Spaceship"
+                    ? isVisible
+                      ? "bg-gray-800"
+                      : "bg-gray-800 opacity-30"
+                    : mapName === "Jungle"
+                    ? isVisible
+                      ? "bg-green-600"
+                      : "bg-green-600 opacity-30"
+                    : mapName === "Basement"
+                    ? isVisible
+                      ? "bg-gray-600"
+                      : "bg-gray-600 opacity-30"
+                    : mapName === "PirateShip"
+                    ? isVisible
+                      ? "bg-cyan-200"
+                      : "bg-cyan-200 opacity-30"
+                    : ""
+                }`}
               >
                 {sabotageInCell != undefined && (
                   <SabotageIconDisplay
@@ -135,6 +164,7 @@ const MiniMap: React.FC<Props> = ({
                   <VentIconDisplay
                     isVentInteractable={false}
                     isVisible={isVisible}
+                    mapName={mapName}
                   />
                 )}
                 {cell === "E" && (

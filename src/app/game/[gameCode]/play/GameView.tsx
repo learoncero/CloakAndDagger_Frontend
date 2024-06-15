@@ -515,6 +515,7 @@ export default function GameView({
                 closeMiniMap={() => setShowMiniMap(false)}
                 tasks={game.tasks}
                 sabotages={game.sabotages}
+                mapName={game.map}
               />
             </div>
           </div>
