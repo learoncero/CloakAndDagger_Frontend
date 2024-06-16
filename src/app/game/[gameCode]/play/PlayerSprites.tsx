@@ -130,6 +130,7 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({
         justifyContent: "space-between",
         alignItems: "center",
         opacity: isGhost ? 0.5 : 1,
+        zIndex: isGhost ? 0 : 1,
       }}
     >
       <div
