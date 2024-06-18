@@ -321,6 +321,7 @@ export default function PlayGame() {
             callEmergencyMeeting={callEmergencyMeeting}
             handleEmergencyMeeting={handleEmergencyMeeting}
             isEmergencyMeetingTimeout={isEmergencyMeetingTimeout}
+            impostorWinTimer={impostorWinTimer}
             stompClient={stompClient}
           />
         ) : (
