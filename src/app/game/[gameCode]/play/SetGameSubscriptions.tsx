@@ -30,6 +30,7 @@ export function SetGameSubscriptions(
       `/topic/${gameCode}/sabotageCancel`,
       `/topic/${gameCode}/duelChoiceResult`,
       `/topic/${gameCode}/voteResults`,
+      `/topic/${gameCode}/gameDeleted`,
     ];
 
     const handlers: Handlers = {
@@ -162,6 +163,20 @@ export function SetGameSubscriptions(
         updateGame(receivedMessage);
         setLatestVote(receivedMessage.votingResult);
       },
+      [`/topic/${gameCode}/gameDeleted`]: (message: { body: string }) => {
+        const receivedMessage = JSON.parse(message.body);
+        updateGame(receivedMessage.body);
+        toast("Game has been deleted by the host.", {
+          position: "top-left",
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "white",
+            backgroundColor: "#eF4444",
+          },
+          icon: "🚮",
+        });
+      }
     };
 
     subscriptions.forEach((topic) => {
