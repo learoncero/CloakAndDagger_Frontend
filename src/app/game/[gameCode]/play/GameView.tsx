@@ -81,7 +81,7 @@ export default function GameView({
     currentPlayer?.role == Role.CREWMATE ||
     currentPlayer?.role == Role.CREWMATE_GHOST;
   const [showMiniMap, setShowMiniMap] = useState(false);
-  const [isTimer, setIsTimer] = useState(false);
+  const [isKillTimer, setisKillTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [showRockPaperScissor, setShowRockPaperScissor] = useState(false);
   const [timer, setTimer] = useState(impostorWinTimer);
@@ -349,7 +349,7 @@ export default function GameView({
   }, [impostorWinTimer]);
 
   async function handleKill() {
-    if (!isTimer && nearbyPlayers.length > 0) {
+    if (!isKillTimer && nearbyPlayers.length > 0) {
       const playerToKillId = nearbyPlayers[0].id;
 
       killPlayer(
@@ -369,9 +369,9 @@ export default function GameView({
         icon: "🔪",
       });
 
-      setIsTimer(true);
+      setisKillTimer(true);
       setTimeout(() => {
-        setIsTimer(false);
+        setisKillTimer(false);
       }, 20000);
     }
   }
@@ -456,78 +456,78 @@ export default function GameView({
           <div className="mb-7">
             <div className="flex gap-10">
               <ToggleButton
-                  onClick={handleToggleMiniMap}
-                  label="Show Minimap"
+                onClick={handleToggleMiniMap}
+                label="Show Minimap"
               />
               <ToggleButton
-                  onClick={toggleManualVisibility}
-                  label="Show Manual"
+                onClick={toggleManualVisibility}
+                label="Show Manual"
               />
             </div>
-            <PlayerList playerId={currentPlayer.id} playerList={game.players}/>
-            {isImpostor && <CrewmateCounter playerList={game.players}/>}
+            <PlayerList playerId={currentPlayer.id} playerList={game.players} />
+            {isImpostor && <CrewmateCounter playerList={game.players} />}
             {isCrewmate && game.numberOfImpostors > 0 && (
-                <ImpostorCounter playerList={game.players}/>
+              <ImpostorCounter playerList={game.players} />
             )}
           </div>
 
           <div className="flex flex-col items-center gap-10">
             <div className="flex gap-5 justify-center">
               {isImpostor && (
-                  <ActionButton
-                      onClick={handleKill}
-                      buttonclickable={
-                          nearbyPlayers.length > 0 &&
-                          !isTimer &&
-                          currentPlayer.role === Role.IMPOSTOR
-                      }
-                      colorActive="bg-red-600"
-                  >
-                    {isTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
-                  </ActionButton>
+                <ActionButton
+                  onClick={handleKill}
+                  buttonclickable={
+                    nearbyPlayers.length > 0 &&
+                    !isKillTimer &&
+                    currentPlayer.role === Role.IMPOSTOR
+                  }
+                  colorActive="bg-red-600"
+                >
+                  {isKillTimer ? "⏳ Kill on cooldown" : "🔪 Kill"}
+                </ActionButton>
               )}
               <ActionButton
-                  onClick={() => handleReportBody()}
-                  buttonclickable={
-                      nearbyDeadBodies.length > 0 &&
-                      !game.reportedBodies.includes(nearbyDeadBodies[0].id)
-                  }
-                  colorActive="bg-cyan-600"
+                onClick={() => handleReportBody()}
+                buttonclickable={
+                  nearbyDeadBodies.length > 0 &&
+                  !game.reportedBodies.includes(nearbyDeadBodies[0].id)
+                }
+                colorActive="bg-cyan-600"
               >
                 📢 Report Body
               </ActionButton>
             </div>
             {isCrewmate && isAnySabotageActive() && (
-                <ImpostorWinTimer initialTimer={impostorWinTimer}/>
+              <ImpostorWinTimer initialTimer={impostorWinTimer} />
             )}
           </div>
         </div>
-        <Toaster/>
+        <Toaster />
         {showMiniMap && (
+          <div
+            className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto pr-14"
+            onClick={() => setShowMiniMap(false)}
+          >
+            {isImpostor ? (
+              <SabotageList
+                sabotages={game.sabotages}
+                getSabotagePosition={getSabotagePosition}
+                showMiniMap={showMiniMap}
+              />
+            ) : (
+              <TaskList tasks={game.tasks} />
+            )}
             <div
-                className="fixed flex justify-center items-center bg-black bg-opacity-75 z-1000 overflow-auto pr-14"
-                onClick={() => setShowMiniMap(false)}
+              className="ml-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
+              onClick={(e) => e.stopPropagation()}
             >
-              {isImpostor ? (
-                  <SabotageList
-                      sabotages={game.sabotages}
-                      getSabotagePosition={getSabotagePosition}
-                      showMiniMap={showMiniMap}
-                  />
-              ) : (
-                  <TaskList tasks={game.tasks}/>
-              )}
-              <div
-                  className="ml-8 flex items-center p-2 bg-white rounded-lg shadow-md justify-center flex-warp"
-                  onClick={(e) => e.stopPropagation()}
-              >
-                <MiniMap
-                    map={map}
-                    playerList={game.players}
-                    currentPlayer={currentPlayer}
-                    closeMiniMap={() => setShowMiniMap(false)}
-                    tasks={game.tasks}
-                    sabotages={game.sabotages}
+              <MiniMap
+                map={map}
+                playerList={game.players}
+                currentPlayer={currentPlayer}
+                closeMiniMap={() => setShowMiniMap(false)}
+                tasks={game.tasks}
+                sabotages={game.sabotages}
                 mapName={game.map}
               />
             </div>
