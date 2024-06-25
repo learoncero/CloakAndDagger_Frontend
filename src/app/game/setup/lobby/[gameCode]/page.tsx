@@ -2,16 +2,18 @@
 
 import useGame from "@/hooks/useGame";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import LobbyStartGameButton from "./LobbyStartGameButton";
 import LobbyGameCode from "./LobbyGameCode";
 import LobbyPlayerList from "./LobbyPlayerList";
 import LobbyReadyToStartText from "./LobbyReadyToStartText";
 import LobbyHeader from "./LobbyHeader";
 import { fetchGame } from "./actions";
-import { Game, GameMode } from "@/app/types";
+import { Game, GameMode, Role } from "@/app/types";
 import useWebSocket from "@/hooks/useWebSocket";
 import LobbyLeave from "@/app/game/setup/lobby/[gameCode]/LobbyLeave";
+import Manual from "@/app/game/[gameCode]/play/Manual";
+import ToggleButton from "@/components/ToggleButton";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -20,6 +22,7 @@ export default function Lobby() {
   const router = useRouter();
   const { gameCode } = useParams();
   const { game, updateGame } = useGame(gameCode as string);
+  const [showManual, setShowManual] = useState(false);
 
   let playerId: string | null;
   if (typeof window !== "undefined") {
@@ -74,6 +77,10 @@ export default function Lobby() {
 
   const isGameReadyToStart = game?.numberOfPlayers === game?.players?.length;
 
+  const toggleManualVisibility = useCallback(() => {
+    setShowManual(!showManual);
+  }, [showManual]);
+
   return (
     <div className="min-h-screen bg-black flex justify-center pl-5 items-center gap-10">
       <div className="max-w-xl text-white p-8 rounded-lg border-white border flex flex-col grow h-100">
@@ -86,6 +93,11 @@ export default function Lobby() {
         )}
       </div>
       <div className="text-white flex flex-col justify-between">
+        <div className="flex flex-col pb-12">
+          <ToggleButton onClick={toggleManualVisibility} label="Show Manual" />
+          {showManual && <Manual onClose={toggleManualVisibility} />}
+        </div>
+
         {game.gameMode === GameMode.PRIVATE && (
           <LobbyGameCode gameCode={gameCode} />
         )}
