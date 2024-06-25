@@ -120,6 +120,16 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({
   const usernameColour =
     isCurrentPlayerImpostor && isOtherPlayerImpostor ? "Crimson" : "Black";
 
+  // Determine if we should render this player sprite
+  const shouldRender =
+    currentPlayerRole === Role.IMPOSTOR_GHOST ||
+    currentPlayerRole === Role.CREWMATE_GHOST ||
+    !isGhost;
+
+  if (!shouldRender) {
+    return null; // Do not render if conditions are not met
+  }
+
   return (
     <div
       style={{
@@ -130,7 +140,7 @@ const PlayerSprites: React.FC<PlayerSpritesProps> = ({
         justifyContent: "space-between",
         alignItems: "center",
         opacity: isGhost ? 0.5 : 1,
-        zIndex: isGhost ? 0 : 1,
+        zIndex: isGhost ? 0 : 100,
       }}
     >
       <div
