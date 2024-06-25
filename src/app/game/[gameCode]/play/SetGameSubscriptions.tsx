@@ -85,9 +85,9 @@ export function SetGameSubscriptions(
         );
 
         if (activeSabotage) {
-          setImpostorWinTimer(30);
+          setImpostorWinTimer(200);
           toast(
-            `Sabotage initiated:\n ${activeSabotage.title}. \n${activeSabotage.description}. \nCrewmates, time is running out! You have 30 seconds to act!`,
+            `Sabotage initiated:\n ${activeSabotage.title}. \n${activeSabotage.description}. \nCrewmates, time is running out! You have 200 seconds to act!`,
             {
               position: "top-left",
               duration: 6000, // Duration in milliseconds

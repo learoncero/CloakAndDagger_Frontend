@@ -33,8 +33,8 @@ export default function SabotageList({
       setIsSabotageCooldown(true);
       setTimeout(() => {
         setIsSabotageCooldown(false);
-        setSabotageCooldownTime(60);
-      }, 60000);
+        setSabotageCooldownTime(10);
+      }, 10000);
     }
   }
 

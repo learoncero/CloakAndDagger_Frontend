@@ -81,7 +81,7 @@ export default function GameView({
     currentPlayer?.role == Role.CREWMATE ||
     currentPlayer?.role == Role.CREWMATE_GHOST;
   const [showMiniMap, setShowMiniMap] = useState(false);
-  const [isKillTimer, setisKillTimer] = useState(false);
+  const [isKillTimer, setIsKillTimer] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [showRockPaperScissor, setShowRockPaperScissor] = useState(false);
   const [timer, setTimer] = useState(impostorWinTimer);
@@ -369,10 +369,10 @@ export default function GameView({
         icon: "🔪",
       });
 
-      setisKillTimer(true);
+      setIsKillTimer(true);
       setTimeout(() => {
-        setisKillTimer(false);
-      }, 20000);
+        setIsKillTimer(false);
+      }, 5000);
     }
   }
 
