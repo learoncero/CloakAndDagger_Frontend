@@ -77,9 +77,9 @@ export default function Lobby() {
 
   const isGameReadyToStart = game?.numberOfPlayers === game?.players?.length;
 
-  const toggleManualVisibility = useCallback(() => {
+  function toggleManualVisibility() {
     setShowManual(!showManual);
-  }, [showManual]);
+  }
 
   return (
     <div className="min-h-screen bg-black flex justify-center pl-5 items-center gap-10">
